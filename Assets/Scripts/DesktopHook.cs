@@ -10,6 +10,12 @@ using System.Collections;
 
 /*
 Todo: tray icon / menu
+
+Issues:
+
+Window gains focus, comes to top
+doesn't allow clickthrough anymore
+
 */
 
 public class DesktopHook : MonoBehaviour
@@ -17,10 +23,26 @@ public class DesktopHook : MonoBehaviour
     [SerializeField] private Character _character;
     [SerializeField] private Material _material;
 
+    [SerializeField] private LayerMask _interactableLayers = -1;
+    [SerializeField] private float _maxRaycastDistance = 100f;
+
     private Camera _camera;
     private static StringBuilder _text;
     private Vector2 _mouseClickPos;
     private float _escapeTimer;
+
+    private static WndProcDelegate _newWndProcDelegate;
+    private static IntPtr _oldWndProc;
+    private static DesktopHook _instance;
+
+    // Caching for performance
+    private static Vector2 _lastTestedMousePos;
+    private static bool _lastHitResult;
+    private static float _lastTestTime;
+    private const float CACHE_DURATION = 0.016f; // ~60fps
+    private const float CACHE_DISTANCE = 3f; // pixels
+
+
 
     [StructLayout(LayoutKind.Sequential)]
     public struct Rectangle
@@ -33,6 +55,13 @@ public class DesktopHook : MonoBehaviour
 
     public void Awake()
     {
+        if (_instance != null)
+        {
+            Debug.LogError("Multiple SelectiveClickThrough instances detected!");
+            return;
+        }
+        _instance = this;
+
         Application.targetFrameRate = 60;
         Application.runInBackground = true;
 
@@ -55,12 +84,17 @@ public class DesktopHook : MonoBehaviour
         if (TryHook())
         {
             Debug.Log("Succesfully hooked into desktop background!");
-
+            InstallWindowProc();
         }
         else
         {
             Debug.Log("Error: Failed to hook into desktop background...");
         }
+    }
+
+    private void OnDestroy()
+    {
+        UninstallWindowProc();
     }
 
     private void Update()
@@ -78,6 +112,11 @@ public class DesktopHook : MonoBehaviour
 
         SystemInput.Process();
 
+        var mousePos = SystemInput.GetCursorPosition();
+        mousePos.y = Screen.height - mousePos.y;
+        var mousePosWorld = _camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, +8f));
+        _character.LookAt(mousePosWorld);
+
         if (SystemInput.GetKeyDown(KeyCode.Space))
         {
             _character.Jump();
@@ -85,13 +124,18 @@ public class DesktopHook : MonoBehaviour
 
         if (SystemInput.GetKeyDown(KeyCode.Mouse0))
         {
-            _mouseClickPos = SystemInput.GetCursorPosition();
+            _mouseClickPos = mousePos;
+
+            Ray ray = _camera.ScreenPointToRay(new Vector3(mousePos.x, mousePos.y, 0.1f));
+            if (Physics.Raycast(ray, out RaycastHit hit, _maxRaycastDistance, _interactableLayers))
+            {
+                SetWindowZOrder(ZWindowOrder.Front);
+                _character.Jump();
+            }
         }
 
-        var mousePos = SystemInput.GetCursorPosition();
-        mousePos.y = Screen.height - mousePos.y;
-        var mousePosWorld = _camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, +8f));
-        _character.LookAt(mousePosWorld);
+        
+
 
         // Hold ESC for 1 second to quit
         if (SystemInput.GetKey(KeyCode.Escape))
@@ -111,11 +155,6 @@ public class DesktopHook : MonoBehaviour
         }
     }
 
-    // void OnRenderImage(RenderTexture from, RenderTexture to)
-    // {
-    //     Graphics.Blit(from, to, _material);
-    // }
-
     private void OnGUI()
     {
         float2 guiSize = new float2(800, 600);
@@ -126,224 +165,128 @@ public class DesktopHook : MonoBehaviour
         {
             GUILayout.Label("Desktop Pet");
             GUILayout.Label("Hold ESCAPE for 1 second to quit");
+            GUILayout.Label("");
             GUILayout.Label($"Last Click Pos: {_mouseClickPos}");
+            GUILayout.Label($"Last Tested Pos: {_lastTestedMousePos}");
+            GUILayout.Label($"Last Hit Result: {_lastHitResult}");
         }
         GUILayout.EndVertical();
         GUILayout.EndArea();
     }
 
-    static IntPtr GetUnityWindowHandle()
+    private void InstallWindowProc()
     {
-        IntPtr returnHwnd = IntPtr.Zero;
-        var threadId = Win32.GetCurrentThreadId();
-        Win32.EnumThreadWindows(threadId,
-            (hWnd, lParam) =>
-            {
-                if (returnHwnd == IntPtr.Zero) returnHwnd = hWnd;
-                return true;
-            }, IntPtr.Zero);
-        return returnHwnd;
+        IntPtr hwnd = GetActiveWindow();
+        if (hwnd == IntPtr.Zero)
+        {
+            Debug.LogError("Failed to get window handle");
+            return;
+        }
+
+        // Create delegate and keep it alive
+        _newWndProcDelegate = new WndProcDelegate(WndProc);
+
+        // Install based on architecture
+        if (IntPtr.Size == 8)
+            _oldWndProc = SetWindowLongPtr64_Delegate(hwnd, GWL_Flags.GWL_WNDPROC, _newWndProcDelegate);
+        else
+            _oldWndProc = SetWindowLongPtr32_Delegate(hwnd, GWL_Flags.GWL_WNDPROC, _newWndProcDelegate);
+
+        if (_oldWndProc == IntPtr.Zero)
+        {
+            Debug.LogError("Failed to install window procedure");
+        }
+        else
+        {
+            Debug.Log("SelectiveClickThrough: Window procedure installed successfully");
+        }
     }
 
-    // 
-    // Retrieves the handle of a window with the specified name.
-    //
-    // Parameters:
-    // - windowName: The name of the window to retrieve the handle for.
-    //
-    // Returns:
-    // - The handle of the window, or IntPtr.Zero if the window is not found.
-    // 
-    public static IntPtr GetWindowHandle(string windowName)
+    private void UninstallWindowProc()
     {
-        var procs = System.Diagnostics.Process.GetProcesses();
-        _text.Clear();
-        _text.AppendLine($"Found {procs.Length} processes:");
-
-        IntPtr windowHandle = IntPtr.Zero;
-        // Enumerate through all open windows.
-        foreach (System.Diagnostics.Process process in procs)
+        if (_oldWndProc != IntPtr.Zero)
         {
-            _text.AppendFormat("- {1}, {0}\n", process.ProcessName, process.Handle);
-            if (process.MainWindowTitle == windowName)
+            IntPtr hwnd = GetActiveWindow();
+            if (hwnd != IntPtr.Zero)
             {
-                Debug.Log($"found process match: {windowName} -> {process.Handle}");
-                windowHandle = process.MainWindowHandle;
-                break;
+                // Restore original window proc if we have one
+                if (IntPtr.Size == 8)
+                    SetWindowLongPtr64(hwnd, GWL_Flags.GWL_WNDPROC, _oldWndProc);
+                else
+                    SetWindowLongPtr32(hwnd, GWL_Flags.GWL_WNDPROC, _oldWndProc);
+
+                Debug.Log("SelectiveClickThrough: Window procedure uninstalled");
+            }
+        }
+    }
+
+    private static IntPtr WndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam)
+    {
+        if (msg == WM_NCHITTEST)
+        {
+            
+            // Extract mouse coordinates from lParam
+            int screenX = (short)(lParam.ToInt32() & 0xFFFF);
+            int screenY = (short)((lParam.ToInt32() >> 16) & 0xFFFF);
+
+            if (ShouldCaptureInput(screenX, screenY))
+            {
+                return new IntPtr(HTCLIENT); // Capture
+            }
+            else
+            {
+                return new IntPtr(HTTRANSPARENT); // Pass through
             }
         }
 
-        UnityEngine.Debug.Log(_text.ToString());
-
-        return windowHandle;
-    }
-
-    private static IntPtr GetProgramManagerWindowHandle()
-    {
-        // IntPtr wHandle = GetWindowHandle("progman");
-        IntPtr wHandle = Win32.FindWindow("Progman", null);
-        return wHandle;
-    }
-
-    private string GetWindowText(IntPtr windowPtr)
-    {
-        _text.Clear();
-        int returnCode = Win32.GetWindowText(windowPtr, _text, 4096);
-        if (returnCode == 0)
+        // Prevent activation unless we really want it
+        if (msg == WM_MOUSEACTIVATE)
         {
-            Debug.LogError($"Failed to get window text for: {windowPtr}");
+            // Can add selective focus acceptance throug MA_ACTIVATE
+            // For now: never gain focus
+            return new IntPtr(MA_NOACTIVATE);
         }
-        return _text.ToString();
+
+        // Pass all other messages to original window procedure (anything unhandled passes through)
+        return CallWindowProc(_oldWndProc, hWnd, msg, wParam, lParam);
     }
 
-    // private bool TryHook()
-    // {
-    //     if (Application.platform != RuntimePlatform.WindowsPlayer && Application.platform != RuntimePlatform.WindowsEditor)
-    //     {
-    //         Debug.LogError($"Platform not supported: {Application.platform}");
-    //         return false;
-    //     }
+    private static bool ShouldCaptureInput(int screenX, int screenY)
+    {
+        if (_instance == null)
+            return false;
 
-    //     IntPtr unityWHandle = GetUnityWindowHandle();
-    //     if (unityWHandle == IntPtr.Zero)
-    //     {
-    //         Debug.LogError("Could not find Unity app window handle");
-    //         return false;
-    //     }
+        Vector2 mousePos = new Vector2(screenX, screenY);
 
-    //     Debug.Log($"unity wHandle found: {unityWHandle}.");
+        // Check cache
+        if (Time.realtimeSinceStartup - _lastTestTime < CACHE_DURATION &&
+            Vector2.Distance(mousePos, _lastTestedMousePos) < CACHE_DISTANCE)
+        {
+            return _lastHitResult;
+        }
 
-    //     IntPtr progmanHandle = GetProgramManagerWindowHandle();
-    //     Debug.Log($"progmanHandle found: {progmanHandle}.");
+        // Perform actual hit test
+        _lastTestedMousePos = mousePos;
+        _lastTestTime = Time.realtimeSinceStartup;
+        _lastHitResult = _instance.PerformHitTest(screenX, screenY);
 
-    //     IntPtr result = IntPtr.Zero;
+        return _lastHitResult;
+    }
 
-    //     // Send 0x052C to Progman. This message directs Progman to spawn a 
-    //     // WorkerW behind the desktop icons. If it is already there, nothing 
-    //     // happens.
-    //     Debug.Log("Triggering ProgramManager WorkerW spawn...");
-    //     Win32.SendMessageTimeout(progmanHandle,
-    //                            0x052C,
-    //                            new IntPtr(0),
-    //                            IntPtr.Zero,
-    //                            Win32.SendMessageTimeoutFlags.SMTO_NORMAL,
-    //                            1000,
-    //                            out result);
+    private bool PerformHitTest(int screenX, int screenY)
+    {
+        Vector2 unityScreenPos = new Vector2(screenX, Screen.height - screenY);
 
-    //     Debug.Log("Attempting to find WorkerW through progman procHandle...");
-    //     IntPtr workerW = Win32.FindWindowEx(progmanHandle, IntPtr.Zero, "WorkerW", IntPtr.Zero); // windowName was null in example
+        // Todo: UI Hittesting
 
-    //     // If that doesn't work, try searching alternative layout
+        Ray ray = _camera.ScreenPointToRay(unityScreenPos);
+        if (Physics.Raycast(ray, out RaycastHit hit, _maxRaycastDistance, _interactableLayers))
+        {
+            return true;
+        }
 
-    //     if (workerW == IntPtr.Zero)
-    //     {
-    //         Debug.Log("Alternatively, enumerate top-level windows to find SHELLDLL_DefView as child...");
-
-    //         // Enumerate top-level windows until finding SHELLDLL_DefView as child.
-    //         Win32.EnumWindows(new Win32.EnumWindowsProc((topHandle, topParamHandle) => 
-    //         {
-    //             IntPtr SHELLDLL_DefView = Win32.FindWindowEx(topHandle, IntPtr.Zero, "SHELLDLL_DefView", IntPtr.Zero);
-
-    //             Debug.Log($"{topHandle}: {GetWindowText(topHandle)}");
-
-    //             if (SHELLDLL_DefView != IntPtr.Zero)
-    //             {
-    //                 // If found, take next sibling as workerW
-    //                 // > Gets the WorkerW Window after the current one.
-    //                 workerW = Win32.FindWindowEx(IntPtr.Zero, topHandle, "WorkerW", IntPtr.Zero);
-    //                 Debug.Log("Found SHELLDLL as child!");
-    //             }
-
-    //             return true; // Continue enumeration
-    //         }), IntPtr.Zero);
-    //     }
-
-    //     if (workerW != IntPtr.Zero)
-    //     {
-    //         Debug.Log($"WorkerW found: {workerW} {GetWindowText(workerW)}.");
-
-    //         if (!Application.isEditor)
-    //         {
-    //             /*
-    //             Configure window size and transparancy
-    //             */
-
-    //             Vector2Int screenResolution = new Vector2Int(Screen.width, Screen.height);
-
-    //             const uint WS_POPUP = 0x80000000;
-    //             const uint WS_VISIBLE = 0x10000000;
-    //             const uint WS_EX_LAYERED = 0x00080000;
-    //             const uint WS_EX_TRANSPARENT = 0x00000020;
-    //             // const int HWND_TOPMOST = -1;
-    //             // const int WM_SYSCOMMAND = 0x112;
-    //             // const int WM_MOUSE_MOVE = 0xF012;
-
-    //             int fWidth;
-    //             int fHeight;
-    //             IntPtr hwnd = IntPtr.Zero;
-    //             Rectangle margins;
-    //             Rectangle windowRect;
-
-    //             fWidth = screenResolution.x;
-    //             fHeight = screenResolution.y;
-    //             margins = new Rectangle() { Left = -1 };
-    //             hwnd = GetActiveWindow();
-
-    //             // var exStyle = (uint)GetWindowLongPtr(hwnd, GWL_Flags.GWL_EXSTYLE);
-    //             IntPtr exStyleBefore = GetWindowLongPtr(hwnd, GWL_Flags.GWL_EXSTYLE);
-    //             Debug.Log($"GWL_EXSTYLE: {exStyleBefore}");
-    //             Debug.Log($"WS_EX_LAYERED: {((ulong)exStyleBefore & WS_EX_LAYERED) > 0}");
-    //             Debug.Log($"WS_EX_TRANSPARENT: {((ulong)exStyleBefore & WS_EX_TRANSPARENT) > 0}");
-
-    //             // exStyle |= WS_EX_TRANSPARENT | WS_EX_LAYERED;
-    //            IntPtr exStyleAfter = new IntPtr(exStyleBefore.ToInt64() | WS_EX_LAYERED | WS_EX_TRANSPARENT);
-
-    //             Debug.Log($"GWL_EXSTYLE override: {exStyleAfter}");
-    //             Debug.Log($"WS_EX_LAYERED: {((ulong)exStyleAfter & WS_EX_LAYERED) > 0}");
-    //             Debug.Log($"WS_EX_TRANSPARENT: {((ulong)exStyleAfter & WS_EX_TRANSPARENT) > 0}");
-
-    //             // Transparent windows with click through
-    //             if (SetWindowLongPtr(hwnd, GWL_Flags.GWL_STYLE, new IntPtr(WS_POPUP | WS_VISIBLE)) == IntPtr.Zero)
-    //             {
-    //                 Debug.LogError("Failed to set GWL_STYLE");
-    //             }
-    //             // SetLastError(0);
-    //             if ((SetWindowLongPtr(hwnd, GWL_Flags.GWL_EXSTYLE, exStyleAfter) == IntPtr.Zero) && (exStyleBefore != IntPtr.Zero)) 
-    //             // if (SetWindowLongPtr(hwnd, GWL_Flags.GWL_EXSTYLE, (UIntPtr)exStyle) == (UIntPtr)0)
-    //             {
-    //                 // uint error = GetLastError();
-    //                 // Debug.LogError($"Failed to set GWL_EXSTYLE, error: {error}");
-    //                 int error = Marshal.GetLastWin32Error();
-    //                 Debug.LogError($"Failed to set GWL_EXSTYLE. Error: {error}");
-    //             }
-
-    //             IntPtr exStyle = GetWindowLongPtr(hwnd, GWL_Flags.GWL_EXSTYLE);
-    //             bool hasLayered = (exStyle.ToInt64() & WS_EX_LAYERED) != 0;
-    //             bool hasTransparent = (exStyle.ToInt64() & WS_EX_TRANSPARENT) != 0;
-    //             Debug.Log($"WS_EX_LAYERED is set: {hasLayered}");
-    //             Debug.Log($"WS_EX_TRANSPARENT is set: {hasTransparent}");
-
-    //             if (!SetLayeredWindowAttributes(hwnd, new COLORREF(255,0,255), 0, LayeredWindowAttr.LWA_COLORKEY))
-    //             {
-    //                 Debug.LogError("Failed to set SetLayeredWindowAttributes");
-    //             }
-
-    //             // DwmExtendFrameIntoClientArea(hwnd, ref margins);
-
-    //             Debug.Log($"Setting application window as desktop background child");
-    //             Win32.SetParent(unityWHandle, workerW);
-    //         } else
-    //         {
-    //             Debug.Log("Running in editor, will not hook to desktop...");
-    //         }
-
-    //         return true;
-    //     } else
-    //     {
-    //         Debug.LogError("Failed to find window handle");
-    //         return false;
-    //     }
-    // }
+        return false;
+    }
 
     private bool TryHook()
     {
@@ -353,105 +296,79 @@ public class DesktopHook : MonoBehaviour
             return false;
         }
 
-        IntPtr unityWHandle = GetUnityWindowHandle();
-        if (unityWHandle == IntPtr.Zero)
+        IntPtr hwnd = GetActiveWindow();
+
+        // Make it a popup window
+        SetWindowLongPtr(hwnd, GWL_Flags.GWL_STYLE, new IntPtr(WS_POPUP | WS_VISIBLE));
+
+        // Make it click-through if desired
+        IntPtr exStyle = GetWindowLongPtr(hwnd, GWL_Flags.GWL_EXSTYLE);
+        SetWindowLongPtr(hwnd, GWL_Flags.GWL_EXSTYLE, new IntPtr(exStyle.ToInt64() | WS_EX_LAYERED)); //  | WS_EX_TRANSPARENT
+
+        // Enable DWM transparency (this is what gets the transparency/chromakey to work)
+        MARGINS margins = new MARGINS { cxLeftWidth = -1 };
+        int dwmResult = DwmExtendFrameIntoClientArea(hwnd, ref margins);
+        Debug.Log($"DWM result: 0x{dwmResult:X} (0 = S_OK)");
+  
+        // Set Unity camera to transparent
+        _camera.backgroundColor = new Color(0, 0, 0, 0);
+        _camera.clearFlags = CameraClearFlags.SolidColor;
+
+        /* 
+        Important
+        URP renderer needs to be configured to render to a buffer with transparency information in there!
+        */
+
+        SetWindowZOrder(ZWindowOrder.Bottom);
+
+        return true;
+    }
+
+    private enum ZWindowOrder
+    {
+        Bottom,
+        Front,
+        Top   
+    }
+
+    private void SetWindowZOrder(ZWindowOrder order)
+    {
+        IntPtr hwnd = GetActiveWindow();
+
+        switch (order)
         {
-            Debug.LogError("Could not find Unity app window handle");
-            return false;
-        }
-
-        Debug.Log($"unity wHandle found: {unityWHandle}.");
-
-        IntPtr progmanHandle = GetProgramManagerWindowHandle();
-        Debug.Log($"progmanHandle found: {progmanHandle}.");
-
-        IntPtr result = IntPtr.Zero;
-
-        // Send 0x052C to Progman. This message directs Progman to spawn a 
-        // WorkerW behind the desktop icons. If it is already there, nothing 
-        // happens.
-        Debug.Log("Triggering ProgramManager WorkerW spawn...");
-        Win32.SendMessageTimeout(progmanHandle,
-                               0x052C,
-                               new IntPtr(0),
-                               IntPtr.Zero,
-                               Win32.SendMessageTimeoutFlags.SMTO_NORMAL,
-                               1000,
-                               out result);
-
-        Debug.Log("Attempting to find WorkerW through progman procHandle...");
-        IntPtr workerW = Win32.FindWindowEx(progmanHandle, IntPtr.Zero, "WorkerW", IntPtr.Zero); // windowName was null in example
-
-        // If that doesn't work, try searching alternative layout
-
-        if (workerW == IntPtr.Zero)
-        {
-            Debug.Log("Alternatively, enumerate top-level windows to find SHELLDLL_DefView as child...");
-
-            // Enumerate top-level windows until finding SHELLDLL_DefView as child.
-            Win32.EnumWindows(new Win32.EnumWindowsProc((topHandle, topParamHandle) =>
-            {
-                IntPtr SHELLDLL_DefView = Win32.FindWindowEx(topHandle, IntPtr.Zero, "SHELLDLL_DefView", IntPtr.Zero);
-
-                Debug.Log($"{topHandle}: {GetWindowText(topHandle)}");
-
-                if (SHELLDLL_DefView != IntPtr.Zero)
-                {
-                    // If found, take next sibling as workerW
-                    // > Gets the WorkerW Window after the current one.
-                    workerW = Win32.FindWindowEx(IntPtr.Zero, topHandle, "WorkerW", IntPtr.Zero);
-                    Debug.Log("Found SHELLDLL as child!");
-                }
-
-                return true; // Continue enumeration
-            }), IntPtr.Zero);
-        }
-
-        if (workerW != IntPtr.Zero)
-        {
-            Debug.Log($"WorkerW found: {workerW} {GetWindowText(workerW)}.");
-
-            if (!Application.isEditor)
-            {
-                IntPtr hwnd = GetActiveWindow();
-
-                const uint WS_POPUP = 0x80000000;
-                const uint WS_VISIBLE = 0x10000000;
-                const uint WS_EX_LAYERED = 0x00080000;
-                const uint WS_EX_TRANSPARENT = 0x00000020;
-
-                // Make it a popup window
-                SetWindowLongPtr(hwnd, GWL_Flags.GWL_STYLE, new IntPtr(WS_POPUP | WS_VISIBLE));
-
-                // Make it click-through if desired
-                IntPtr exStyle = GetWindowLongPtr(hwnd, GWL_Flags.GWL_EXSTYLE);
-                SetWindowLongPtr(hwnd, GWL_Flags.GWL_EXSTYLE, new IntPtr(exStyle.ToInt64() | WS_EX_TRANSPARENT));
-
-                // Enable DWM transparency - THIS is the key
-                MARGINS margins = new MARGINS { cxLeftWidth = -1 };
-                int dwmResult = DwmExtendFrameIntoClientArea(hwnd, ref margins);
-                Debug.Log($"DWM result: 0x{dwmResult:X} (0 = S_OK)");
-
-                // Set Unity camera to transparent
-                _camera.backgroundColor = new Color(0, 0, 0, 0);
-                _camera.clearFlags = CameraClearFlags.SolidColor;
-
-                // Position in z-order - send to bottom (behind other windows)
+            case ZWindowOrder.Bottom:
+                // Send to bottom (behind all windows)
                 SetWindowPos(hwnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-            }
-            else
-            {
-                Debug.Log("Running in editor, will not hook to desktop...");
-            }
-
-            return true;
-        }
-        else
-        {
-            Debug.LogError("Failed to find window handle");
-            return false;
+                break;
+            case ZWindowOrder.Front:
+                // Bring to front (but not always-on-top)
+                // Todo: doesn't work
+                // SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+                SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+                break;
+            case ZWindowOrder.Top:
+                // Always on top
+                SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+                break;
         }
     }
+
+    // Win32 Imports
+    private delegate IntPtr WndProcDelegate(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
+
+    const uint WS_POPUP = 0x80000000;
+    const uint WS_VISIBLE = 0x10000000;
+    const uint WS_EX_LAYERED = 0x00080000;
+    const uint WS_EX_TRANSPARENT = 0x00000020;
+
+    const uint WM_NCHITTEST = 0x0084;
+    const int HTCLIENT = 1;
+    const int HTTRANSPARENT = -1;
+
+    private const uint WM_MOUSEACTIVATE = 0x0021;
+    private const int MA_NOACTIVATE = 3;
+    private const int MA_ACTIVATE = 1;
 
     internal enum GWL_Flags : int
     {
@@ -495,52 +412,32 @@ public class DesktopHook : MonoBehaviour
     [DllImport("user32.dll")]
     static extern IntPtr GetActiveWindow();
 
-    // [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-    // internal static extern UIntPtr GetWindowLongPtr(IntPtr hWnd, GWL_Flags nIndex);
-
-    // [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-    // static extern int SetWindowLong(IntPtr hWnd, GWL_Flags nIndex, uint dwNewLong);
-
-    // [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-    // internal static extern UIntPtr SetWindowLongPtr(IntPtr hWnd, GWL_Flags nIndex, UIntPtr dwNewLong);
+    [DllImport("user32.dll")]
+    private static extern IntPtr CallWindowProc(IntPtr lpPrevWndFunc, IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
 
     // Use the correct function for the architecture
-        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode, EntryPoint = "SetWindowLongPtr")]
-        static extern IntPtr SetWindowLongPtr64(IntPtr hWnd, GWL_Flags nIndex, IntPtr dwNewLong);
+    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode, EntryPoint = "SetWindowLongPtr")]
+    static extern IntPtr SetWindowLongPtr64(IntPtr hWnd, GWL_Flags nIndex, IntPtr dwNewLong);
 
-        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode, EntryPoint = "SetWindowLong")]
-        static extern IntPtr SetWindowLongPtr32(IntPtr hWnd, GWL_Flags nIndex, IntPtr dwNewLong);
+    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode, EntryPoint = "SetWindowLong")]
+    static extern IntPtr SetWindowLongPtr32(IntPtr hWnd, GWL_Flags nIndex, IntPtr dwNewLong);
 
-        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-        static extern IntPtr GetWindowLongPtr(IntPtr hWnd, GWL_Flags nIndex);
+    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    static extern IntPtr GetWindowLongPtr(IntPtr hWnd, GWL_Flags nIndex);
 
-        static IntPtr SetWindowLongPtr(IntPtr hWnd, GWL_Flags nIndex, IntPtr dwNewLong)
-        {
-            if (IntPtr.Size == 8)
-                return SetWindowLongPtr64(hWnd, nIndex, dwNewLong);
-            else
-                return SetWindowLongPtr32(hWnd, nIndex, dwNewLong);
-        }
+    static IntPtr SetWindowLongPtr(IntPtr hWnd, GWL_Flags nIndex, IntPtr dwNewLong)
+    {
+        if (IntPtr.Size == 8)
+            return SetWindowLongPtr64(hWnd, nIndex, dwNewLong);
+        else
+            return SetWindowLongPtr32(hWnd, nIndex, dwNewLong);
+    }
 
+    [DllImport("user32.dll", EntryPoint = "SetWindowLongPtr")]
+    private static extern IntPtr SetWindowLongPtr64_Delegate(IntPtr hWnd, GWL_Flags nIndex, WndProcDelegate newProc);
 
-
-    //     [DllImport("user32.dll", EntryPoint = "SetLayeredWindowAttributes")]
-    //     static extern bool SetLayeredWindowAttributes(IntPtr hwnd, COLORREF crKey, byte bAlpha, LayeredWindowAttr dwFlags);
-
-    //     [DllImport("user32.dll", EntryPoint = "GetWindowRect")]
-    //     static extern bool GetWindowRect(IntPtr hwnd, out Rectangle rect);
-
-    //     [DllImport("user32.dll")]
-    //     static extern int SendMessage(IntPtr hWnd, int msg, int wParam, int lParam);
-
-    //     [DllImportAttribute("user32.dll")]
-    //     static extern bool ReleaseCapture();
-
-    //     [DllImport("user32.dll", EntryPoint = "SetWindowPos")]
-    //     static extern int SetWindowPos(IntPtr hwnd, int hwndInsertAfter, int x, int y, int cx, int cy, int uFlags);
-
-    //     [DllImport("Dwmapi.dll")]
-    //     static extern uint DwmExtendFrameIntoClientArea(IntPtr hWnd, ref Rectangle margins);
+    [DllImport("user32.dll", EntryPoint = "SetWindowLong")]
+    private static extern IntPtr SetWindowLongPtr32_Delegate(IntPtr hWnd, GWL_Flags nIndex, WndProcDelegate newProc);
 
 
     // Z-order constants
@@ -566,5 +463,8 @@ public class DesktopHook : MonoBehaviour
 
     [DllImport("user32.dll", SetLastError = true)]
     static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+
+    [DllImport("user32.dll", EntryPoint = "BringWindowToTop", SetLastError = true)]
+    static extern bool BringWindowToTop(IntPtr hWnd);
 
 }
