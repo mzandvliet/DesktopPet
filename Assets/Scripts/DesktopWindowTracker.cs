@@ -125,7 +125,7 @@ public class DesktopWindowTracker : MonoBehaviour
             return true; // Continue enumeration
         }, IntPtr.Zero);
 
-        Debug.Log($"Found {_visibleWindows.Count} visible windows");
+        // Debug.Log($"Found {_visibleWindows.Count} visible windows");
     }
 
     // Helper: Check if a point (in screen coordinates) is covered by any window
