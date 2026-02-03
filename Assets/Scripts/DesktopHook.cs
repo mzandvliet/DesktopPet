@@ -67,10 +67,17 @@ public class DesktopHook : MonoBehaviour
         _camera = gameObject.GetComponent<Camera>();
 
         // Transparent background
-        _camera.backgroundColor = new Color(1f, 0f, 1f, 1f); // Magenta
+        _camera.backgroundColor = new Color(1f, 0f, 1f, 1f); // Magenta 
         _camera.clearFlags = CameraClearFlags.SolidColor;
 
         _text = new StringBuilder(4096);
+
+        // long mask = 0;
+        // Debug.Log(IsBitSet(mask, WS_EX_TRANSPARENT));
+        // mask = SetBit(mask, WS_EX_TRANSPARENT);
+        // Debug.Log(IsBitSet(mask, WS_EX_TRANSPARENT));
+        // mask = UnsetBit(mask, WS_EX_TRANSPARENT);
+        // Debug.Log(IsBitSet(mask, WS_EX_TRANSPARENT));
     }
 
     private void Start()
@@ -83,7 +90,7 @@ public class DesktopHook : MonoBehaviour
         if (TryHook())
         {
             Debug.Log("Succesfully hooked into desktop background!");
-            InstallWindowProc();
+            // InstallWindowProc();
         }
         else
         {
@@ -93,12 +100,11 @@ public class DesktopHook : MonoBehaviour
 
     private void OnDestroy()
     {
-        UninstallWindowProc();
+        // UninstallWindowProc();
     }
 
     private void Update()
     {
-
         // if (Keyboard.current.anyKey.wasPressedThisFrame || Mouse.current.leftButton.wasPressedThisFrame)
         // {
         //     _character.Jump();
@@ -112,17 +118,35 @@ public class DesktopHook : MonoBehaviour
         SystemInput.Process();
 
         var mousePos = SystemInput.GetCursorPosition();
-        mousePos.y = Screen.height - mousePos.y;
-        var mousePosWorld = _camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, +8f));
-        _character.LookAt(mousePosWorld);
+        if (ShouldCaptureInput(mousePos.x, mousePos.y))
+        {
+            SetWindowTransparent(false);
+        } else
+        {
+            SetWindowTransparent(true);
+        }
 
+        bool characterInFrontOfHoveredWindow = false;
+        // var hoveredWindowHandle = WindowFromPoint(new POINT(mousePos.x, mousePos.y));
+        // var hoveredWindowInfo = _windowTracker.GetWindowInfo(hoveredWindowHandle);
+        DesktopWindowTracker.WindowInfo hoveredWindowInfo;
+        _windowTracker.IsPointCoveredByWindow(mousePos, out hoveredWindowInfo, _hwnd);
+        var ourWindowInfo = _windowTracker.GetWindowInfo(_hwnd);
+        if (hoveredWindowInfo != null && ourWindowInfo != null)
+        {
+            characterInFrontOfHoveredWindow = ourWindowInfo.Z < hoveredWindowInfo.Z;
+        }
         if (SystemInput.GetKeyDown(KeyCode.Space))
         {
-            _character.Jump();
-            SetWindowZOrder(ZWindowOrder.Front);
-            // MapZOrder();
-            // StepUp();
+            Debug.Log($"hov: {(hoveredWindowInfo != null ? hoveredWindowInfo : 0)} char: {(ourWindowInfo != null ? ourWindowInfo : 0)} | char in front: {characterInFrontOfHoveredWindow}");
         }
+
+        mousePos.y = Screen.height - mousePos.y; // to unity coordinates
+
+        var camCharDist = math.abs(_character.transform.position.z - _camera.transform.position.z);
+        float lookWorldZ = camCharDist + (characterInFrontOfHoveredWindow ? +2f : -2f);
+        var mousePosWorld = _camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, lookWorldZ));
+        _character.LookAt(mousePosWorld);
 
         if (SystemInput.GetKeyDown(KeyCode.Mouse0))
         {
@@ -131,12 +155,10 @@ public class DesktopHook : MonoBehaviour
             Ray ray = _camera.ScreenPointToRay(new Vector3(mousePos.x, mousePos.y, 0.1f));
             if (Physics.Raycast(ray, out RaycastHit hit, _maxRaycastDistance, _interactableLayers))
             {
+                SetWindowZOrder(ZWindowOrder.Front);
                 _character.Jump();
             }
         }
-
-        
-
 
         // Hold ESC for 1 second to quit
         if (SystemInput.GetKey(KeyCode.Escape))
@@ -170,6 +192,12 @@ public class DesktopHook : MonoBehaviour
             GUILayout.Label($"Last Click Pos: {_mouseClickPos}");
             GUILayout.Label($"Last Tested Pos: {_lastTestedMousePos}");
             GUILayout.Label($"Last Hit Result: {_lastHitResult}");
+
+            IntPtr exStyle = GetWindowLongPtr(_hwnd, GWL_Flags.GWL_EXSTYLE);
+            long newStyle = exStyle.ToInt64();
+            bool isTransparent = IsBitSet(newStyle, WS_EX_TRANSPARENT);
+            GUILayout.Label($"Window Transparent: {isTransparent}");
+
             GUILayout.Space(8f);
             GUILayout.Label($"Open windows: {_windowTracker.VisibleWindows.Count}");
             for (int w = 0; w < _windowTracker.VisibleWindows.Count; w++)
@@ -266,7 +294,7 @@ public class DesktopHook : MonoBehaviour
         //     // Can add selective focus acceptance throug MA_ACTIVATE
         //     // For now: never gain focus
         //     return new IntPtr(MA_NOACTIVATE);
-        // }
+        // } 
 
         // if (msg == WM_ACTIVATE)
         // {
@@ -376,6 +404,49 @@ public class DesktopHook : MonoBehaviour
         return true;
     }
 
+    private bool SetWindowTransparent(bool makeTransparent)
+    {
+        IntPtr exStyle = GetWindowLongPtr(_hwnd, GWL_Flags.GWL_EXSTYLE);
+        long newStyle = exStyle.ToInt64();
+        bool isTransparent = IsBitSet(newStyle, WS_EX_TRANSPARENT);
+
+        if (makeTransparent == isTransparent) {
+            // no need to do anything
+            return true;
+        }
+
+        if (makeTransparent)
+        {
+            newStyle = SetBit(newStyle, WS_EX_TRANSPARENT); // make everything clickthrough, always
+        } else
+        {
+            newStyle = UnsetBit(newStyle, WS_EX_TRANSPARENT); // make nothing clickthrough
+        }
+
+        if ((SetWindowLongPtr(_hwnd, GWL_Flags.GWL_EXSTYLE, new IntPtr(newStyle)) == IntPtr.Zero) && (exStyle != IntPtr.Zero))
+        {
+            Debug.LogError($"Failed to set window ex style");
+            return false;
+        }
+
+        return true;
+    }
+
+    private static bool IsBitSet(long mask, uint bits)
+    {
+        return (mask & bits) != 0;
+    }
+
+    private static long SetBit(long mask, uint bits)
+    {
+        return mask | bits;
+    }
+
+    private static long UnsetBit(long mask, uint bits)
+    {
+        return mask & (~bits);
+    }
+
     private enum ZWindowOrder
     {
         Bottom,
@@ -411,11 +482,12 @@ public class DesktopHook : MonoBehaviour
                 // // Restore focus to whoever had it
                 // SetForegroundWindow(previousForeground);
 
+                // Works for putting in front of any target window
                 IntPtr foregroundWindow = GetForegroundWindow();
-                
                 if (foregroundWindow != IntPtr.Zero)
                 {
-                    SetWindowPos(foregroundWindow, _hwnd, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+                    SetWindowPos(_hwnd, foregroundWindow, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE); // set our window behind the top one
+                    SetWindowPos(foregroundWindow, _hwnd, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE); // now switch them around
                 }
 
                 break;
@@ -445,7 +517,7 @@ public class DesktopHook : MonoBehaviour
         //     aboveUs = GetWindow(aboveUs, GW_HWNDPREV);
         // }
 
-        // if (aboveUs != IntPtr.Zero)
+        // if (aboveUs != IntPtr.Zero) 
         // {
         //     StringBuilder title = new StringBuilder(256);
         //     GetWindowText(aboveUs, title, title.Capacity);
@@ -717,6 +789,19 @@ public class DesktopHook : MonoBehaviour
     const uint GW_OWNER = 4; // Window above us in z-order
 
     [StructLayout(LayoutKind.Sequential)]
+    struct POINT
+    {
+        public int x;
+        public int y;
+
+        public POINT(int x, int y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
     struct MARGINS
     {
         public int cxLeftWidth;
@@ -755,4 +840,6 @@ public class DesktopHook : MonoBehaviour
     [DllImport("user32.dll")]
     private static extern IntPtr GetTopWindow(IntPtr hWnd);
 
+    [DllImport("user32.dll")]
+    private static extern IntPtr WindowFromPoint(POINT point);
 }

@@ -45,8 +45,14 @@ public class DesktopWindowTracker : MonoBehaviour
     {
         public IntPtr Handle;
         public RECT Rect;
+        public int Z;
         public string Title;
         public bool IsActive;
+
+        public override string ToString()
+        {
+            return $"{Handle} | Z: {Z} | Active {IsActive} | {Title}";
+        }
     }
 
     private List<WindowInfo> _visibleWindows = new List<WindowInfo>();
@@ -83,6 +89,8 @@ public class DesktopWindowTracker : MonoBehaviour
         _visibleWindows.Clear();
         IntPtr foregroundWindow = GetForegroundWindow();
 
+        int z = 0;
+
         EnumWindows((hWnd, lParam) =>
         {
             // Skip our own window
@@ -118,6 +126,7 @@ public class DesktopWindowTracker : MonoBehaviour
             {
                 Handle = hWnd,
                 Rect = rect,
+                Z = z++,
                 Title = title.ToString(),
                 IsActive = hWnd == foregroundWindow
             });
@@ -128,11 +137,29 @@ public class DesktopWindowTracker : MonoBehaviour
         // Debug.Log($"Found {_visibleWindows.Count} visible windows");
     }
 
+    public WindowInfo GetWindowInfo(IntPtr hWnd)
+    {
+        for (int w = 0; w < _visibleWindows.Count; w++)
+        {
+            if (_visibleWindows[w].Handle == hWnd)
+            {
+                return _visibleWindows[w];
+            }
+        }
+
+        return null;
+    }
+
     // Helper: Check if a point (in screen coordinates) is covered by any window
-    public bool IsPointCoveredByWindow(Vector2 screenPoint, out WindowInfo coveringWindow)
+    public bool IsPointCoveredByWindow(Vector2 screenPoint, out WindowInfo coveringWindow, IntPtr ignoreHWnd)
     {
         foreach (var window in _visibleWindows)
         {
+            if (window.Handle == ignoreHWnd)
+            {
+                continue;
+            }
+
             if (screenPoint.x >= window.Rect.Left && screenPoint.x <= window.Rect.Right &&
                 screenPoint.y >= window.Rect.Top && screenPoint.y <= window.Rect.Bottom)
             {
