@@ -11,7 +11,7 @@ public class Character : MonoBehaviour
 
     private Transform _transform;
 
-    private Vector3 _lookTarget = new Vector3(0,0,-1);
+    private Vector3 _lookTargetWorld = new Vector3(0,0,-1);
     private float _jumpTimer = -1;
 
     private double _lastBlinkTime = -1;
@@ -23,7 +23,7 @@ public class Character : MonoBehaviour
 
     public void LookAt(Vector3 target)
     {
-        _lookTarget = target;
+        _lookTargetWorld = target;
     }
 
     public void Jump()
@@ -42,8 +42,9 @@ public class Character : MonoBehaviour
         }
 
 
-        // _transform.Rotate(Vector3.up, 45f * Time.deltaTime);
-        _transform.LookAt(_lookTarget);
+        var lookDir = _lookTargetWorld - _transform.position;
+        var lookRot = Quaternion.LookRotation(lookDir);
+        _transform.rotation = Quaternion.Slerp(_transform.rotation, lookRot, 4f * Time.deltaTime);
 
         // _transform.localScale = Vector3.one * (3f + (float)math.sin(Time.timeAsDouble * math.PI2 * 0.5f));
 

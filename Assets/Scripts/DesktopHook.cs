@@ -9,8 +9,8 @@ Todo: tray icon / menu
 
 Issues:
 
-Window gains focus, comes to top
-doesn't allow clickthrough anymore
+ScreenToGif window is seen as a mouse target
+ignore it in DesktopWindowTracker
 
 */
 
@@ -488,6 +488,7 @@ public class DesktopHook : MonoBehaviour
                 {
                     SetWindowPos(_hwnd, foregroundWindow, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE); // set our window behind the top one
                     SetWindowPos(foregroundWindow, _hwnd, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE); // now switch them around
+                    SetWindowPos(_hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_FRAMECHANGED); // avoid being stickied as topmost
                 }
 
                 break;
