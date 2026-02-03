@@ -1,12 +1,8 @@
 using UnityEngine;
-using DrawBehindDesktopIcons;
 using System;
 using System.Text;
-using System.Threading;
-using UnityEngine.InputSystem;
 using Unity.Mathematics;
 using System.Runtime.InteropServices;
-using System.Collections;
 
 /*
 Todo: tray icon / menu
@@ -21,7 +17,6 @@ doesn't allow clickthrough anymore
 public class DesktopHook : MonoBehaviour
 {
     [SerializeField] private Character _character;
-    [SerializeField] private Material _material;
 
     [SerializeField] private LayerMask _interactableLayers = -1;
     [SerializeField] private float _maxRaycastDistance = 100f;
@@ -31,9 +26,12 @@ public class DesktopHook : MonoBehaviour
     private Vector2 _mouseClickPos;
     private float _escapeTimer;
 
+    private DesktopWindowTracker _windowTracker;
+
     private static WndProcDelegate _newWndProcDelegate;
     private static IntPtr _oldWndProc;
     private static DesktopHook _instance;
+    private IntPtr hwnd;
 
     // Caching for performance
     private static Vector2 _lastTestedMousePos;
@@ -61,6 +59,7 @@ public class DesktopHook : MonoBehaviour
             return;
         }
         _instance = this;
+        _windowTracker = gameObject.AddComponent<DesktopWindowTracker>();
 
         Application.targetFrameRate = 60;
         Application.runInBackground = true;
@@ -74,12 +73,12 @@ public class DesktopHook : MonoBehaviour
         _text = new StringBuilder(4096);
     }
 
-    private IEnumerator Start()
+    private void Start()
     {
         Screen.fullScreenMode = FullScreenMode.Windowed;
         Screen.SetResolution(3440, 1440, false);
 
-        yield return new WaitForSeconds(0.5f);
+        // yield return new WaitForSeconds(0.5f);
 
         if (TryHook())
         {
@@ -120,6 +119,9 @@ public class DesktopHook : MonoBehaviour
         if (SystemInput.GetKeyDown(KeyCode.Space))
         {
             _character.Jump();
+            // SetWindowZOrder(ZWindowOrder.Front);
+            MapZOrder();
+            StepUp();
         }
 
         if (SystemInput.GetKeyDown(KeyCode.Mouse0))
@@ -129,7 +131,6 @@ public class DesktopHook : MonoBehaviour
             Ray ray = _camera.ScreenPointToRay(new Vector3(mousePos.x, mousePos.y, 0.1f));
             if (Physics.Raycast(ray, out RaycastHit hit, _maxRaycastDistance, _interactableLayers))
             {
-                SetWindowZOrder(ZWindowOrder.Front);
                 _character.Jump();
             }
         }
@@ -159,28 +160,49 @@ public class DesktopHook : MonoBehaviour
     {
         float2 guiSize = new float2(800, 600);
         
-        var guiRect = new Rect(Screen.width * 0.5f - guiSize.x * 0.5f, 0, guiSize.x, guiSize.y);
+        var guiRect = new Rect(Screen.width - guiSize.x, 0, guiSize.x, guiSize.y);
         GUILayout.BeginArea(guiRect);
         GUILayout.BeginVertical(GUI.skin.box);
         {
             GUILayout.Label("Desktop Pet");
             GUILayout.Label("Hold ESCAPE for 1 second to quit");
-            GUILayout.Label("");
+            GUILayout.Space(8f);
             GUILayout.Label($"Last Click Pos: {_mouseClickPos}");
             GUILayout.Label($"Last Tested Pos: {_lastTestedMousePos}");
             GUILayout.Label($"Last Hit Result: {_lastHitResult}");
+            GUILayout.Space(8f);
+            GUILayout.Label($"Open windows: {_windowTracker.VisibleWindows.Count}");
+            for (int w = 0; w < _windowTracker.VisibleWindows.Count; w++)
+            {
+                var wnd = _windowTracker.VisibleWindows[w];
+                if (wnd.Handle == hwnd)
+                {
+                    GUILayout.Label($"{w}: {wnd.Handle} | {wnd.Title} <- It's us!");
+                } else {
+                    GUILayout.Label($"{w}: {wnd.Handle} | {wnd.Title}");
+                }
+            }
         }
         GUILayout.EndVertical();
         GUILayout.EndArea();
     }
 
-    private void InstallWindowProc()
+    private bool InstallWindowProc()
     {
-        IntPtr hwnd = GetActiveWindow();
+        /*
+        Note: should run after succesful TryHook() call
+        */
+
+        if (Application.platform != RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)
+        {
+            Debug.LogError($"Platform not supported: {Application.platform}");
+            return false;
+        }
+
         if (hwnd == IntPtr.Zero)
         {
             Debug.LogError("Failed to get window handle");
-            return;
+            return false;
         }
 
         // Create delegate and keep it alive
@@ -195,18 +217,17 @@ public class DesktopHook : MonoBehaviour
         if (_oldWndProc == IntPtr.Zero)
         {
             Debug.LogError("Failed to install window procedure");
+            return false;
         }
-        else
-        {
-            Debug.Log("SelectiveClickThrough: Window procedure installed successfully");
-        }
+        
+        Debug.Log("SelectiveClickThrough: Window procedure installed successfully");
+        return true;
     }
 
     private void UninstallWindowProc()
     {
         if (_oldWndProc != IntPtr.Zero)
         {
-            IntPtr hwnd = GetActiveWindow();
             if (hwnd != IntPtr.Zero)
             {
                 // Restore original window proc if we have one
@@ -288,22 +309,40 @@ public class DesktopHook : MonoBehaviour
         return false;
     }
 
+    /* 
+    Important:
+    URP renderer needs to be configured to render to a buffer with transparency information in there!
+    */
     private bool TryHook()
     {
-        if (Application.platform != RuntimePlatform.WindowsPlayer && Application.platform != RuntimePlatform.WindowsEditor)
+        if (Application.platform != RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)
         {
             Debug.LogError($"Platform not supported: {Application.platform}");
             return false;
         }
 
-        IntPtr hwnd = GetActiveWindow();
+        hwnd = GetActiveWindow();
 
         // Make it a popup window
-        SetWindowLongPtr(hwnd, GWL_Flags.GWL_STYLE, new IntPtr(WS_POPUP | WS_VISIBLE));
+        if(SetWindowLongPtr(hwnd, GWL_Flags.GWL_STYLE, new IntPtr(WS_POPUP | WS_VISIBLE)) == IntPtr.Zero)
+        {
+            Debug.LogError($"Failed to set popup window style");
+            return false;
+        }
 
-        // Make it click-through if desired
+        // Make it click-through, not take focus, hidden from taskbar and task switcher
         IntPtr exStyle = GetWindowLongPtr(hwnd, GWL_Flags.GWL_EXSTYLE);
-        SetWindowLongPtr(hwnd, GWL_Flags.GWL_EXSTYLE, new IntPtr(exStyle.ToInt64() | WS_EX_LAYERED)); //  | WS_EX_TRANSPARENT
+        long newStyle = exStyle.ToInt64();
+        // newStyle |= WS_EX_TOOLWINDOW; // prevent showing in task switcher and task bar
+        newStyle |= WS_EX_NOACTIVATE; // prevent taking focus
+        newStyle |= WS_EX_LAYERED;
+        // newStyle |= WS_EX_TRANSPARENT; // make everything clickthrough, always
+
+        if ((SetWindowLongPtr(hwnd, GWL_Flags.GWL_EXSTYLE, new IntPtr(newStyle)) == IntPtr.Zero) && (exStyle != IntPtr.Zero))
+        {
+            Debug.LogError($"Failed to set window ex style");
+            return false;
+        }
 
         // Enable DWM transparency (this is what gets the transparency/chromakey to work)
         MARGINS margins = new MARGINS { cxLeftWidth = -1 };
@@ -313,11 +352,6 @@ public class DesktopHook : MonoBehaviour
         // Set Unity camera to transparent
         _camera.backgroundColor = new Color(0, 0, 0, 0);
         _camera.clearFlags = CameraClearFlags.SolidColor;
-
-        /* 
-        Important
-        URP renderer needs to be configured to render to a buffer with transparency information in there!
-        */
 
         SetWindowZOrder(ZWindowOrder.Bottom);
 
@@ -343,15 +377,196 @@ public class DesktopHook : MonoBehaviour
                 break;
             case ZWindowOrder.Front:
                 // Bring to front (but not always-on-top)
+
                 // Todo: doesn't work
                 // SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-                SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+                // SetWindowPos(hwnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+
+                // SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+
+                // BringWindowToTop(hwnd);
+                // SetForegroundWindow(hwnd);
+
+                IntPtr previousForeground = GetForegroundWindow();
+                SetForegroundWindow(hwnd);
+                BringWindowToTop(hwnd);
+                // Restore focus to whoever had it
+                SetForegroundWindow(previousForeground);
+
                 break;
             case ZWindowOrder.Top:
                 // Always on top
                 SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
                 break;
         }
+    }
+
+
+    void StepUp()
+    {
+        Debug.Log("Stepping along Z order...");
+
+        IntPtr hwnd = GetActiveWindow();
+
+        // // Window above us in z-order (GW_HWNDPREV = visually in front)
+        // IntPtr aboveUs = GetWindow(hwnd, GW_HWNDPREV);
+
+        // // Skip invisible windows
+        // while (aboveUs != IntPtr.Zero && !IsWindowVisible(aboveUs))
+        // {
+        //     StringBuilder title = new StringBuilder(256);
+        //     GetWindowText(aboveUs, title, title.Capacity);
+        //     bool visible = IsWindowVisible(aboveUs);
+        //     bool isUs = aboveUs == hwnd;
+        //     Debug.Log($"Skipping invisible: '{title}' | Visible: {visible} | IsUs: {isUs} | Handle: {aboveUs}");
+        //     aboveUs = GetWindow(aboveUs, GW_HWNDPREV);
+        // }
+
+        // if (aboveUs != IntPtr.Zero)
+        // {
+        //     StringBuilder title = new StringBuilder(256);
+        //     GetWindowText(aboveUs, title, title.Capacity);
+        //     bool visible = IsWindowVisible(aboveUs);
+        //     bool isUs = aboveUs == hwnd;
+        //     Debug.Log($"Stepping past: '{title}' | Visible: {visible} | IsUs: {isUs} | Handle: {aboveUs}");
+
+        //     SetWindowPos(hwnd, aboveUs, 0, 0, 0, 0,
+        //         SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+        // }
+        // else
+        // {
+        //     Debug.Log("At top");
+        // }
+
+        // Find the visible window directly above us
+        IntPtr aboveUs = GetWindow(hwnd, GW_HWNDPREV);
+        while (aboveUs != IntPtr.Zero && !IsWindowVisible(aboveUs))
+        {
+            aboveUs = GetWindow(aboveUs, GW_HWNDPREV);
+        }
+
+        if (aboveUs == IntPtr.Zero)
+        {
+            Debug.Log("Already at top");
+            return;
+        }
+
+        StringBuilder text = new StringBuilder(256);
+        GetWindowText(aboveUs, text, text.Capacity);
+        string aboveUsTitle = text.ToString();
+        Debug.Log($"Window above us: {aboveUsTitle}");
+
+        // Find the next visible window above THAT one
+        IntPtr twoAbove = GetWindow(aboveUs, GW_HWNDPREV);
+        while (twoAbove != IntPtr.Zero && !IsWindowVisible(twoAbove))
+        {
+            twoAbove = GetWindow(twoAbove, GW_HWNDPREV);
+        }
+        
+        text.Clear();
+        GetWindowText(twoAbove, text, text.Capacity);
+        string twoAboveUsTitle = text.ToString();
+        Debug.Log($"Window 2 above us: {twoAboveUsTitle}");
+
+        if (twoAbove != IntPtr.Zero)
+        {
+            // Insert after twoAbove = behind twoAbove but in front of aboveUs
+            SetWindowPos(hwnd, twoAbove, 0, 0, 0, 0,
+                SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+                
+            Debug.Log($"Inserting after {twoAbove} | '{twoAboveUsTitle}'");
+        }
+        else
+        {
+            // Nothing above aboveUs, so we go to the very top
+            SetWindowPos(hwnd, HWND_TOP, 0, 0, 0, 0,
+                SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+            Debug.Log($"Stepped past: '{aboveUsTitle}' (now at top)");
+        }
+    }
+
+    void MapZOrder()
+    {
+        IntPtr hwnd = GetActiveWindow();
+
+        // IntPtr desktop = GetDesktopWindow(); // Doesn't work as a parent for GetWindow on modern windows
+        // IntPtr current = GetWindow(desktop, GW_HWNDFIRST);
+
+        // Get the topmost window in the z-order directly
+        // IntPtr current = GetWindow(IntPtr.Zero, GW_HWNDFIRST);
+
+        // Debug.Log($"Mapping Z Order, starting from: {current}");
+
+        // int index = 0;
+        // while (current != IntPtr.Zero)
+        // {
+        //     StringBuilder title = new StringBuilder(256);
+        //     GetWindowText(current, title, title.Capacity);
+        //     bool visible = IsWindowVisible(current);
+        //     bool isUs = current == hwnd;
+
+        //     if (visible || isUs)
+        //     {
+        //         Debug.Log($"[{index}] '{title}' | Visible: {visible} | IsUs: {isUs} | Handle: {current}");
+        //     }
+
+        //     current = GetWindow(current, GW_HWNDNEXT);
+        //     index++;
+        // }
+
+        // Debug.Log($"Mapped Z Order");
+
+        StringBuilder title = new StringBuilder(256);
+
+        // IntPtr current = GetForegroundWindow();
+        IntPtr current = GetTopWindow(IntPtr.Zero);
+
+        {
+            GetWindowText(current, title, title.Capacity);
+            bool visible = IsWindowVisible(current);
+            bool isUs = current == hwnd;
+            Debug.Log($"Foreground: {current} | Visible: {visible} | IsUs: {isUs} | '{title}'");
+        }
+
+        // Walk closer first
+        Debug.Log("=== Z-order Ascending ===");
+        int index = 0;
+        IntPtr closer = GetWindow(current, GW_HWNDPREV);
+        while (closer != IntPtr.Zero)
+        {
+            // log it
+            closer = GetWindow(closer, GW_HWNDPREV);
+            if (closer != IntPtr.Zero)
+            {
+                current = closer;
+            }
+            
+            GetWindowText(closer, title, title.Capacity);
+            bool visible = IsWindowVisible(closer);
+            bool isUs = closer == hwnd;
+            if (visible || isUs)
+            {
+                Debug.Log($"{index++:000}{closer} | Visible: {visible} | IsUs: {isUs} | '{title}'");
+            }
+        }
+
+        Debug.Log("=== Z-order Descending ===");
+        index = 0;
+        IntPtr further = GetWindow(current, GW_HWNDNEXT);
+        while (further != IntPtr.Zero)
+        {
+            // log it
+            further = GetWindow(further, GW_HWNDNEXT);
+
+            GetWindowText(further, title, title.Capacity);
+            bool visible = IsWindowVisible(further);
+            bool isUs = further == hwnd;
+            if (visible || isUs)
+            {
+                Debug.Log($"{index++:000}{further} | Visible: {visible} | IsUs: {isUs} | '{title}'");
+            }
+        }
+        Debug.Log("======");
     }
 
     // Win32 Imports
@@ -361,6 +576,8 @@ public class DesktopHook : MonoBehaviour
     const uint WS_VISIBLE = 0x10000000;
     const uint WS_EX_LAYERED = 0x00080000;
     const uint WS_EX_TRANSPARENT = 0x00000020;
+    const uint WS_EX_TOOLWINDOW = 0x00000080;
+    const uint WS_EX_NOACTIVATE = 0x08000000;
 
     const uint WM_NCHITTEST = 0x0084;
     const int HTCLIENT = 1;
@@ -415,15 +632,26 @@ public class DesktopHook : MonoBehaviour
     [DllImport("user32.dll")]
     private static extern IntPtr CallWindowProc(IntPtr lpPrevWndFunc, IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
 
+    [DllImport("user32.dll", EntryPoint = "GetWindowLongPtr")]
+    private static extern IntPtr GetWindowLongPtr64(IntPtr hWnd, GWL_Flags nIndex);
+
+    [DllImport("user32.dll", EntryPoint = "GetWindowLong")]
+    private static extern IntPtr GetWindowLongPtr32(IntPtr hWnd, GWL_Flags nIndex);
+
+    static IntPtr GetWindowLongPtr(IntPtr hWnd, GWL_Flags nIndex)
+    {
+        if (IntPtr.Size == 8)
+            return GetWindowLongPtr64(hWnd, nIndex);
+        else
+            return GetWindowLongPtr32(hWnd, nIndex);
+    }
+
     // Use the correct function for the architecture
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode, EntryPoint = "SetWindowLongPtr")]
     static extern IntPtr SetWindowLongPtr64(IntPtr hWnd, GWL_Flags nIndex, IntPtr dwNewLong);
 
     [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode, EntryPoint = "SetWindowLong")]
     static extern IntPtr SetWindowLongPtr32(IntPtr hWnd, GWL_Flags nIndex, IntPtr dwNewLong);
-
-    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
-    static extern IntPtr GetWindowLongPtr(IntPtr hWnd, GWL_Flags nIndex);
 
     static IntPtr SetWindowLongPtr(IntPtr hWnd, GWL_Flags nIndex, IntPtr dwNewLong)
     {
@@ -442,12 +670,20 @@ public class DesktopHook : MonoBehaviour
 
     // Z-order constants
     static readonly IntPtr HWND_BOTTOM = new IntPtr(1);
+    static readonly IntPtr HWND_TOP = new IntPtr(0);
     static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
     static readonly IntPtr HWND_NOTOPMOST = new IntPtr(-2);
 
     const uint SWP_NOMOVE = 0x0002;
     const uint SWP_NOSIZE = 0x0001;
     const uint SWP_NOACTIVATE = 0x0010;
+    const uint SWP_FRAMECHANGED = 0x0020;
+
+    const uint GW_HWNDFIRST = 0; // Topmost window in z-order
+    const uint GW_HWNDLAST = 1; // Window above us in z-order
+    const uint GW_HWNDNEXT = 2; // Window above us in z-order
+    const uint GW_HWNDPREV = 3; // Window above us in z-order
+    const uint GW_OWNER = 4; // Window above us in z-order
 
     [StructLayout(LayoutKind.Sequential)]
     struct MARGINS
@@ -466,5 +702,26 @@ public class DesktopHook : MonoBehaviour
 
     [DllImport("user32.dll", EntryPoint = "BringWindowToTop", SetLastError = true)]
     static extern bool BringWindowToTop(IntPtr hWnd);
+
+    [DllImport("user32.dll", EntryPoint = "GetForegroundWindow", SetLastError = true)]
+    static extern IntPtr GetForegroundWindow();
+
+    [DllImport("user32.dll", EntryPoint = "SetForegroundWindow", SetLastError = true)]
+    static extern bool SetForegroundWindow(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr GetWindow(IntPtr hWnd, uint uCmd);
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    private static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
+
+    [DllImport("user32.dll")]
+    private static extern bool IsWindowVisible(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr GetDesktopWindow();
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr GetTopWindow(IntPtr hWnd);
 
 }
