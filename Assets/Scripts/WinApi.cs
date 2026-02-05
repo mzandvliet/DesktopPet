@@ -6,6 +6,9 @@ using System.Text;
 using DrawBehindDesktopIcons;
 
 /*
+Author: Mar Zandvliet
+With thanks to: DrawBehindDesktopIcons, Claude
+
 Todo: merge in the stuff from DrawBehindDesktopIcons, leaving a thank you
 */
 
@@ -90,11 +93,14 @@ namespace Frantic.Windows
         public static extern IntPtr CallWindowProc(IntPtr lpPrevWndFunc, IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
 
         [DllImport("user32.dll", EntryPoint = "GetWindowLongPtr")]
-        public static extern IntPtr GetWindowLongPtr64(IntPtr hWnd, GWL_Flags nIndex);
+        internal static extern IntPtr GetWindowLongPtr64(IntPtr hWnd, GWL_Flags nIndex);
 
         [DllImport("user32.dll", EntryPoint = "GetWindowLong")]
-        private static extern IntPtr GetWindowLongPtr32(IntPtr hWnd, GWL_Flags nIndex);
+        internal static extern IntPtr GetWindowLongPtr32(IntPtr hWnd, GWL_Flags nIndex);
 
+        /*
+        Account for 32-bit and 64-platform compilation differences
+        */
         public static IntPtr GetWindowLongPtr(IntPtr hWnd, GWL_Flags nIndex)
         {
             if (IntPtr.Size == 8)
@@ -105,11 +111,14 @@ namespace Frantic.Windows
 
         // Use the correct function for the architecture
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode, EntryPoint = "SetWindowLongPtr")]
-        public static extern IntPtr SetWindowLongPtr64(IntPtr hWnd, GWL_Flags nIndex, IntPtr dwNewLong);
+        internal static extern IntPtr SetWindowLongPtr64(IntPtr hWnd, GWL_Flags nIndex, IntPtr dwNewLong);
 
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode, EntryPoint = "SetWindowLong")]
-        public static extern IntPtr SetWindowLongPtr32(IntPtr hWnd, GWL_Flags nIndex, IntPtr dwNewLong);
+        internal static extern IntPtr SetWindowLongPtr32(IntPtr hWnd, GWL_Flags nIndex, IntPtr dwNewLong);
 
+        /*
+        Account for 32-bit and 64-platform compilation differences
+        */
         public static IntPtr SetWindowLongPtr(IntPtr hWnd, GWL_Flags nIndex, IntPtr dwNewLong)
         {
             if (IntPtr.Size == 8)

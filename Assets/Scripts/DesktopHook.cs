@@ -7,6 +7,11 @@ using Frantic.Windows;
 using DrawBehindDesktopIcons;
 
 /*
+
+The app runs as a full-screen window with full transparency.
+It can move itself up and down in Z-order to move in front of other windows or behind them.
+
+
 Todo: tray icon / menu
 
 Issues:
@@ -38,23 +43,12 @@ public class DesktopHook : MonoBehaviour
     private static DesktopHook _instance;
     private IntPtr _hwnd;
 
-    // Caching for performance
+    // Cached state for window mouse-cursor focus check
     private static Vector2 _lastTestedMousePos;
     private static bool _lastHitResult;
     private static float _lastTestTime;
     private const float CACHE_DURATION = 0.016f; // ~60fps
     private const float CACHE_DISTANCE = 3f; // pixels
-
-
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct Rectangle
-    {
-        public int Left;
-        public int Top;
-        public int Right;
-        public int Bottom;
-    }
 
     public void Awake()
     {
@@ -72,7 +66,7 @@ public class DesktopHook : MonoBehaviour
         _camera = gameObject.GetComponent<Camera>();
 
         // Transparent background
-        _camera.backgroundColor = new Color(1f, 0f, 1f, 1f); // Magenta 
+        _camera.backgroundColor = new Color(0f, 0f, 0f, 0f);
         _camera.clearFlags = CameraClearFlags.SolidColor;
 
         _text = new StringBuilder(4096);
@@ -81,9 +75,9 @@ public class DesktopHook : MonoBehaviour
     private void Start()
     {
         Screen.fullScreenMode = FullScreenMode.Windowed;
-        Screen.SetResolution(3440, 1440, false);
+        // Screen.SetResolution(3440, 1440, false);
 
-        if (TryHook())
+        if (ConfigureApplicationWindow())
         {
             Debug.Log("Succesfully hooked into desktop background!");
         }
@@ -99,7 +93,11 @@ public class DesktopHook : MonoBehaviour
 
     private void Update()
     {
+        /* Update input polling (can't use Unity input system for most situation in this app) */
+
         SystemInput.Process();
+
+        /* Decide on window input-transparency based on whether cursor is hovering over anything interactive in the scene */
 
         var mousePos = SystemInput.GetCursorPosition();
         if (ShouldCaptureInput(mousePos.x, mousePos.y))
@@ -109,6 +107,8 @@ public class DesktopHook : MonoBehaviour
         {
             SetWindowTransparent(true);
         }
+
+        /* Update character, and determine whether it is in front of or behind the window that the cursor currently hovers over */
 
         bool characterInFrontOfHoveredWindow = false;
         DesktopWindowTracker.WindowInfo hoveredWindowInfo;
@@ -130,6 +130,8 @@ public class DesktopHook : MonoBehaviour
         var mousePosWorld = _camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, lookWorldZ));
         _character.LookAt(mousePosWorld);
 
+        /* If clicking on the character, change its Z-order to sit above the currently active window */
+
         if (SystemInput.GetKeyDown(KeyCode.Mouse0))
         {
             _mouseClickPos = mousePos;
@@ -142,7 +144,8 @@ public class DesktopHook : MonoBehaviour
             }
         }
 
-        // Hold ESC for 1 second to quit
+        /* Hold escape for 1 second to quit the app */
+
         if (SystemInput.GetKey(KeyCode.Escape))
         {
             _escapeTimer += Time.deltaTime;
@@ -196,6 +199,13 @@ public class DesktopHook : MonoBehaviour
         GUILayout.EndVertical();
         GUILayout.EndArea();
     }
+
+    /* 
+    Note: currently unused
+    
+    Installs a callback into the windowing system that runs when anything changes in the window
+    
+    */
 
     private bool InstallWindowProc()
     {
@@ -300,6 +310,9 @@ public class DesktopHook : MonoBehaviour
         return WinApi.CallWindowProc(_oldWndProc, hWnd, msg, wParam, lParam);
     }
 
+
+    /* Determine whether the app needs input focus, or to let everything pass through to windows below */
+
     private static bool ShouldCaptureInput(int screenX, int screenY)
     {
         if (_instance == null)
@@ -341,7 +354,7 @@ public class DesktopHook : MonoBehaviour
     Important:
     URP renderer needs to be configured to render to a buffer with transparency information in there!
     */
-    private bool TryHook()
+    private bool ConfigureApplicationWindow()
     {
         if (Application.platform != RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)
         {

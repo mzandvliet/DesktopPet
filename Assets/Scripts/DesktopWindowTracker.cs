@@ -4,6 +4,12 @@ using System.Runtime.InteropServices;
 using System.Text;
 using UnityEngine;
 
+/*
+Tracks all other visible windows in the OS, such that
+our desktop creatures can be aware of them, and play
+with them.
+*/
+
 public class DesktopWindowTracker : MonoBehaviour
 {
     [StructLayout(LayoutKind.Sequential)]
