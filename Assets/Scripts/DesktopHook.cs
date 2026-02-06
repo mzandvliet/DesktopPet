@@ -2,7 +2,6 @@ using UnityEngine;
 using System;
 using System.Text;
 using Unity.Mathematics;
-using System.Runtime.InteropServices;
 using Frantic.Windows;
 using DrawBehindDesktopIcons;
 
@@ -27,6 +26,7 @@ ignore it in DesktopWindowTracker
 public class DesktopHook : MonoBehaviour
 {
     [SerializeField] private Character _character;
+    [SerializeField] private GameObject _foodPrefab;
 
     [SerializeField] private LayerMask _interactableLayers = -1;
     [SerializeField] private float _maxRaycastDistance = 100f;
@@ -49,6 +49,8 @@ public class DesktopHook : MonoBehaviour
     private static float _lastTestTime;
     private const float CACHE_DURATION = 0.016f; // ~60fps
     private const float CACHE_DISTANCE = 3f; // pixels
+
+    private double _lastFoodSpawnTime;
 
     public void Awake()
     {
@@ -99,8 +101,8 @@ public class DesktopHook : MonoBehaviour
 
         /* Decide on window input-transparency based on whether cursor is hovering over anything interactive in the scene */
 
-        var mousePos = SystemInput.GetCursorPosition();
-        if (ShouldCaptureInput(mousePos.x, mousePos.y))
+        var mousePosWin = SystemInput.GetCursorPosition();
+        if (ShouldCaptureInput(mousePosWin.x, mousePosWin.y))
         {
             SetWindowTransparent(false);
         } else
@@ -112,7 +114,7 @@ public class DesktopHook : MonoBehaviour
 
         bool characterInFrontOfHoveredWindow = false;
         DesktopWindowTracker.WindowInfo hoveredWindowInfo;
-        _windowTracker.IsPointCoveredByWindow(mousePos, out hoveredWindowInfo, _hwnd);
+        _windowTracker.IsPointCoveredByWindow(mousePosWin, out hoveredWindowInfo, _hwnd);
         var ourWindowInfo = _windowTracker.GetWindowInfo(_hwnd);
         if (hoveredWindowInfo != null && ourWindowInfo != null)
         {
@@ -123,25 +125,22 @@ public class DesktopHook : MonoBehaviour
             Debug.Log($"hov: {(hoveredWindowInfo != null ? hoveredWindowInfo : 0)} char: {(ourWindowInfo != null ? ourWindowInfo : 0)} | char in front: {characterInFrontOfHoveredWindow}");
         }
 
-        mousePos.y = Screen.height - mousePos.y; // to unity coordinates
+        // to unity coordinates
+        var mousePosUnity = mousePosWin;
+        mousePosUnity.y = Screen.height - mousePosUnity.y;
 
         var camCharDist = math.abs(_character.transform.position.z - _camera.transform.position.z);
         float lookWorldZ = camCharDist + (characterInFrontOfHoveredWindow ? +2f : -2f);
-        var mousePosWorld = _camera.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, lookWorldZ));
+        var mousePosWorld = _camera.ScreenToWorldPoint(new Vector3(mousePosUnity.x, mousePosUnity.y, lookWorldZ));
         _character.LookAt(mousePosWorld);
 
         /* If clicking on the character, change its Z-order to sit above the currently active window */
 
         if (SystemInput.GetKeyDown(KeyCode.Mouse0))
         {
-            _mouseClickPos = mousePos;
+            _mouseClickPos = mousePosUnity;
 
-            Ray ray = _camera.ScreenPointToRay(new Vector3(mousePos.x, mousePos.y, 0.1f));
-            if (Physics.Raycast(ray, out RaycastHit hit, _maxRaycastDistance, _interactableLayers))
-            {
-                SetWindowZOrder(ZWindowOrder.Front);
-                _character.Jump();
-            }
+            HandleClick(mousePosWin, mousePosUnity);
         }
 
         /* Hold escape for 1 second to quit the app */
@@ -163,6 +162,62 @@ public class DesktopHook : MonoBehaviour
         }
     }
 
+    private void HandleClick(Vector2Int mousePosWin, Vector2Int mousePosUnity)
+    {
+        Ray ray = _camera.ScreenPointToRay(new Vector3(mousePosUnity.x, mousePosUnity.y, 0.1f));
+        if (Physics.Raycast(ray, out RaycastHit hit, _maxRaycastDistance, _interactableLayers))
+        {
+            bool clickedCharacter = hit.collider.transform.parent?.GetComponent<Character>();
+            Debug.Log($"clickedCharacter: {clickedCharacter}");
+            if (clickedCharacter)
+            {
+                SetWindowZOrder(ZWindowOrder.Front);
+                _character.OnClicked();
+                return;
+            }
+        }
+
+        // If clicked desktop background, with nothing else in focus, this is our territory
+
+        // get active window?
+        // if none of our tracked visible windows catches the click?
+        // if click doesn't hit any desktop icons
+
+        bool clickedDesktopBackground;
+
+        if (Application.isEditor)
+        {
+            clickedDesktopBackground = true;
+        }
+        else
+        {
+            var windowUnderCursor = WinApi.WindowFromPoint(new Point(mousePosWin.x, mousePosWin.y));
+            var activeWindow = WinApi.GetActiveWindow();
+            var desktopWindow = WinApi.GetDesktopWindow();
+            var desktopShellWindow = GetDesktopBackgroundWindow();
+
+            DesktopWindowTracker.WindowInfo windowInfo;
+            var isPointCoveredByWindow = _windowTracker.IsPointCoveredByWindow(mousePosWin, out windowInfo, ignoreHWnd: _hwnd);
+
+            Debug.Log($"Click: windowUnderCursor: {windowUnderCursor}, activeWindow: {activeWindow}, pointCovered: {isPointCoveredByWindow}, windowInfo: {windowInfo}");
+            Debug.Log($"desktopWindow: {desktopWindow}, desktopShellWindow: {desktopShellWindow}");
+
+            clickedDesktopBackground = !isPointCoveredByWindow;
+        }
+
+        Debug.Log($"clickedBackground: {clickedDesktopBackground}");
+
+        if (clickedDesktopBackground)
+        {
+            if (Time.timeAsDouble > _lastFoodSpawnTime + 1.0)
+            {
+                var spawnPos = _camera.ScreenToWorldPoint(new Vector3(mousePosUnity.x, mousePosUnity.y, -_camera.transform.position.z));
+                GameObject.Instantiate(_foodPrefab, spawnPos, Quaternion.identity);
+                _lastFoodSpawnTime = Time.timeAsDouble;
+            }
+        }
+    }
+
     private void OnGUI()
     {
         float2 guiSize = new float2(800, 600);
@@ -173,6 +228,8 @@ public class DesktopHook : MonoBehaviour
         {
             GUILayout.Label("Desktop Pet");
             GUILayout.Label("Hold ESCAPE for 1 second to quit");
+            GUILayout.Space(8f);
+            GUILayout.Label($"Character State: {_character.State}");
             GUILayout.Space(8f);
             GUILayout.Label($"Last Click Pos: {_mouseClickPos}");
             GUILayout.Label($"Last Tested Pos: {_lastTestedMousePos}");
@@ -460,5 +517,62 @@ public class DesktopHook : MonoBehaviour
                 WinApi.SetWindowPos(_hwnd, WinApi.HWND_TOPMOST, 0, 0, 0, 0, WinApi.SWP_NOMOVE | WinApi.SWP_NOSIZE | WinApi.SWP_NOACTIVATE);
                 break;
         }
+    }
+
+    private static IntPtr GetProgramManagerWindowHandle()
+    {
+        // IntPtr wHandle = GetWindowHandle("progman");
+        IntPtr wHandle = Win32.FindWindow("Progman", null);
+        return wHandle;
+    }
+
+    private static IntPtr GetDesktopBackgroundWindow()
+    {
+        IntPtr progmanHandle = GetProgramManagerWindowHandle();
+        Debug.Log($"progmanHandle found: {progmanHandle}.");
+
+        IntPtr result = IntPtr.Zero;
+
+        // Send 0x052C to Progman. This message directs Progman to spawn a 
+        // WorkerW behind the desktop icons. If it is already there, nothing 
+        // happens.
+        // Debug.Log("Triggering ProgramManager WorkerW spawn...");
+        // Win32.SendMessageTimeout(progmanHandle,
+        //                         0x052C,
+        //                         new IntPtr(0),
+        //                         IntPtr.Zero,
+        //                         Win32.SendMessageTimeoutFlags.SMTO_NORMAL,
+        //                         1000,
+        //                         out result);
+
+        // Debug.Log("Attempting to find WorkerW through progman procHandle...");
+        // IntPtr workerW = Win32.FindWindowEx(progmanHandle, IntPtr.Zero, "WorkerW", IntPtr.Zero); // windowName was null in example
+
+        // If that doesn't work, try searching alternative layout
+
+        IntPtr desktopHwnd = IntPtr.Zero;
+
+        Debug.Log("Alternatively, enumerate top-level windows to find SHELLDLL_DefView as child...");
+
+        // Enumerate top-level windows until finding SHELLDLL_DefView as child.
+        Win32.EnumWindows(new Win32.EnumWindowsProc((topHandle, topParamHandle) => 
+        {
+            IntPtr SHELLDLL_DefView = Win32.FindWindowEx(topHandle, IntPtr.Zero, "SHELLDLL_DefView", IntPtr.Zero);
+
+            if (SHELLDLL_DefView != IntPtr.Zero)
+            {
+                Debug.Log("Found SHELLDLL!");
+
+                // If found, take next sibling as workerW
+                // > Gets the WorkerW Window after the current one.
+                // workerW = Win32.FindWindowEx(IntPtr.Zero, topHandle, "WorkerW", IntPtr.Zero);
+                desktopHwnd = SHELLDLL_DefView;
+                return false;
+            }
+
+            return true; // Continue enumeration
+        }), IntPtr.Zero);
+
+        return desktopHwnd;
     }
 }

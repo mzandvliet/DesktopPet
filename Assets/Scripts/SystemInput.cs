@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class SystemInput
 {
@@ -72,8 +73,15 @@ public class SystemInput
 
     public static Vector2Int GetCursorPosition()
     {
-        GetCursorPos(out var point);
-        return point;
+        if (Application.isEditor)
+        {
+            return new Vector2Int((int)Mouse.current.position.value.x, Screen.height - (int)Mouse.current.position.value.y);
+        } else
+        {
+            Vector2Int point;
+            GetCursorPos(out point);
+            return point;
+        }
     }
 
     public static void SetCursorPosition(Vector2Int point)

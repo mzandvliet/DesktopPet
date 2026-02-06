@@ -2,12 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
+using DrawBehindDesktopIcons;
 using UnityEngine;
 
 /*
 Tracks all other visible windows in the OS, such that
 our desktop creatures can be aware of them, and play
 with them.
+
+Todo: could lower the update rate, or do it only based on windows events?
 */
 
 public class DesktopWindowTracker : MonoBehaviour
@@ -109,8 +112,10 @@ public class DesktopWindowTracker : MonoBehaviour
 
             // Skip tool windows (like tooltips)
             uint exStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
-            if ((exStyle & WS_EX_TOOLWINDOW) != 0)
+            if (Mask.IsBitSet(exStyle, (uint)WindowStylesEx.WS_EX_TOOLWINDOW))
                 return true;
+            // if (Mask.IsBitSet(exStyle, (uint)WindowStylesEx.WS_EX_TRANSPARENT))
+            //     return true;
 
             // Get window bounds
             if (!GetWindowRect(hWnd, out RECT rect))
@@ -126,6 +131,9 @@ public class DesktopWindowTracker : MonoBehaviour
 
             // Skip windows without titles (usually background processes)
             if (string.IsNullOrEmpty(title.ToString()))
+                return true;
+
+            if (title.ToString().Contains("Windows Input Experience"))
                 return true;
 
             _visibleWindows.Add(new WindowInfo
