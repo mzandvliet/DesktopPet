@@ -11,7 +11,10 @@ The app runs as a full-screen window with full transparency.
 It can move itself up and down in Z-order to move in front of other windows or behind them.
 
 
-Todo: tray icon / menu
+Todo:
+
+- tray icon / menu
+- suspend rendering/logic when user enters another full-screen app
 
 Issues:
 
@@ -132,7 +135,7 @@ public class DesktopHook : MonoBehaviour
         var camCharDist = math.abs(_character.transform.position.z - _camera.transform.position.z);
         float lookWorldZ = camCharDist + (characterInFrontOfHoveredWindow ? +2f : -2f);
         var mousePosWorld = _camera.ScreenToWorldPoint(new Vector3(mousePosUnity.x, mousePosUnity.y, lookWorldZ));
-        _character.LookAt(mousePosWorld);
+        _character.SetMouseCursorWorld(mousePosWorld);
 
         /* If clicking on the character, change its Z-order to sit above the currently active window */
 
@@ -202,6 +205,8 @@ public class DesktopHook : MonoBehaviour
             Debug.Log($"Click: windowUnderCursor: {windowUnderCursor}, activeWindow: {activeWindow}, pointCovered: {isPointCoveredByWindow}, windowInfo: {windowInfo}");
             Debug.Log($"desktopWindow: {desktopWindow}, desktopShellWindow: {desktopShellWindow}");
 
+            // Todo: on mouse-up, if not a drag action
+
             clickedDesktopBackground = !isPointCoveredByWindow;
         }
 
@@ -209,7 +214,7 @@ public class DesktopHook : MonoBehaviour
 
         if (clickedDesktopBackground)
         {
-            if (Time.timeAsDouble > _lastFoodSpawnTime + 1.0)
+            if (Time.timeAsDouble > _lastFoodSpawnTime + 0.5f)
             {
                 var spawnPos = _camera.ScreenToWorldPoint(new Vector3(mousePosUnity.x, mousePosUnity.y, -_camera.transform.position.z));
                 GameObject.Instantiate(_foodPrefab, spawnPos, Quaternion.identity);
@@ -230,6 +235,7 @@ public class DesktopHook : MonoBehaviour
             GUILayout.Label("Hold ESCAPE for 1 second to quit");
             GUILayout.Space(8f);
             GUILayout.Label($"Character State: {_character.State}");
+            GUILayout.Label($"Idle State: {_character.IdleState}");
             GUILayout.Space(8f);
             GUILayout.Label($"Last Click Pos: {_mouseClickPos}");
             GUILayout.Label($"Last Tested Pos: {_lastTestedMousePos}");

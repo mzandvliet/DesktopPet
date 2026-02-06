@@ -37,11 +37,12 @@ public class Character : MonoBehaviour
     private Rng _rng;
 
     private CharacterState _state;
+    private CharacterIdleState _idleState;
 
     private float _idleDurationTime;
     private float _idleTimer;
 
-    private Vector3 _lookTargetWorld = new Vector3(0,0,-1);
+    private Vector3 _mouseCursorWorld = new Vector3(0,0,-1);
     private float _jumpTimer = -1;
 
     private double _lastBlinkTime = -1;
@@ -59,10 +60,15 @@ public class Character : MonoBehaviour
         get => _state;
     }
 
+    public CharacterIdleState IdleState
+    {
+        get => _idleState;
+    }
+
     private void Awake()
     {
         _transform = gameObject.GetComponent<Transform>();
-        _rng = new Rng(1234);
+        _rng = RngManager.CreateRng();
 
         _collidersNearby = new Collider[64];
 
@@ -73,9 +79,9 @@ public class Character : MonoBehaviour
         ChangeState(CharacterState.Idle);
     }
 
-    public void LookAt(Vector3 target)
+    public void SetMouseCursorWorld(Vector3 cursorWorld)
     {
-        _lookTargetWorld = target;
+        _mouseCursorWorld = cursorWorld;
     }
 
     public void OnClicked()
@@ -102,7 +108,17 @@ public class Character : MonoBehaviour
         if mouse moves a lot, especially near it, that draws attention
         */
 
-        
+        int numColliders = Physics.OverlapSphereNonAlloc(_transform.position, 1, _collidersNearby, _theaterLayer.value);
+        for (int c = 0; c < numColliders; c++)
+        {
+            var character = _collidersNearby[c].transform.parent?.gameObject.GetComponent<Character>();
+            if (character != null && character != this)
+            {
+                var delta = _transform.position - character.transform.position;
+                var dist = math.pow(math.clamp(math.length(delta) / 2f, 0.01f, 1f), 0.5f);
+                _transform.position += delta.normalized * (1f - dist) * 2f * Time.deltaTime;
+            }
+        }
 
         switch (_state)
         {
@@ -122,10 +138,22 @@ public class Character : MonoBehaviour
 
     private void ChangeState(CharacterState state)
     {
+        ChangeState(state, null);
+    }
+
+    private void ChangeState(CharacterState state, CharacterIdleState? idleState)
+    {
         _state = state;
         switch (state)
         {
             case CharacterState.Idle:
+                if (idleState.HasValue)
+                {
+                    _idleState = idleState.Value;
+                } else
+                {
+                    _idleState = (CharacterIdleState)_rng.NextInt(0, CharacterIdleStateMax);
+                }
                 EnterIdleState();
                 break;
             case CharacterState.Walking:
@@ -157,6 +185,7 @@ public class Character : MonoBehaviour
 
     void EnterIdleState()
     {
+        // Eat if we're within range of food
         int numColliders = Physics.OverlapSphereNonAlloc(_transform.position, 1, _collidersNearby, _theaterLayer.value);
         for (int c = 0; c < numColliders; c++)
         {
@@ -167,14 +196,15 @@ public class Character : MonoBehaviour
             }
         }
 
-
         _idleDurationTime = _rng.NextFloat(2f, 4f);
         _idleTimer = 0f;
     }
 
     void UpdateIdleState()
     {
-        var lookDir = _lookTargetWorld - _transform.position;
+        var lookTarget = _idleState == CharacterIdleState.LookAtCursor ? _mouseCursorWorld : _camera.transform.position;
+
+        var lookDir = lookTarget - _transform.position;
         var lookRot = Quaternion.LookRotation(lookDir);
         _transform.rotation = Quaternion.Slerp(_transform.rotation, lookRot, 4f * Time.deltaTime);
 
@@ -271,11 +301,11 @@ public class Character : MonoBehaviour
         _body.localPosition = _bodyBasePos + new Vector3(0f, 0.05f * math.sin(Time.time * math.PI2 * charBopSpeed), 0f);
         _handLeft.localPosition = _handLeftBasePos + new Vector3(
             0f,
-            +0.1f * math.cos(Time.time * math.PI2 * charBopSpeed * 0.5f),
+            -0.1f * math.abs(math.cos(Time.time * math.PI2 * charBopSpeed * 0.5f)),
             +0.1f * math.sin(Time.time * math.PI2 * charBopSpeed * 0.5f));
         _handRight.localPosition = _handRightBasePos + new Vector3(
             0f,
-            -0.1f * math.cos(Time.time * math.PI2 * charBopSpeed * 0.5f),
+            -0.1f * math.abs(math.cos(Time.time * math.PI2 * charBopSpeed * 0.5f)),
             -0.1f * math.sin(Time.time * math.PI2 * charBopSpeed * 0.5f));
     }
 
@@ -307,5 +337,12 @@ public class Character : MonoBehaviour
     {
         Idle,
         Walking
+    }
+
+    public const int CharacterIdleStateMax = 2;
+    public enum CharacterIdleState
+    {
+        LookAtCursor,
+        LookAtPlayer
     }
 }

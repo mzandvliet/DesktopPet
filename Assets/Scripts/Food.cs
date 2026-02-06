@@ -3,21 +3,30 @@ using UnityEngine;
 
 public class Food : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    private Transform _transform;
+    private Vector3 _velocity;
+
     void Start()
     {
-        
+        _transform = gameObject.GetComponent<Transform>();
+        _velocity = new Vector3(0f, 1f, 0f);
     }
 
     // Update is called once per frame
     void Update()
     {
+        const float velocityScale = 1f;
+        const float noiseSpaceScale = 0.5f;
         const float noiseSpeed = 0.5f;
-        var velocity = new Vector3(
-            -1f + 2f * Mathf.PerlinNoise1D(Time.time * noiseSpeed + 0.571f),
-            -1f + 2f * Mathf.PerlinNoise1D(Time.time * noiseSpeed + 5.113f),
-            -1f + 2f * Mathf.PerlinNoise1D(Time.time * noiseSpeed + 6.733f)
-        );
-        transform.position += velocity * Time.deltaTime;
+
+        var waterVelocity = new Vector3(
+            -1f + 2f * Mathf.PerlinNoise1D(_transform.position.x * noiseSpaceScale + Time.time * noiseSpeed + 0.571f),
+            -1f + 2f * Mathf.PerlinNoise1D(_transform.position.y * noiseSpaceScale + Time.time * noiseSpeed + 5.113f),
+            -1f + 2f * Mathf.PerlinNoise1D(_transform.position.z * noiseSpaceScale + Time.time * noiseSpeed + 6.733f)
+        ) * velocityScale;
+
+        _velocity -= _velocity * 0.1f * Time.deltaTime;
+
+        _transform.position += (_velocity + waterVelocity) * Time.deltaTime;
     }
 }
