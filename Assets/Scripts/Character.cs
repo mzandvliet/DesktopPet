@@ -211,6 +211,7 @@ public class Character : ImmediateModeShapeDrawer
 
         _mouthShape = (CharacterMouthShape)_rng.NextInt(0, CharacterMouthShapeMax);
         _eyebrowShape = (CharacterEyebrowShape)_rng.NextInt(0, CharacterEyebrowShapeMax);
+        // _eyebrowShape = CharacterEyebrowShape.Concerned;
 
         _idleDurationTime = _rng.NextFloat(2f, 4f);
         _idleTimer = 0f;
@@ -331,9 +332,9 @@ public class Character : ImmediateModeShapeDrawer
     {
         using (Draw.Command(cam)) // UnityEngine.Rendering.Universal.RenderPassEvent.BeforeRendering
         {
-            Draw.ThicknessSpace = ThicknessSpace.Pixels;
+            Draw.ThicknessSpace = ThicknessSpace.Meters;
             Draw.RadiusSpace = ThicknessSpace.Meters;
-            Draw.Thickness = 1f;
+            Draw.Thickness = 0.02f;
             Draw.BlendMode = ShapesBlendMode.Opaque;
 
             Draw.Color = Color.black;
@@ -362,8 +363,8 @@ public class Character : ImmediateModeShapeDrawer
                 case CharacterMouthShape.BigSmile:
                     var path = new PolygonPath();
                     var localCenter = new Vector2(0, -0.33f);
-                    path.AddPoint(localCenter + new Vector2(- 0.3f, + 0.15f));
-                    path.AddPoint(localCenter + new Vector2(+ 0.3f, + 0.15f));
+                    path.AddPoint(localCenter + new Vector2(- 0.2f, + 0.12f));
+                    path.AddPoint(localCenter + new Vector2(+ 0.2f, + 0.12f));
                     path.AddPoint(localCenter + new Vector2(+ 0.1f, - 0.1f));
                     path.AddPoint(localCenter + new Vector2(- 0.1f, - 0.1f));
                     Draw.PushMatrix();
@@ -390,54 +391,81 @@ public class Character : ImmediateModeShapeDrawer
         }
     }
 
-    private static void DrawEyebrow(Transform bodyTransform, Transform eyeTransform, CharacterEyebrowShape shape)
+    private static void DrawEyebrow(Transform body, Transform eye, CharacterEyebrowShape shape)
     {
         // Draw.Sphere(eyeTransform.position, 0.25f);
 
-        int side = (int)math.sign(eyeTransform.localPosition.x);
+        int side = (int)math.sign(eye.localPosition.x);
 
         Draw.Color = Color.black;
 
-        float heightDn = 0.15f;
-        float heightUp = 0.20f;
+        var path = new PolylinePath();
 
         switch (shape)
         {
             case CharacterEyebrowShape.None:
                 break;
             case CharacterEyebrowShape.Neutral:
-                Draw.Line(
-                    eyeTransform.position + bodyTransform.TransformDirection(new Vector3(-0.1f, 0.15f, ZOffset)),
-                    eyeTransform.position + bodyTransform.TransformDirection(new Vector3(+0.1f, 0.15f, ZOffset))
-                );
+                {
+                    var a = new Vector2(-0.15f, 0.1f);
+                    var d = new Vector2(0.15f, 0.11f);
+                    var b = a + new Vector2(0.1f, 0.01f);
+                    var c = d + new Vector2(-0.1f, 0.00f);
+                    path.AddPoint(a);
+                    path.BezierTo(b, c, d, 8);
+                }
                 break;
             case CharacterEyebrowShape.Raised:
-                Draw.Line(
-                    eyeTransform.position + bodyTransform.TransformDirection(new Vector3(-0.1f, 0.25f, ZOffset)),
-                    eyeTransform.position + bodyTransform.TransformDirection(new Vector3(+0.1f, 0.25f, ZOffset))
-                );
+                {
+                    var a = new Vector2(-0.15f, 0.1f);
+                    var d = new Vector2(0.1f, 0.2f);
+                    var b = a + new Vector2(0.1f, 0.05f);
+                    var c = d + new Vector2(-0.1f, 0.05f);
+                    path.AddPoint(a);
+                    path.BezierTo(b, c, d, 8);
+                }
                 break;
             case CharacterEyebrowShape.Concerned:
             {
-                float heightL = side == -1 ? heightDn : heightUp;
-                float heightR = side == -1 ? heightUp : heightDn;
-                Draw.Line(
-                    eyeTransform.position + bodyTransform.TransformDirection(new Vector3(-0.1f, heightL, ZOffset)),
-                    eyeTransform.position + bodyTransform.TransformDirection(new Vector3(+0.1f, heightR, ZOffset))
-                );
+                {
+                    var a = new Vector2(-0.1f, 0.1f);
+                    var d = new Vector2(0.1f, 0.15f);
+                    var b = a + new Vector2(0.1f, 0f);
+                    var c = d + new Vector2(-0.1f, -0.1f);
+                    
+                    path.AddPoint(a);
+                    path.BezierTo(b, c, d, 8);
+                }
                 break;
             }
             case CharacterEyebrowShape.Angry:
             {
-                float heightL = side == -1 ? heightUp : heightDn;
-                float heightR = side == -1 ? heightDn : heightUp;
-                Draw.Line(
-                    eyeTransform.position + bodyTransform.TransformDirection(new Vector3(-0.1f, heightL, ZOffset)),
-                    eyeTransform.position + bodyTransform.TransformDirection(new Vector3(+0.1f, heightR, ZOffset))
-                );
+                {
+                    var a = new Vector2(-0.05f, 0.2f);
+                    var d = new Vector2(0.15f, 0.1f);
+                    var b = a + new Vector2(0.1f, 0f);
+                    var c = d + new Vector2(-0.1f, 0.05f);
+
+                    path.AddPoint(a);
+                    path.BezierTo(b, c, d, 8);
+                }
                 break;
             }
         }
+
+        var localCenter = new Vector3(0, 0.3f);
+        Draw.PushMatrix();
+        var localScale = body.localScale;
+        localScale.x *= -side;
+        Draw.Matrix = Matrix4x4.TRS(
+            eye.TransformPoint(Vector3.forward * (body.localScale.z * ZOffset) + localCenter),
+            body.rotation,
+            localScale
+        );
+        Draw.Polyline(
+            path
+        );
+        Draw.PopMatrix();
     }
 
     private IEnumerator BlinkAsync()
