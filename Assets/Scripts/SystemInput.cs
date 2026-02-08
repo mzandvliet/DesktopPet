@@ -229,9 +229,20 @@ public class SystemInput
         return (v & (1 << pos)) != 0;
     }
 
-    //Is there an easier way than just adding each key combo manually?
+    /*
+    Map Unity KeyCode to Virtual KeyCode
+
+    https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
+
+    Todo: Is there an easier way than just adding each key combo manually?
+
+    https://discussions.unity.com/t/keycode-to-virtual-key-code/606293/2
+    No, but sub-ranges can be mapped algorithmically
+    */
     static Dictionary<KeyCode, int> VK_KeyCodes = new Dictionary<KeyCode, int>()
     {
+        {KeyCode.Z, 0x5A},
+
         {KeyCode.Keypad8, 0x68},
         {KeyCode.Keypad4, 0x64},
         {KeyCode.Keypad6, 0x66},

@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Linq;
+using Shapes;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.SocialPlatforms;
 using Rng = Unity.Mathematics.Random;
 
 /*
@@ -20,7 +22,7 @@ Wants, Needs & Desires
     - watch you play specific games, like Space Warlord
 */
 
-public class Character : MonoBehaviour
+public class Character : ImmediateModeShapeDrawer
 {
     [SerializeField] private Camera _camera; // needs this to know where is valid to move
     [SerializeField] private LayerMask _theaterLayer;
@@ -38,6 +40,8 @@ public class Character : MonoBehaviour
 
     private CharacterState _state;
     private CharacterIdleState _idleState;
+    private CharacterMouthShape _mouthShape;
+    private CharacterEyebrowShape _eyebrowShape;
 
     private float _idleDurationTime;
     private float _idleTimer;
@@ -46,6 +50,7 @@ public class Character : MonoBehaviour
     private float _jumpTimer = -1;
 
     private double _lastBlinkTime = -1;
+    private float _blinkDuration = 3;
 
     private Vector3 _moveTargetLocation;
 
@@ -54,6 +59,11 @@ public class Character : MonoBehaviour
     private Vector3 _handRightBasePos;
 
     private Collider[] _collidersNearby;
+
+    public Transform Transform
+    {
+        get => _transform;
+    }
 
     public CharacterState State
     {
@@ -92,13 +102,16 @@ public class Character : MonoBehaviour
         {
             ChangeState(CharacterState.Idle);
         }
+
+        _mouthShape = CharacterMouthShape.RoundOpen;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Time.timeAsDouble >= _lastBlinkTime + 3f)
+        if (Time.timeAsDouble >= _lastBlinkTime + _blinkDuration)
         {
+            _blinkDuration = _rng.NextFloat(1f, 4);
             StartCoroutine(BlinkAsync());
             _lastBlinkTime = Time.timeAsDouble;
         }
@@ -195,6 +208,9 @@ public class Character : MonoBehaviour
                 GameObject.Destroy(food.gameObject);
             }
         }
+
+        _mouthShape = (CharacterMouthShape)_rng.NextInt(0, CharacterMouthShapeMax);
+        _eyebrowShape = (CharacterEyebrowShape)_rng.NextInt(0, CharacterEyebrowShapeMax);
 
         _idleDurationTime = _rng.NextFloat(2f, 4f);
         _idleTimer = 0f;
@@ -309,12 +325,127 @@ public class Character : MonoBehaviour
             -0.1f * math.sin(Time.time * math.PI2 * charBopSpeed * 0.5f));
     }
 
+    private const float ZOffset = 0.01f;
+
+    public override void DrawShapes(Camera cam)
+    {
+        using (Draw.Command(cam)) // UnityEngine.Rendering.Universal.RenderPassEvent.BeforeRendering
+        {
+            Draw.ThicknessSpace = ThicknessSpace.Pixels;
+            Draw.RadiusSpace = ThicknessSpace.Meters;
+            Draw.Thickness = 1f;
+            Draw.BlendMode = ShapesBlendMode.Opaque;
+
+            Draw.Color = Color.black;
+
+            var mouthIntrinsicPos = new Vector2(0f, -0.25f);
+
+            var mouthLocalPos =
+                Vector3.forward * (_body.localScale.z * (0.5f + ZOffset)) +
+                Vector3.up * (_body.localScale.y * mouthIntrinsicPos.y);
+            var mouthWorldPos = _body.TransformPoint(mouthLocalPos);
+            
+            switch (_mouthShape)
+            {
+                case CharacterMouthShape.None:
+                    break;
+                case CharacterMouthShape.RoundOpen:
+                    Draw.Disc(mouthWorldPos, _body.rotation, 0.1f);
+                    break;
+                case CharacterMouthShape.TriangleOpen:
+                    Draw.Triangle(
+                        mouthWorldPos + _body.TransformDirection(new Vector3(0f, +0.1f, 0f)),
+                        mouthWorldPos + _body.TransformDirection(new Vector3(+0.1f, 0f, 0f)),
+                        mouthWorldPos + _body.TransformDirection(new Vector3(-0.1f, 0f, 0f))
+                    );
+                    break;
+                case CharacterMouthShape.BigSmile:
+                    var path = new PolygonPath();
+                    var localCenter = new Vector2(0, -0.33f);
+                    path.AddPoint(localCenter + new Vector2(- 0.3f, + 0.15f));
+                    path.AddPoint(localCenter + new Vector2(+ 0.3f, + 0.15f));
+                    path.AddPoint(localCenter + new Vector2(+ 0.1f, - 0.1f));
+                    path.AddPoint(localCenter + new Vector2(- 0.1f, - 0.1f));
+                    Draw.PushMatrix();
+                    Draw.Matrix = Matrix4x4.TRS(
+                        _body.TransformPoint(Vector3.forward * (_body.localScale.z * (0.5f + ZOffset))),
+                        _body.rotation,
+                        _body.localScale
+                    );
+                    Draw.Polygon(
+                       path
+                    );
+                    Draw.PopMatrix();
+                    break;
+                case CharacterMouthShape.LineFlat:
+                    Draw.Line(
+                        mouthWorldPos + _body.TransformDirection(new Vector3(+0.1f, 0f, 0f)),
+                        mouthWorldPos + _body.TransformDirection(new Vector3(-0.1f, 0f, 0f))
+                    );
+                    break;
+            }
+
+            DrawEyebrow(_body, _eyeLeft, _eyebrowShape);
+            DrawEyebrow(_body, _eyeRight, _eyebrowShape);
+        }
+    }
+
+    private static void DrawEyebrow(Transform bodyTransform, Transform eyeTransform, CharacterEyebrowShape shape)
+    {
+        // Draw.Sphere(eyeTransform.position, 0.25f);
+
+        int side = (int)math.sign(eyeTransform.localPosition.x);
+
+        Draw.Color = Color.black;
+
+        float heightDn = 0.15f;
+        float heightUp = 0.20f;
+
+        switch (shape)
+        {
+            case CharacterEyebrowShape.None:
+                break;
+            case CharacterEyebrowShape.Neutral:
+                Draw.Line(
+                    eyeTransform.position + bodyTransform.TransformDirection(new Vector3(-0.1f, 0.15f, ZOffset)),
+                    eyeTransform.position + bodyTransform.TransformDirection(new Vector3(+0.1f, 0.15f, ZOffset))
+                );
+                break;
+            case CharacterEyebrowShape.Raised:
+                Draw.Line(
+                    eyeTransform.position + bodyTransform.TransformDirection(new Vector3(-0.1f, 0.25f, ZOffset)),
+                    eyeTransform.position + bodyTransform.TransformDirection(new Vector3(+0.1f, 0.25f, ZOffset))
+                );
+                break;
+            case CharacterEyebrowShape.Concerned:
+            {
+                float heightL = side == -1 ? heightDn : heightUp;
+                float heightR = side == -1 ? heightUp : heightDn;
+                Draw.Line(
+                    eyeTransform.position + bodyTransform.TransformDirection(new Vector3(-0.1f, heightL, ZOffset)),
+                    eyeTransform.position + bodyTransform.TransformDirection(new Vector3(+0.1f, heightR, ZOffset))
+                );
+                break;
+            }
+            case CharacterEyebrowShape.Angry:
+            {
+                float heightL = side == -1 ? heightUp : heightDn;
+                float heightR = side == -1 ? heightDn : heightUp;
+                Draw.Line(
+                    eyeTransform.position + bodyTransform.TransformDirection(new Vector3(-0.1f, heightL, ZOffset)),
+                    eyeTransform.position + bodyTransform.TransformDirection(new Vector3(+0.1f, heightR, ZOffset))
+                );
+                break;
+            }
+        }
+    }
+
     private IEnumerator BlinkAsync()
     {
         float eyeOpenScale = 0.2f;
 
         float time = 0;
-        const float blinkDur = 0.2f;
+        float blinkDur = _rng.NextFloat(0.15f, 0.3f);
         Vector3 eyeScale;
         while (time < blinkDur)
         {
@@ -333,6 +464,8 @@ public class Character : MonoBehaviour
         _eyeRight.localScale = eyeScale;
     }
 
+    
+
     public enum CharacterState
     {
         Idle,
@@ -344,5 +477,25 @@ public class Character : MonoBehaviour
     {
         LookAtCursor,
         LookAtPlayer
+    }
+
+    public const int CharacterMouthShapeMax = 4;
+    public enum CharacterMouthShape
+    {
+        None,
+        RoundOpen,
+        TriangleOpen,
+        BigSmile,
+        LineFlat
+    }
+
+    public const int CharacterEyebrowShapeMax = 5;
+    public enum CharacterEyebrowShape
+    {
+        None,
+        Neutral,
+        Raised,
+        Concerned,
+        Angry,
     }
 }

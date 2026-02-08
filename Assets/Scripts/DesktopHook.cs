@@ -38,6 +38,7 @@ public class DesktopHook : MonoBehaviour
     private static StringBuilder _text;
     private Vector2 _mouseClickPos;
     private float _escapeTimer;
+    private float _debugToggleTimer;
 
     private DesktopWindowTracker _windowTracker;
 
@@ -54,6 +55,8 @@ public class DesktopHook : MonoBehaviour
     private const float CACHE_DISTANCE = 3f; // pixels
 
     private double _lastFoodSpawnTime;
+
+    private bool _showDebug;
 
     public void Awake()
     {
@@ -146,6 +149,10 @@ public class DesktopHook : MonoBehaviour
             HandleClick(mousePosWin, mousePosUnity);
         }
 
+        /*
+        Todo: encapsulate the hold-button trigger logic
+        */
+
         /* Hold escape for 1 second to quit the app */
 
         if (SystemInput.GetKey(KeyCode.Escape))
@@ -158,10 +165,28 @@ public class DesktopHook : MonoBehaviour
                     Debug.Log("Bye bye!");
                     Application.Quit();
                 }
+                _escapeTimer = 0;
             }
         } else
         {
             _escapeTimer = 0;
+        }
+
+        /* Hold Z for 1 second to toggle debug */
+
+        if (SystemInput.GetKey(KeyCode.Z))
+        {
+            _debugToggleTimer += Time.deltaTime;
+            if (_debugToggleTimer >= 1f)
+            {
+                Debug.Log("Toggling debug view");
+                _showDebug = !_showDebug;
+                _debugToggleTimer = 0;
+            }
+        }
+        else
+        {
+            _debugToggleTimer = 0;
         }
     }
 
@@ -170,11 +195,12 @@ public class DesktopHook : MonoBehaviour
         Ray ray = _camera.ScreenPointToRay(new Vector3(mousePosUnity.x, mousePosUnity.y, 0.1f));
         if (Physics.Raycast(ray, out RaycastHit hit, _maxRaycastDistance, _interactableLayers))
         {
+            // Todo: click should not be blocked by any window closer in Z-order
             bool clickedCharacter = hit.collider.transform.parent?.GetComponent<Character>();
             Debug.Log($"clickedCharacter: {clickedCharacter}");
             if (clickedCharacter)
             {
-                SetWindowZOrder(ZWindowOrder.Front);
+                // SetWindowZOrder(ZWindowOrder.Front);
                 _character.OnClicked();
                 return;
             }
@@ -225,6 +251,11 @@ public class DesktopHook : MonoBehaviour
 
     private void OnGUI()
     {
+        if (!_showDebug)
+        {
+            return;
+        }
+
         float2 guiSize = new float2(800, 600);
         
         var guiRect = new Rect(Screen.width - guiSize.x, 0, guiSize.x, guiSize.y);

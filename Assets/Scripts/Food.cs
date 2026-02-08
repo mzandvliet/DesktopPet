@@ -9,15 +9,15 @@ public class Food : MonoBehaviour
     void Start()
     {
         _transform = gameObject.GetComponent<Transform>();
-        _velocity = new Vector3(0f, 1f, 0f);
+        _velocity = RngManager.Shared.NextFloat3Direction() * 0.5f;
     }
 
     // Update is called once per frame
     void Update()
     {
-        const float velocityScale = 1f;
+        const float velocityScale = .66f;
         const float noiseSpaceScale = 0.5f;
-        const float noiseSpeed = 0.5f;
+        const float noiseSpeed = 1f;
 
         var waterVelocity = new Vector3(
             -1f + 2f * Mathf.PerlinNoise1D(_transform.position.x * noiseSpaceScale + Time.time * noiseSpeed + 0.571f),
