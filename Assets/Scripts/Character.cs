@@ -330,7 +330,7 @@ public class Character : ImmediateModeShapeDrawer
 
     public override void DrawShapes(Camera cam)
     {
-        using (Draw.Command(cam)) // UnityEngine.Rendering.Universal.RenderPassEvent.BeforeRendering
+        using (Draw.Command(cam, UnityEngine.Rendering.Universal.RenderPassEvent.AfterRenderingOpaques)) // UnityEngine.Rendering.Universal.RenderPassEvent.BeforeRendering
         {
             Draw.ThicknessSpace = ThicknessSpace.Meters;
             Draw.RadiusSpace = ThicknessSpace.Meters;

@@ -30,6 +30,7 @@ public class DesktopHook : MonoBehaviour
 {
     [SerializeField] private Character _character;
     [SerializeField] private GameObject _foodPrefab;
+    [SerializeField] private Boids _boids;
 
     [SerializeField] private LayerMask _interactableLayers = -1;
     [SerializeField] private float _maxRaycastDistance = 100f;
@@ -37,6 +38,7 @@ public class DesktopHook : MonoBehaviour
     private Camera _camera;
     private static StringBuilder _text;
     private Vector2 _mouseClickPos;
+    private Vector3 _lastMousePosWorld;
     private float _escapeTimer;
     private float _debugToggleTimer;
 
@@ -137,8 +139,15 @@ public class DesktopHook : MonoBehaviour
 
         var camCharDist = math.abs(_character.transform.position.z - _camera.transform.position.z);
         float lookWorldZ = camCharDist + (characterInFrontOfHoveredWindow ? +2f : -2f);
-        var mousePosWorld = _camera.ScreenToWorldPoint(new Vector3(mousePosUnity.x, mousePosUnity.y, lookWorldZ));
+        var mouseScreenPoint = new Vector3(mousePosUnity.x, mousePosUnity.y, lookWorldZ);
+        var mousePosWorld = _camera.ScreenToWorldPoint(mouseScreenPoint);
+
+        var mouseVelocityWorld = mousePosWorld - _lastMousePosWorld;
+        _lastMousePosWorld = mousePosWorld;
+
         _character.SetMouseCursorWorld(mousePosWorld);
+        var mouseRay = _camera.ScreenPointToRay(mouseScreenPoint);
+        _boids.SetMouseData(mouseRay, mouseVelocityWorld);
 
         /* If clicking on the character, change its Z-order to sit above the currently active window */
 

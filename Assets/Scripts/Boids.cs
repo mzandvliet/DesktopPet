@@ -43,14 +43,27 @@ public struct Boid
 public class Boids : ImmediateModeShapeDrawer
 {
     [SerializeField] private LayerMask _theaterLayer;
+    [SerializeField] private float _mouseAvoidDistance = 5f;
+    [SerializeField] private float _avoidanceMin = 0.05f;
+    [SerializeField] private float _avoidLerpSpeed = 0.1f;
+    [SerializeField] float _maxSpeed = 3f;
+    [SerializeField] float _sphereRadius = 20f;
+    [SerializeField] float _neighbourViewRange = 4f;
+    [SerializeField] float _neighbourSeparateRange = 2f;
+    [SerializeField] int _numNearestNeighbours = 7; // init time only
+    [SerializeField] private float _coherence = 0.5f;
+    [SerializeField] private float _alignment = 0.5f;
+    [SerializeField] private float _separation = 0.1f;
 
 
     private NativeArray<Boid> _boids;
     private Unity.Mathematics.Random _rng;
 
     private Collider[] _collidersNearby;
+    private Ray _mouseRay = new Ray(new Vector3(-9999, -9999, -9999), Vector3.down); // ray length must never be zero
+    private Vector3 _mouseVelocity;
 
-    private const int NUM_BOIDS = 320;
+    private const int NUM_BOIDS = 256;
 
     private void Awake()
     {
@@ -104,18 +117,24 @@ public class Boids : ImmediateModeShapeDrawer
         }
     }
 
+    public void SetMouseData(Ray ray, Vector3 velocity)
+    {
+        _mouseRay = ray;
+        _mouseVelocity = velocity;
+    }
+
     // Note: this is of course a very naive implementation...
     private void UpdateBoids()
     {
-        const int NUM_NEAREST = 7;
-        const float NEIGHBOUR_RANGE = 3f;
+        float mouseSpeed = math.length(_mouseVelocity);
+        float mouseAvoidance = math.lerp(_avoidanceMin, 1f, math.saturate(mouseSpeed / 1f));
 
-        var nearest = new NativeList<int>(NUM_NEAREST, Allocator.Temp);
+        float sphereRadiusOneOver = 1f / _sphereRadius;
+
+        var nearest = new NativeList<int>(_numNearestNeighbours, Allocator.Temp);
         for (int bi = 0; bi < _boids.Length; bi++)
         {
             var b = _boids[bi];
-
-            const float maxSpeed = 3f;
 
             const float velocityScale = 0.2f;
             const float noiseSpaceScale = 0.5f;
@@ -143,39 +162,47 @@ public class Boids : ImmediateModeShapeDrawer
                 if (character != null)
                 {
                     var delta = (float3)character.Transform.position - b.Position;
-                    b.Velocity = math.lerp(b.Velocity, math.normalize(delta) * maxSpeed * 0.5f, b.Individuality * Time.deltaTime);
+                    b.Velocity = math.lerp(b.Velocity, math.normalize(delta) * _maxSpeed * 0.5f, b.Individuality * Time.deltaTime);
                 }
 
                 var food = _collidersNearby[c].gameObject.GetComponent<Food>();
                 if (food != null)
                 {
                     var delta = (float3)food.transform.position - b.Position;
-                    b.Velocity = math.lerp(b.Velocity, math.normalize(delta) * maxSpeed, b.Individuality * Time.deltaTime);
+                    b.Velocity = math.lerp(b.Velocity, math.normalize(delta) * _maxSpeed, b.Individuality * Time.deltaTime);
                 }
             }
 
+            /* Avoid mouse */
+
+            var posOnMouseRay = ProjectPointOntoRay(b.Position, _mouseRay);
+            var mouseRayDelta = posOnMouseRay - b.Position;
+            var rayDist = math.length(mouseRayDelta);
+            var avoidVelocity = math.normalize(mouseRayDelta) * -_maxSpeed;
+            var avoidWeight = math.saturate((_mouseAvoidDistance - rayDist) / _mouseAvoidDistance) * mouseAvoidance;
+            b.Velocity = Vector3.Slerp(b.Velocity, avoidVelocity, avoidWeight * _avoidLerpSpeed);
+
+
             /* Stay within a sphere */
 
-            const float sphereRadius = 20f;
-            const float sphereRadiusOneOver = 1f / sphereRadius;
-            var sphereCenterVelocity = math.normalize(-b.Position) * maxSpeed;
+            var sphereCenterVelocity = math.normalize(-b.Position) * _maxSpeed;
             b.Velocity = Vector3.Slerp(b.Velocity, sphereCenterVelocity, sphereRadiusOneOver * math.length(b.Position) * Time.deltaTime);
 
             /* Align with neighbours */
 
-            GetNearest(bi, NEIGHBOUR_RANGE, _boids, nearest);
+            GetNearest(bi, _neighbourViewRange, _boids, nearest);
             for (int j = 0; j < nearest.Length; j++)
             {
                 var neighbour = _boids[nearest[j]];
-                float weight = (NEIGHBOUR_RANGE - math.distance(b.Position, neighbour.Position)) / NEIGHBOUR_RANGE;
+                float weight = (_neighbourViewRange - math.distance(b.Position, neighbour.Position)) / _neighbourViewRange;
                 weight *= weight;
                 weight *= 1f - b.Individuality;
 
                 // Align velocity to neighbour
                 b.Velocity = Vector3.Slerp(b.Velocity, neighbour.Velocity, weight * Time.deltaTime);
                 // Maintain separation from neighbour (todo: gravitate towards ideal separation)
-                var separationVelocity = math.normalize(b.Position - neighbour.Position) * maxSpeed;
-                b.Velocity = Vector3.Slerp(b.Velocity, separationVelocity, weight * weight * 0.1f);
+                var separationVelocity = math.normalize(b.Position - neighbour.Position) * _maxSpeed;
+                b.Velocity = Vector3.Slerp(b.Velocity, separationVelocity, weight * weight * _separation);
             }
 
             /* Integrate */
@@ -184,6 +211,13 @@ public class Boids : ImmediateModeShapeDrawer
             _boids[bi] = b;
         }
         nearest.Dispose();
+    }
+
+    private static float3 ProjectPointOntoRay(Vector3 p, Ray ray)
+    {
+        var ap = p - ray.origin;
+        var ab = ray.direction;
+        return ray.origin + math.dot(ap, ab) / math.dot(ab, ab) * ab;
     }
 
     private static void GetNearest(int boidId, float distance, NativeSlice<Boid> boids, NativeList<int> nearest)
