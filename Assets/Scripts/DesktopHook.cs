@@ -130,7 +130,7 @@ public class DesktopHook : MonoBehaviour
         }
         if (SystemInput.GetKeyDown(KeyCode.Space))
         {
-            Debug.Log($"hov: {(hoveredWindowInfo != null ? hoveredWindowInfo : 0)} char: {(ourWindowInfo != null ? ourWindowInfo : 0)} | char in front: {characterInFrontOfHoveredWindow}");
+            // Debug.Log($"hov: {(hoveredWindowInfo != null ? hoveredWindowInfo : 0)} char: {(ourWindowInfo != null ? ourWindowInfo : 0)} | char in front: {characterInFrontOfHoveredWindow}");
         }
 
         // to unity coordinates
@@ -575,7 +575,7 @@ public class DesktopHook : MonoBehaviour
     private static IntPtr GetDesktopBackgroundWindow()
     {
         IntPtr progmanHandle = GetProgramManagerWindowHandle();
-        Debug.Log($"progmanHandle found: {progmanHandle}.");
+        // Debug.Log($"progmanHandle found: {progmanHandle}.");
 
         IntPtr result = IntPtr.Zero;
 
@@ -598,7 +598,7 @@ public class DesktopHook : MonoBehaviour
 
         IntPtr desktopHwnd = IntPtr.Zero;
 
-        Debug.Log("Alternatively, enumerate top-level windows to find SHELLDLL_DefView as child...");
+        // Debug.Log("Alternatively, enumerate top-level windows to find SHELLDLL_DefView as child...");
 
         // Enumerate top-level windows until finding SHELLDLL_DefView as child.
         Win32.EnumWindows(new Win32.EnumWindowsProc((topHandle, topParamHandle) => 
@@ -607,7 +607,7 @@ public class DesktopHook : MonoBehaviour
 
             if (SHELLDLL_DefView != IntPtr.Zero)
             {
-                Debug.Log("Found SHELLDLL!");
+                // Debug.Log("Found SHELLDLL!");
 
                 // If found, take next sibling as workerW
                 // > Gets the WorkerW Window after the current one.

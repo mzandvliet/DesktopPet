@@ -251,7 +251,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &292536723
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -265,20 +265,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Boids
   useCullingMasks: 0
+  _boidColor: {r: 0.40392157, g: 0.26666668, b: 0.4627451, a: 1}
   _theaterLayer:
     serializedVersion: 2
     m_Bits: 64
   _mouseAvoidDistance: 5
-  _avoidanceMin: 0.2
-  _avoidLerpSpeed: 0.2
-  _maxSpeed: 3.16
+  _avoidanceMin: 0.1
+  _avoidLerpSpeed: 5
+  _maxSpeed: 2.5
   _sphereRadius: 20
-  _neighbourViewRange: 2.6
-  _neighbourSeparateRange: 2
+  _neighbourViewRange: 2.5
+  _neighbourSeparateRange: 1
   _numNearestNeighbours: 7
-  _coherence: 0.5
-  _alignment: 0.5
-  _separation: 0.23
+  _coherence: 1
+  _alignment: 1
+  _separation: 6
+  _characterAttraction: 1
+  _foodAttraction: 2
 --- !u!4 &292536724
 Transform:
   m_ObjectHideFlags: 0
