@@ -59,6 +59,8 @@ public class Character : ImmediateModeShapeDrawer
     private Vector3 _handRightBasePos;
 
     private Collider[] _collidersNearby;
+    private PolygonPath _mouthPath;
+    private PolylinePath[] _eyePaths;
 
     public Transform Transform
     {
@@ -85,6 +87,11 @@ public class Character : ImmediateModeShapeDrawer
         _bodyBasePos = _body.localPosition;
         _handLeftBasePos = _handLeft.localPosition;
         _handRightBasePos = _handRight.localPosition;
+
+        _mouthPath = new PolygonPath();
+        _eyePaths = new PolylinePath[2];
+        _eyePaths[0] = new PolylinePath();
+        _eyePaths[1] = new PolylinePath();
 
         ChangeState(CharacterState.Idle);
     }
@@ -209,9 +216,8 @@ public class Character : ImmediateModeShapeDrawer
             }
         }
 
-        _mouthShape = (CharacterMouthShape)_rng.NextInt(0, CharacterMouthShapeMax);
+        // _mouthShape = (CharacterMouthShape)_rng.NextInt(0, CharacterMouthShapeMax);
         _eyebrowShape = (CharacterEyebrowShape)_rng.NextInt(0, CharacterEyebrowShapeMax);
-        // _eyebrowShape = CharacterEyebrowShape.Concerned;
 
         _idleDurationTime = _rng.NextFloat(2f, 4f);
         _idleTimer = 0f;
@@ -337,61 +343,66 @@ public class Character : ImmediateModeShapeDrawer
             Draw.Thickness = 0.02f;
             Draw.BlendMode = ShapesBlendMode.Opaque;
 
-            Draw.Color = Color.black;
-
-            var mouthIntrinsicPos = new Vector2(0f, -0.25f);
-
-            var mouthLocalPos =
-                Vector3.forward * (_body.localScale.z * (0.5f + ZOffset)) +
-                Vector3.up * (_body.localScale.y * mouthIntrinsicPos.y);
-            var mouthWorldPos = _body.TransformPoint(mouthLocalPos);
-            
-            switch (_mouthShape)
-            {
-                case CharacterMouthShape.None:
-                    break;
-                case CharacterMouthShape.RoundOpen:
-                    Draw.Disc(mouthWorldPos, _body.rotation, 0.1f);
-                    break;
-                case CharacterMouthShape.TriangleOpen:
-                    Draw.Triangle(
-                        mouthWorldPos + _body.TransformDirection(new Vector3(0f, +0.1f, 0f)),
-                        mouthWorldPos + _body.TransformDirection(new Vector3(+0.1f, 0f, 0f)),
-                        mouthWorldPos + _body.TransformDirection(new Vector3(-0.1f, 0f, 0f))
-                    );
-                    break;
-                case CharacterMouthShape.BigSmile:
-                    var path = new PolygonPath();
-                    var localCenter = new Vector2(0, -0.33f);
-                    path.AddPoint(localCenter + new Vector2(- 0.2f, + 0.12f));
-                    path.AddPoint(localCenter + new Vector2(+ 0.2f, + 0.12f));
-                    path.AddPoint(localCenter + new Vector2(+ 0.1f, - 0.1f));
-                    path.AddPoint(localCenter + new Vector2(- 0.1f, - 0.1f));
-                    Draw.PushMatrix();
-                    Draw.Matrix = Matrix4x4.TRS(
-                        _body.TransformPoint(Vector3.forward * (_body.localScale.z * (0.5f + ZOffset))),
-                        _body.rotation,
-                        _body.localScale
-                    );
-                    Draw.Polygon(
-                       path
-                    );
-                    Draw.PopMatrix();
-                    break;
-                case CharacterMouthShape.LineFlat:
-                    Draw.Line(
-                        mouthWorldPos + _body.TransformDirection(new Vector3(+0.1f, 0f, 0f)),
-                        mouthWorldPos + _body.TransformDirection(new Vector3(-0.1f, 0f, 0f))
-                    );
-                    break;
-            }
-
-            DrawEyebrow(_body, _eyeLeft, _eyebrowShape);
-            DrawEyebrow(_body, _eyeRight, _eyebrowShape);
+            DrawMouth(_body, _mouthShape, _mouthPath);
+            DrawEyebrow(_body, _eyeLeft, _eyebrowShape, _eyePaths[0]);
+            DrawEyebrow(_body, _eyeRight, _eyebrowShape, _eyePaths[1]);
         }
     }
 
-    private static void DrawEyebrow(Transform body, Transform eye, CharacterEyebrowShape shape)
+    private static void DrawMouth(Transform body, CharacterMouthShape mouthShape, PolygonPath path)
+    {
+        Draw.Color = Color.black;
+
+        path.ClearAllPoints();
+
+        var mouthIntrinsicPos = new Vector2(0f, -0.25f);
+
+        var mouthLocalPos =
+            Vector3.forward * (body.localScale.z * (0.5f + ZOffset)) +
+            Vector3.up * (body.localScale.y * mouthIntrinsicPos.y);
+        var mouthWorldPos = body.TransformPoint(mouthLocalPos);
+
+        switch (mouthShape)
+        {
+            case CharacterMouthShape.None:
+                break;
+            case CharacterMouthShape.RoundOpen:
+                Draw.Disc(mouthWorldPos, body.rotation, 0.1f);
+                break;
+            case CharacterMouthShape.TriangleOpen:
+                Draw.Triangle(
+                    mouthWorldPos + body.TransformDirection(new Vector3(0f, +0.1f, 0f)),
+                    mouthWorldPos + body.TransformDirection(new Vector3(+0.1f, 0f, 0f)),
+                    mouthWorldPos + body.TransformDirection(new Vector3(-0.1f, 0f, 0f))
+                );
+                break;
+            case CharacterMouthShape.BigSmile:
+                var localCenter = new Vector2(0, -0.33f);
+                path.AddPoint(localCenter + new Vector2(-0.2f, +0.12f));
+                path.AddPoint(localCenter + new Vector2(+0.2f, +0.12f));
+                path.AddPoint(localCenter + new Vector2(+0.1f, -0.1f));
+                path.AddPoint(localCenter + new Vector2(-0.1f, -0.1f));
+                Draw.PushMatrix();
+                Draw.Matrix = Matrix4x4.TRS(
+                    body.TransformPoint(Vector3.forward * (body.localScale.z * (0.5f + ZOffset))),
+                    body.rotation,
+                    body.localScale
+                );
+                Draw.Polygon(
+                   path
+                );
+                Draw.PopMatrix();
+                break;
+            case CharacterMouthShape.LineFlat:
+                Draw.Line(
+                    mouthWorldPos + body.TransformDirection(new Vector3(+0.1f, 0f, 0f)),
+                    mouthWorldPos + body.TransformDirection(new Vector3(-0.1f, 0f, 0f))
+                );
+                break;
+        }
+    }
+
+    private static void DrawEyebrow(Transform body, Transform eye, CharacterEyebrowShape shape, PolylinePath path)
     {
         // Draw.Sphere(eyeTransform.position, 0.25f);
 
@@ -399,7 +410,7 @@ public class Character : ImmediateModeShapeDrawer
 
         Draw.Color = Color.black;
 
-        var path = new PolylinePath();
+        path.ClearAllPoints();
 
         switch (shape)
         {

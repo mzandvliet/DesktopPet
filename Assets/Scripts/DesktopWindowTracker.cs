@@ -50,6 +50,8 @@ public class DesktopWindowTracker : MonoBehaviour
     private const int GWL_EXSTYLE = -20;
     private const uint WS_EX_TOOLWINDOW = 0x00000080;
 
+    private static readonly StringBuilder _title = new StringBuilder(256);
+
     public class WindowInfo
     {
         public IntPtr Handle;
@@ -126,14 +128,15 @@ public class DesktopWindowTracker : MonoBehaviour
                 return true;
 
             // Get title
-            StringBuilder title = new StringBuilder(256);
-            GetWindowText(hWnd, title, title.Capacity);
+            
+            _title.Clear();
+            GetWindowText(hWnd, _title, _title.Capacity);
 
             // Skip windows without titles (usually background processes)
-            if (string.IsNullOrEmpty(title.ToString()))
+            if (string.IsNullOrEmpty(_title.ToString()))
                 return true;
 
-            if (title.ToString().Contains("Windows Input Experience"))
+            if (_title.ToString().Contains("Windows Input Experience"))
                 return true;
 
             _visibleWindows.Add(new WindowInfo
@@ -141,7 +144,7 @@ public class DesktopWindowTracker : MonoBehaviour
                 Handle = hWnd,
                 Rect = rect,
                 Z = z++,
-                Title = title.ToString(),
+                Title = _title.ToString(),
                 IsActive = hWnd == foregroundWindow
             });
 
