@@ -99,7 +99,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
             Debug.Log("Error: Failed to hook into desktop background...");
         }
         
-        DesktopWindowTracker.GetDesktopIconPositions();
+        // DesktopWindowTracker.GetDesktopIconPositions();
         // _iconMonitor.Start();
     }
 
@@ -123,6 +123,10 @@ public class DesktopHook : ImmediateModeShapeDrawer
         } else
         {
             SetWindowTransparent(true);
+        }
+
+        if (Time.frameCount % 60 == 0) {
+            _iconMonitor.Update();
         }
 
         /* Update character, and determine whether it is in front of or behind the window that the cursor currently hovers over */
@@ -618,15 +622,24 @@ public class DesktopHook : ImmediateModeShapeDrawer
     {
         using (Draw.Command(cam, UnityEngine.Rendering.Universal.RenderPassEvent.AfterRenderingOpaques)) // UnityEngine.Rendering.Universal.RenderPassEvent.BeforeRendering
         {
-            Draw.ThicknessSpace = ThicknessSpace.Meters;
+            Draw.SizeSpace = ThicknessSpace.Meters;
+            Draw.ThicknessSpace = ThicknessSpace.Pixels;
             Draw.RadiusSpace = ThicknessSpace.Meters;
-            Draw.Thickness = 0.02f;
+            Draw.Thickness = 1f;
             Draw.BlendMode = ShapesBlendMode.Opaque;
 
-            Draw.Color = Color.magenta;
-            foreach (var item in _iconMonitor.icons)
+            int screenHeight = Screen.currentResolution.height;
+
+            
+
+            Draw.Color = Color.cyan;
+            foreach (var iconPos in _iconMonitor.Icons)
             {
-                Draw.Rectangle(item.bounds);
+                // Draw.Rectangle(item.bounds);
+                const float iconHeight = 100;
+                float y = screenHeight - iconPos.y - iconHeight;
+                var pos = cam.ScreenToWorldPoint(new Vector3(iconPos.x, y, -cam.transform.position.z));
+                Draw.RectangleBorder(pos, new Rect(0,0, 0.95f, 0.95f), 1);
             }
         }
     }
