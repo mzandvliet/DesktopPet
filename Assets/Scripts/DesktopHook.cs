@@ -630,7 +630,11 @@ public class DesktopHook : ImmediateModeShapeDrawer
 
             int screenHeight = Screen.currentResolution.height;
 
+            IntPtr listViewHwnd = DesktopIconMonitor.GetDesktopListView();
+            uint desktopDpi = WinApi.GetDpiForWindow(listViewHwnd);
+            Debug.Log($"desktop listview dpi: {desktopDpi}");
             
+            float scale = 96.0f / desktopDpi;
 
             Draw.Color = Color.cyan;
             foreach (var iconPos in _iconMonitor.Icons)
@@ -638,7 +642,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
                 // Draw.Rectangle(item.bounds);
                 const float iconHeight = 100;
                 float y = screenHeight - iconPos.y - iconHeight;
-                var pos = cam.ScreenToWorldPoint(new Vector3(iconPos.x, y, -cam.transform.position.z));
+                var pos = cam.ScreenToWorldPoint(new Vector3(iconPos.x * scale, y * scale, -cam.transform.position.z));
                 Draw.RectangleBorder(pos, new Rect(0,0, 0.95f, 0.95f), 1);
             }
         }

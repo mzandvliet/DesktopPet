@@ -35,7 +35,7 @@ public class DesktopIconMonitor
         GetDesktopIconPositions(_icons);
     }
 
-    private static IntPtr GetDesktopListView()
+    public static IntPtr GetDesktopListView()
     {
         IntPtr listView = IntPtr.Zero;
 
