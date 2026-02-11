@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 using DrawBehindDesktopIcons;
+using Frantic.Windows;
 using UnityEngine;
 
 /*
@@ -139,14 +140,33 @@ public class DesktopWindowTracker : MonoBehaviour
             if (_title.ToString().Contains("Windows Input Experience"))
                 return true;
 
-            _visibleWindows.Add(new WindowInfo
+            var info = new WindowInfo
             {
                 Handle = hWnd,
                 Rect = rect,
                 Z = z++,
                 Title = _title.ToString(),
                 IsActive = hWnd == foregroundWindow
-            });
+            };
+            _visibleWindows.Add(info);
+
+            // Todo: filter these innocent windows out
+            // if (_title.ToString().Contains("Settings"))
+            // {
+            //     Debug.Log("Found a settings window:");
+            //     Debug.Log(info);
+            //     var threadId = WinApi.GetWindowThreadProcessId(hWnd, out IntPtr procId);
+            //     Debug.Log($"threadID: {threadId}, processID: {procId}");
+
+            //     if (procId != IntPtr.Zero)
+            //     {
+            //         var process = System.Diagnostics.Process.GetProcessById((int)procId);
+            //         if (process != null)
+            //         {
+            //             Debug.Log($"Found process: {process.ProcessName}, {process.MachineName}");
+            //         }
+            //     }
+            // }
 
             return true; // Continue enumeration
         }, IntPtr.Zero);
@@ -165,6 +185,27 @@ public class DesktopWindowTracker : MonoBehaviour
         }
 
         return null;
+    }
+
+    public bool IsPointCoveredByWindow(Vector2 screenPoint, out WindowInfo coveringWindow, int maxZ)
+    {
+        foreach (var window in _visibleWindows)
+        {
+            if (window.Z >= maxZ)
+            {
+                coveringWindow = null;
+                return false;
+            }
+
+            if (screenPoint.x >= window.Rect.Left && screenPoint.x <= window.Rect.Right &&
+                screenPoint.y >= window.Rect.Top && screenPoint.y <= window.Rect.Bottom)
+            {
+                coveringWindow = window;
+                return true;
+            }
+        }
+        coveringWindow = null;
+        return false;
     }
 
     // Helper: Check if a point (in screen coordinates) is covered by any window
@@ -204,5 +245,154 @@ public class DesktopWindowTracker : MonoBehaviour
         }
 
         return overlapping;
+    }
+
+    private static IntPtr GetProgramManagerWindowHandle()
+    {
+        // IntPtr wHandle = GetWindowHandle("progman");
+        IntPtr wHandle = Win32.FindWindow("Progman", null);
+        return wHandle;
+    }
+
+    public static IntPtr GetDesktopBackgroundWindowWorker()
+    {
+        IntPtr progmanHandle = GetProgramManagerWindowHandle();
+        // Debug.Log($"progmanHandle found: {progmanHandle}.");
+
+        IntPtr result = IntPtr.Zero;
+
+        // Send 0x052C to Progman. This message directs Progman to spawn a 
+        // WorkerW behind the desktop icons. If it is already there, nothing 
+        // happens.
+        // Debug.Log("Triggering ProgramManager WorkerW spawn...");
+        Win32.SendMessageTimeout(progmanHandle,
+                                0x052C,
+                                new IntPtr(0),
+                                IntPtr.Zero,
+                                SendMessageTimeoutFlags.SMTO_NORMAL,
+                                1000,
+                                out result);
+
+        // Debug.Log("Attempting to find WorkerW through progman procHandle...");
+        IntPtr workerW = Win32.FindWindowEx(progmanHandle, IntPtr.Zero, "WorkerW", IntPtr.Zero); // windowName was null in example
+
+        // If that doesn't work, try searching alternative layout
+
+        // Debug.Log("Alternatively, enumerate top-level windows to find SHELLDLL_DefView as child...");
+
+        // Enumerate top-level windows until finding SHELLDLL_DefView as child.
+        Win32.EnumWindows(new Win32.EnumWindowsProc((topHandle, topParamHandle) =>
+        {
+            IntPtr SHELLDLL_DefView = Win32.FindWindowEx(topHandle, IntPtr.Zero, "SHELLDLL_DefView", IntPtr.Zero);
+
+            if (SHELLDLL_DefView != IntPtr.Zero)
+            {
+                // If found, take next sibling as workerW
+                // > Gets the WorkerW Window after the current one.
+                workerW = Win32.FindWindowEx(IntPtr.Zero, topHandle, "WorkerW", IntPtr.Zero);
+                return false;
+            }
+
+            return true; // Continue enumeration
+        }), IntPtr.Zero);
+
+        return workerW;
+    }
+
+    public static IntPtr GetDesktopBackgroundWindow()
+    {
+        IntPtr progmanHandle = GetProgramManagerWindowHandle();
+
+        IntPtr result = IntPtr.Zero;
+        IntPtr desktopHwnd = IntPtr.Zero;
+
+        // Enumerate top-level windows until finding SHELLDLL_DefView as child.
+        Win32.EnumWindows(new Win32.EnumWindowsProc((topHandle, topParamHandle) =>
+        {
+            IntPtr SHELLDLL_DefView = Win32.FindWindowEx(topHandle, IntPtr.Zero, "SHELLDLL_DefView", IntPtr.Zero);
+
+            if (SHELLDLL_DefView != IntPtr.Zero)
+            {
+                desktopHwnd = SHELLDLL_DefView;
+                return false;
+            }
+
+            return true; // Continue enumeration
+        }), IntPtr.Zero);
+
+        return desktopHwnd;
+    }
+
+    public static IntPtr GetDesktopListView()
+    {
+        IntPtr listView = IntPtr.Zero;
+
+        Win32.EnumWindows(new Win32.EnumWindowsProc((topHandle, topParamHandle) =>
+        {
+            IntPtr shellView = Win32.FindWindowEx(topHandle, IntPtr.Zero, "SHELLDLL_DefView", IntPtr.Zero);
+
+            if (shellView != IntPtr.Zero)
+            {
+                // The ListView is a CHILD of SHELLDLL_DefView, not a sibling
+                listView = WinApi.FindWindowEx(shellView, IntPtr.Zero, "SysListView32", "FolderView");
+
+                if (listView != IntPtr.Zero)
+                {
+                    Debug.Log($"Found desktop ListView: {listView}");
+                    return false; // Stop enumeration
+                }
+            }
+
+            return true; // Continue enumeration
+        }), IntPtr.Zero);
+
+        return listView;
+    }
+
+    public static List<Point> GetDesktopIconPositions()
+    {
+        var positions = new List<Point>();
+        IntPtr listView = GetDesktopListView();
+
+        if (listView == IntPtr.Zero)
+        {
+            // Sometimes icons are under WorkerW instead
+            // (enumerate WorkerW windows and look for SHELLDLL_DefView)
+
+            Debug.LogError("Failed to get desktop ListView");
+            return positions;
+        }
+
+        // Get icon count
+        int count = (int)WinApi.SendMessage(listView, WinApi.LVM_GETITEMCOUNT, IntPtr.Zero, IntPtr.Zero);
+
+        var text = new StringBuilder();
+        text.AppendLine($"Desktop Icon Positions: {count}");
+
+        /*
+        Bug: this approach doesn't work.
+        the pos ref doesn't marshall correctly between our 64-bit app and the 32-bit process.
+        Instead we need to allocate space in the external process and marshall through there.
+        
+        That turns into a malware-esque pattern though.
+        */
+
+        // Get each icon position
+        for (int i = 0; i < count; i++)
+        {
+            Point pos = new Point();
+            bool result = WinApi.SendMessage(listView, WinApi.LVM_GETITEMPOSITION, (IntPtr)i, ref pos);
+            string error = "";
+            if (!result)
+            {
+                error = $", error: {WinApi.GetLastError()}";
+            }
+            text.AppendLine($"{i}: {pos}{error}");
+            positions.Add(pos);
+        }
+
+        Debug.Log(text.ToString());
+
+        return positions;
     }
 }

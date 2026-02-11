@@ -80,6 +80,11 @@ namespace Frantic.Windows
         public const uint GW_HWNDPREV = 3; // Window above us in z-order
         public const uint GW_OWNER = 4; // Window above us in z-order
 
+        public const uint LVM_GETITEMCOUNT = 0x1004;
+        public const uint LVM_GETITEMPOSITION = 0x1010;
+        public const uint LVM_GETITEMTEXT = 0x1000 + 45;
+        // GETITEM
+
         [DllImport("kernel32.dll")]
         public static extern uint GetLastError();
 
@@ -165,5 +170,20 @@ namespace Frantic.Windows
 
         [DllImport("user32.dll")]
         public static extern IntPtr WindowFromPoint(Point point);
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetWindowThreadProcessId(IntPtr hWnd, out IntPtr processId);
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr FindWindowEx(IntPtr hwndParent, IntPtr hwndChildAfter, string lpszClass, string lpszWindow);
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        public static extern bool SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, ref Point lParam);
     }
 }

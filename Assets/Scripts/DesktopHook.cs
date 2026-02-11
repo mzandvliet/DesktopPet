@@ -4,6 +4,7 @@ using System.Text;
 using Unity.Mathematics;
 using Frantic.Windows;
 using DrawBehindDesktopIcons;
+using Shapes;
 
 /*
 
@@ -26,7 +27,7 @@ ignore it in DesktopWindowTracker
 
 */
 
-public class DesktopHook : MonoBehaviour
+public class DesktopHook : ImmediateModeShapeDrawer
 {
     [SerializeField] private Character _character;
     [SerializeField] private GameObject _foodPrefab;
@@ -43,6 +44,7 @@ public class DesktopHook : MonoBehaviour
     private float _debugToggleTimer;
 
     private DesktopWindowTracker _windowTracker;
+    private DesktopIconMonitor _iconMonitor;
 
     private static WndProcDelegate _newWndProcDelegate;
     private static IntPtr _oldWndProc;
@@ -69,6 +71,7 @@ public class DesktopHook : MonoBehaviour
         }
         _instance = this;
         _windowTracker = gameObject.AddComponent<DesktopWindowTracker>();
+        _iconMonitor = new DesktopIconMonitor();
 
         Application.targetFrameRate = 60;
         Application.runInBackground = true;
@@ -95,10 +98,13 @@ public class DesktopHook : MonoBehaviour
         {
             Debug.Log("Error: Failed to hook into desktop background...");
         }
+
+        _iconMonitor.Start();
     }
 
     private void OnDestroy()
     {
+        _iconMonitor.Stop();
     }
 
     private void Update()
@@ -206,8 +212,12 @@ public class DesktopHook : MonoBehaviour
         {
             // Todo: click should not be blocked by any window closer in Z-order
             bool clickedCharacter = hit.collider.transform.parent?.GetComponent<Character>();
+
+            var ourWindowInfo = _windowTracker.GetWindowInfo(_hwnd);
+            bool clickedWindow = _windowTracker.IsPointCoveredByWindow(mousePosWin, out DesktopWindowTracker.WindowInfo windowInfo, ourWindowInfo.Z);
+
             Debug.Log($"clickedCharacter: {clickedCharacter}");
-            if (clickedCharacter)
+            if (clickedCharacter && !clickedWindow)
             {
                 // SetWindowZOrder(ZWindowOrder.Front);
                 _character.OnClicked();
@@ -232,18 +242,20 @@ public class DesktopHook : MonoBehaviour
             var windowUnderCursor = WinApi.WindowFromPoint(new Point(mousePosWin.x, mousePosWin.y));
             var activeWindow = WinApi.GetActiveWindow();
             var desktopWindow = WinApi.GetDesktopWindow();
-            var desktopShellWindow = GetDesktopBackgroundWindow();
+            var desktopShellWindow = DesktopWindowTracker.GetDesktopBackgroundWindow();
 
             DesktopWindowTracker.WindowInfo windowInfo;
-            var isPointCoveredByWindow = _windowTracker.IsPointCoveredByWindow(mousePosWin, out windowInfo, ignoreHWnd: _hwnd);
+            var isPointCoveredByWindow = _windowTracker.IsPointCoveredByWindow(mousePosWin, out windowInfo, _hwnd);
 
-            Debug.Log($"Click: windowUnderCursor: {windowUnderCursor}, activeWindow: {activeWindow}, pointCovered: {isPointCoveredByWindow}, windowInfo: {windowInfo}");
-            Debug.Log($"desktopWindow: {desktopWindow}, desktopShellWindow: {desktopShellWindow}");
-
-            // Todo: on mouse-up, if not a drag action
+            // Debug.Log($"Click: windowUnderCursor: {windowUnderCursor}, activeWindow: {activeWindow}, pointCovered: {isPointCoveredByWindow}, windowInfo: {windowInfo}");
+            // Debug.Log($"desktopWindow: {desktopWindow}, desktopShellWindow: {desktopShellWindow}");
 
             clickedDesktopBackground = !isPointCoveredByWindow;
         }
+
+        /*
+        Todo: on mouse-up, if not a drag action
+        */
 
         Debug.Log($"clickedBackground: {clickedDesktopBackground}");
 
@@ -453,13 +465,18 @@ public class DesktopHook : MonoBehaviour
         return false;
     }
 
+    private static bool IsWindowsDesktop()
+    {
+        return !(Application.platform != RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor);
+    }
+
     /* 
     Important:
     URP renderer needs to be configured to render to a buffer with transparency information in there!
     */
     private bool ConfigureApplicationWindow()
     {
-        if (Application.platform != RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)
+        if (!IsWindowsDesktop())
         {
             Debug.LogError($"Platform not supported: {Application.platform}");
             return false;
@@ -502,8 +519,39 @@ public class DesktopHook : MonoBehaviour
         return true;
     }
 
+    private bool SetApplicationWindowBehindIcons()
+    {
+        if (Application.platform != RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)
+        {
+            Debug.LogError($"Platform not supported: {Application.platform}");
+            return false;
+        }
+
+        // Set Unity camera to transparent
+        _camera.backgroundColor = new Color(0, 0, 0, 0);
+        _camera.clearFlags = CameraClearFlags.SolidColor;
+
+        _hwnd = WinApi.GetActiveWindow();
+        var workerW = DesktopWindowTracker.GetDesktopBackgroundWindowWorker();
+
+        if (workerW == IntPtr.Zero)
+        {
+            Debug.LogError($"Failed to set window ex style");
+            return false;
+            
+        }
+
+        Win32.SetParent(_hwnd, workerW);
+        return true;
+    }
+
     private bool SetWindowTransparent(bool makeTransparent)
     {
+        if (!IsWindowsDesktop())
+        {
+            return true;
+        }
+
         IntPtr exStyle = WinApi.GetWindowLongPtr(_hwnd, GWL_Flags.GWL_EXSTYLE);
         long newStyle = exStyle.ToInt64();
         bool isTransparent = Mask.IsBitSet(newStyle, (uint)WindowStylesEx.WS_EX_TRANSPARENT);
@@ -565,60 +613,20 @@ public class DesktopHook : MonoBehaviour
         }
     }
 
-    private static IntPtr GetProgramManagerWindowHandle()
+    public override void DrawShapes(Camera cam)
     {
-        // IntPtr wHandle = GetWindowHandle("progman");
-        IntPtr wHandle = Win32.FindWindow("Progman", null);
-        return wHandle;
-    }
-
-    private static IntPtr GetDesktopBackgroundWindow()
-    {
-        IntPtr progmanHandle = GetProgramManagerWindowHandle();
-        // Debug.Log($"progmanHandle found: {progmanHandle}.");
-
-        IntPtr result = IntPtr.Zero;
-
-        // Send 0x052C to Progman. This message directs Progman to spawn a 
-        // WorkerW behind the desktop icons. If it is already there, nothing 
-        // happens.
-        // Debug.Log("Triggering ProgramManager WorkerW spawn...");
-        // Win32.SendMessageTimeout(progmanHandle,
-        //                         0x052C,
-        //                         new IntPtr(0),
-        //                         IntPtr.Zero,
-        //                         Win32.SendMessageTimeoutFlags.SMTO_NORMAL,
-        //                         1000,
-        //                         out result);
-
-        // Debug.Log("Attempting to find WorkerW through progman procHandle...");
-        // IntPtr workerW = Win32.FindWindowEx(progmanHandle, IntPtr.Zero, "WorkerW", IntPtr.Zero); // windowName was null in example
-
-        // If that doesn't work, try searching alternative layout
-
-        IntPtr desktopHwnd = IntPtr.Zero;
-
-        // Debug.Log("Alternatively, enumerate top-level windows to find SHELLDLL_DefView as child...");
-
-        // Enumerate top-level windows until finding SHELLDLL_DefView as child.
-        Win32.EnumWindows(new Win32.EnumWindowsProc((topHandle, topParamHandle) => 
+        using (Draw.Command(cam, UnityEngine.Rendering.Universal.RenderPassEvent.AfterRenderingOpaques)) // UnityEngine.Rendering.Universal.RenderPassEvent.BeforeRendering
         {
-            IntPtr SHELLDLL_DefView = Win32.FindWindowEx(topHandle, IntPtr.Zero, "SHELLDLL_DefView", IntPtr.Zero);
+            Draw.ThicknessSpace = ThicknessSpace.Meters;
+            Draw.RadiusSpace = ThicknessSpace.Meters;
+            Draw.Thickness = 0.02f;
+            Draw.BlendMode = ShapesBlendMode.Opaque;
 
-            if (SHELLDLL_DefView != IntPtr.Zero)
+            Draw.Color = Color.magenta;
+            foreach (var item in _iconMonitor.icons)
             {
-                // Debug.Log("Found SHELLDLL!");
-
-                // If found, take next sibling as workerW
-                // > Gets the WorkerW Window after the current one.
-                // workerW = Win32.FindWindowEx(IntPtr.Zero, topHandle, "WorkerW", IntPtr.Zero);
-                desktopHwnd = SHELLDLL_DefView;
-                return false;
+                Draw.Rectangle(item.bounds);
             }
-
-            return true; // Continue enumeration
-        }), IntPtr.Zero);
-
-        return desktopHwnd;
+        }
     }
 }
