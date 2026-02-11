@@ -98,13 +98,14 @@ public class DesktopHook : ImmediateModeShapeDrawer
         {
             Debug.Log("Error: Failed to hook into desktop background...");
         }
-
-        _iconMonitor.Start();
+        
+        DesktopWindowTracker.GetDesktopIconPositions();
+        // _iconMonitor.Start();
     }
 
     private void OnDestroy()
     {
-        _iconMonitor.Stop();
+        // _iconMonitor.Stop();
     }
 
     private void Update()

@@ -5,6 +5,7 @@ using System.Text;
 using DrawBehindDesktopIcons;
 using Frantic.Windows;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 /*
 Tracks all other visible windows in the OS, such that
@@ -354,44 +355,80 @@ public class DesktopWindowTracker : MonoBehaviour
         var positions = new List<Point>();
         IntPtr listView = GetDesktopListView();
 
-        if (listView == IntPtr.Zero)
-        {
-            // Sometimes icons are under WorkerW instead
-            // (enumerate WorkerW windows and look for SHELLDLL_DefView)
+        // Get process ID of the ListView window
+        IntPtr processId;
+        WinApi.GetWindowThreadProcessId(listView, out processId);
 
-            Debug.LogError("Failed to get desktop ListView");
+        // Open the process
+        const uint PROCESS_ALL_ACCESS = 0x001F0FFF;
+        IntPtr hProcess = WinApi.OpenProcess(PROCESS_ALL_ACCESS, false, (uint)processId);
+        if (hProcess == IntPtr.Zero) {
+            Debug.LogError("DesktopWindowTracker: Failed to get open process for desktop listview");
+             return positions;
+        }
+
+        try
+        {
+            // Get icon count
+            int count = (int)WinApi.SendMessage(listView, WinApi.LVM_GETITEMCOUNT, IntPtr.Zero, IntPtr.Zero);
+
+            // Allocate memory in target process
+            const uint MEM_COMMIT = 0x1000;
+            const uint MEM_RESERVE = 0x2000;
+            const uint MEM_RELEASE = 0x8000;
+            const uint PAGE_READWRITE = 0x04;
+
+            IntPtr remoteBuffer = WinApi.VirtualAllocEx(hProcess, IntPtr.Zero, (uint)Marshal.SizeOf(typeof(Point)),
+                MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+
+            if (remoteBuffer == IntPtr.Zero)
+            {
+                Debug.LogError("DesktopWindowTracker: Failed to allocate remote memory");
+                return positions;
+            }
+
+            var text = new StringBuilder();
+            text.AppendLine($"Desktop Icon Positions: {count}");
+
+            // Get each icon position
+            for (int i = 0; i < count; i++)
+            {
+                // Send message with remote buffer address
+                WinApi.SendMessage(listView, WinApi.LVM_GETITEMPOSITION, (IntPtr)i, remoteBuffer);
+
+                // Read back the result
+                byte[] buffer = new byte[Marshal.SizeOf(typeof(Point))];
+                uint bytesRead;
+                WinApi.ReadProcessMemory(hProcess, remoteBuffer, buffer, (uint)buffer.Length, out bytesRead);
+
+                // Convert to POINT
+                GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+                Point pos = (Point)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(Point));
+                handle.Free();
+
+                text.AppendLine($"{i}: {pos}");
+
+                positions.Add(pos);
+            }
+
+            Debug.Log(text.ToString());
+
+            // Free remote memory
+            WinApi.VirtualFreeEx(hProcess, remoteBuffer, 0, MEM_RELEASE);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Exception while trying to get desktop icons: {e.Message}");
             return positions;
         }
-
-        // Get icon count
-        int count = (int)WinApi.SendMessage(listView, WinApi.LVM_GETITEMCOUNT, IntPtr.Zero, IntPtr.Zero);
-
-        var text = new StringBuilder();
-        text.AppendLine($"Desktop Icon Positions: {count}");
-
-        /*
-        Bug: this approach doesn't work.
-        the pos ref doesn't marshall correctly between our 64-bit app and the 32-bit process.
-        Instead we need to allocate space in the external process and marshall through there.
-        
-        That turns into a malware-esque pattern though.
-        */
-
-        // Get each icon position
-        for (int i = 0; i < count; i++)
+        finally
         {
-            Point pos = new Point();
-            bool result = WinApi.SendMessage(listView, WinApi.LVM_GETITEMPOSITION, (IntPtr)i, ref pos);
-            string error = "";
-            if (!result)
+            bool success = WinApi.CloseHandle(hProcess);
+            if (!success)
             {
-                error = $", error: {WinApi.GetLastError()}";
+                Debug.LogError("Failed to close process handle");
             }
-            text.AppendLine($"{i}: {pos}{error}");
-            positions.Add(pos);
         }
-
-        Debug.Log(text.ToString());
 
         return positions;
     }
