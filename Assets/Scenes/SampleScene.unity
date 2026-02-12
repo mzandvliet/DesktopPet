@@ -359,7 +359,7 @@ Camera:
   near clip plane: 0.1
   far clip plane: 200
   field of view: 35
-  orthographic: 0
+  orthographic: 1
   orthographic size: 5
   m_Depth: -1
   m_CullingMask:
@@ -447,6 +447,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f8bffb9c0ad51c41a8e0e527d0d962e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DesktopHook
+  useCullingMasks: 0
   _character: {fileID: 1708317061}
   _foodPrefab: {fileID: 1314191554671303762, guid: 8214f49531cf91744867c0339c3a58e0, type: 3}
   _boids: {fileID: 292536723}

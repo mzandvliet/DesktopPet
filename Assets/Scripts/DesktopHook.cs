@@ -636,6 +636,11 @@ public class DesktopHook : ImmediateModeShapeDrawer
 
     public override void DrawShapes(Camera cam)
     {
+        if (!_showDebug)
+        {
+            return;
+        }
+
         using (Draw.Command(cam, UnityEngine.Rendering.Universal.RenderPassEvent.AfterRenderingOpaques)) // UnityEngine.Rendering.Universal.RenderPassEvent.BeforeRendering
         {
             Draw.SizeSpace = ThicknessSpace.Meters;
@@ -643,8 +648,6 @@ public class DesktopHook : ImmediateModeShapeDrawer
             Draw.RadiusSpace = ThicknessSpace.Meters;
             Draw.Thickness = 1f;
             Draw.BlendMode = ShapesBlendMode.Opaque;
-
-            
 
             IntPtr listViewHwnd = DesktopIconMonitor.GetDesktopListView();
 
@@ -660,15 +663,33 @@ public class DesktopHook : ImmediateModeShapeDrawer
 
             const uint LVM_GETVIEW = 0x108F;
             int viewMode = (int)WinApi.SendMessage(listViewHwnd, LVM_GETVIEW, IntPtr.Zero, IntPtr.Zero);
-            // 0 = Large icons, 1 = Small icons, 2 = List, 3 = Details, 4 = Tile
+            // 0 = Large icons, 1 = Small icons, 2 = List, 3 = Details, 4 = Tile (but on desktop)
 
-            // For large icon view (desktop default), the icon graphic is typically:
-            
-            float offsetX = -14;
-            float offsetY = +14;
+            var iconSize = GetIconSize(iconWidth, iconHeight);
+            Debug.Log($"Icon size detected: {iconWidth}, {iconHeight} -> {iconSize}. Viewmode: {viewMode}");
+
+            float offsetX = 0;
+            float offsetY = 0;
+            switch (iconSize)
+            {
+                case DesktopIconSize.Small:
+                    offsetX = -22;
+                    offsetY = +14;
+                    break;
+                case DesktopIconSize.Medium:
+                    offsetX = -14;
+                    offsetY = +14;
+                    break;
+                case DesktopIconSize.Large:
+                    offsetX = -6;
+                    offsetY = +14;
+                    break;
+            }
+
+            var centerOffset = new int2(iconWidth / 2, iconHeight / 2);
 
 
-            float scale = 1;//desktopDpi / 96f;
+            float scale = desktopDpi / 96f;
 
             int screenHeight = Screen.currentResolution.height;
             
@@ -684,16 +705,51 @@ public class DesktopHook : ImmediateModeShapeDrawer
                 // Draw.Rectangle(item.bounds);
                 float y = screenHeight - iconPos.y - iconHeight;
                 var pos = cam.ScreenToWorldPoint(new Vector3(
-                    (iconPos.x + offsetX) * scale, //  - 0.5f * iconWidth
+                    (iconPos.x + offsetX) * scale,
                     (y + offsetY) * scale,
                     -cam.transform.position.z));
 
                 Draw.Color = Color.cyan;
                 Draw.RectangleBorder(pos, new Rect(0,0, iconWidth, iconHeight), 1);
 
+                var centerPos = cam.ScreenToWorldPoint(new Vector3(
+                    (iconPos.x + offsetX + centerOffset.x) * scale,
+                    (y + offsetY + centerOffset.y) * scale,
+                    -cam.transform.position.z));
+
                 Draw.Color = Color.black;
-                Draw.Sphere(pos, 0.1f);
+                Draw.Sphere(centerPos, 0.025f);
             }
         }
+    }
+
+   private enum DesktopIconSize
+    {
+        Small,
+        Medium,
+        Large
+    }
+
+    private static readonly int2[] DesktopIconSizes = new int2[]
+        {
+            new int2(76, 85), // Small, ~80
+            new int2(76, 98), // Medium, ~96
+            new int2(107, 149) // Large, ~128
+        };
+
+    private static DesktopIconSize GetIconSize(int width, int height)
+    {
+        int closestIdx = 1;
+        int closestDist = int.MaxValue;
+        for (int i = 0; i < DesktopIconSizes.Length; i++)
+        {
+            int dist = math.abs(height - DesktopIconSizes[i].y);
+            if (dist < closestDist)
+            {
+                closestDist = dist;
+                closestIdx = i;
+            }
+        }
+        return (DesktopIconSize)closestIdx;
     }
 }
