@@ -255,6 +255,13 @@ public class DesktopWindowTracker : MonoBehaviour
         return wHandle;
     }
 
+    /*
+    Original code was found here:
+    https://x.com/TheMirzaBeig/status/1780088441448837276
+
+    Parenting your window to this window puts it *behind* the
+    desktop icons
+    */
     public static IntPtr GetDesktopBackgroundWindowWorker()
     {
         IntPtr progmanHandle = GetProgramManagerWindowHandle();

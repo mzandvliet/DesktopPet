@@ -37,7 +37,7 @@ public class DesktopIconMonitor
 
     public static IntPtr GetDesktopListView()
     {
-        IntPtr listView = IntPtr.Zero;
+        IntPtr listViewHwnd = IntPtr.Zero;
 
         Win32.EnumWindows(new Win32.EnumWindowsProc((topHandle, topParamHandle) =>
         {
@@ -46,9 +46,9 @@ public class DesktopIconMonitor
             if (shellView != IntPtr.Zero)
             {
                 // The ListView is a CHILD of SHELLDLL_DefView, not a sibling
-                listView = WinApi.FindWindowEx(shellView, IntPtr.Zero, "SysListView32", "FolderView");
+                listViewHwnd = WinApi.FindWindowEx(shellView, IntPtr.Zero, "SysListView32", "FolderView");
 
-                if (listView != IntPtr.Zero)
+                if (listViewHwnd != IntPtr.Zero)
                 {
                     // Debug.Log($"Found desktop ListView: {listView}");
                     return false; // Stop enumeration
@@ -58,18 +58,18 @@ public class DesktopIconMonitor
             return true; // Continue enumeration
         }), IntPtr.Zero);
 
-        return listView;
+        return listViewHwnd;
     }
 
     private static bool GetDesktopIconPositions(List<Point> positions)
     {
         positions.Clear();
 
-        IntPtr listView = GetDesktopListView();
+        IntPtr listViewHwnd = GetDesktopListView();
 
         // Get process ID of the ListView window
         IntPtr processId;
-        WinApi.GetWindowThreadProcessId(listView, out processId);
+        WinApi.GetWindowThreadProcessId(listViewHwnd, out processId);
 
         // Open the process
         const uint PROCESS_ALL_ACCESS = 0x001F0FFF;
@@ -83,7 +83,7 @@ public class DesktopIconMonitor
         try
         {
             // Get icon count
-            int count = (int)WinApi.SendMessage(listView, WinApi.LVM_GETITEMCOUNT, IntPtr.Zero, IntPtr.Zero);
+            int count = (int)WinApi.SendMessage(listViewHwnd, WinApi.LVM_GETITEMCOUNT, IntPtr.Zero, IntPtr.Zero);
 
             // Allocate memory in target process
             const uint MEM_COMMIT = 0x1000;
@@ -107,21 +107,29 @@ public class DesktopIconMonitor
             for (int i = 0; i < count; i++)
             {
                 // Send message with remote buffer address
-                WinApi.SendMessage(listView, WinApi.LVM_GETITEMPOSITION, (IntPtr)i, remoteBuffer);
+                WinApi.SendMessage(listViewHwnd, WinApi.LVM_GETITEMPOSITION, (IntPtr)i, remoteBuffer);
 
                 // Read back the result
-                byte[] buffer = new byte[Marshal.SizeOf(typeof(Point))];
+                byte[] buffer = new byte[Marshal.SizeOf(typeof(Point))]; // todo: cache this memory
                 uint bytesRead;
                 WinApi.ReadProcessMemory(hProcess, remoteBuffer, buffer, (uint)buffer.Length, out bytesRead);
 
                 // Convert to POINT
                 GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
-                Point pos = (Point)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(Point));
+                Point clientPos = (Point)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(Point));
                 handle.Free();
 
                 // text.AppendLine($"{i}: {pos}");
 
-                positions.Add(pos);
+                Point screenPos = clientPos;
+                WinApi.ClientToScreen(listViewHwnd, ref screenPos);
+
+                if (i == 0)
+                {
+                    Debug.Log($"Icon: clientPos {clientPos} -> screenpos {screenPos}");
+                }
+
+                positions.Add(screenPos);
             }
 
             // Debug.Log(text.ToString());

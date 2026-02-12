@@ -73,6 +73,7 @@ namespace Frantic.Windows
         public const uint SWP_NOSIZE = 0x0001;
         public const uint SWP_NOACTIVATE = 0x0010;
         public const uint SWP_FRAMECHANGED = 0x0020;
+        public const uint SWP_SHOWWINDOW = 0x0040;
 
         public const uint GW_HWNDFIRST = 0; // Topmost window in z-order
         public const uint GW_HWNDLAST = 1; // Window above us in z-order
@@ -194,6 +195,12 @@ namespace Frantic.Windows
         [DllImport("user32.dll")]
         public static extern uint GetDpiForWindow(IntPtr hWnd);
 
+        [DllImport("user32.dll")]
+        public static extern bool SetProcessDPIAware();
+
+        [DllImport("SHCore.dll")]
+        public static extern int SetProcessDpiAwareness(int awareness);
+
 
 
         [DllImport("kernel32.dll")]
@@ -213,5 +220,8 @@ namespace Frantic.Windows
 
         [DllImport("kernel32.dll")]
         public static extern bool ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, byte[] lpBuffer, uint nSize, out uint lpNumberOfBytesRead);
+
+        [DllImport("user32.dll")]
+        public static extern bool ClientToScreen(IntPtr hWnd, ref Point point);
     }
 }

@@ -488,23 +488,39 @@ public class DesktopHook : ImmediateModeShapeDrawer
         }
 
         _hwnd = WinApi.GetActiveWindow();
+        
+        try
+        {
+            const int PROCESS_PER_MONITOR_DPI_AWARE = 2;
+            WinApi.SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
+        }
+        catch
+        {
+            Debug.Log("Couldn't set DPI awarness, using fallback");
+            WinApi.SetProcessDPIAware(); // Fallback for older Windows
+        }
 
         // Make it a popup window
-        if(WinApi.SetWindowLongPtr(_hwnd, GWL_Flags.GWL_STYLE, new IntPtr((uint)WindowStyles.WS_POPUP | (uint)WindowStyles.WS_VISIBLE)) == IntPtr.Zero)
+        if (WinApi.SetWindowLongPtr(_hwnd, GWL_Flags.GWL_STYLE, new IntPtr((uint)WindowStyles.WS_POPUP | (uint)WindowStyles.WS_VISIBLE)) == IntPtr.Zero)
         {
             Debug.LogError($"Failed to set popup window style");
             return false;
         }
 
+        // Force window to fit full-screen size, instead of work area size (which is minus taskbar?)
+        int screenWidth = Screen.currentResolution.width;
+        int screenHeight = Screen.currentResolution.height;
+        WinApi.SetWindowPos(_hwnd, IntPtr.Zero, 0, 0, screenWidth, screenHeight, WinApi.SWP_FRAMECHANGED | WinApi.SWP_SHOWWINDOW);
+
         // Make it click-through, not take focus, hidden from taskbar and task switcher
         IntPtr exStyle = WinApi.GetWindowLongPtr(_hwnd, GWL_Flags.GWL_EXSTYLE);
-        long newStyle = exStyle.ToInt64();
+        long newExStyle = exStyle.ToInt64();
         // newStyle |= (uint)WindowStylesEx.WS_EX_TOOLWINDOW; // prevent showing in task switcher and task bar (also puts app in separate windows Z-order list, not good)
-        newStyle |= (uint)WindowStylesEx.WS_EX_NOACTIVATE; // prevent taking focus
-        newStyle |= (uint)WindowStylesEx.WS_EX_LAYERED;
+        newExStyle |= (uint)WindowStylesEx.WS_EX_NOACTIVATE; // prevent taking focus
+        newExStyle |= (uint)WindowStylesEx.WS_EX_LAYERED;
         // newStyle |= (uint)WindowStylesEx.WS_EX_TRANSPARENT; // make everything clickthrough, always
 
-        if ((WinApi.SetWindowLongPtr(_hwnd, GWL_Flags.GWL_EXSTYLE, new IntPtr(newStyle)) == IntPtr.Zero) && (exStyle != IntPtr.Zero))
+        if ((WinApi.SetWindowLongPtr(_hwnd, GWL_Flags.GWL_EXSTYLE, new IntPtr(newExStyle)) == IntPtr.Zero) && (exStyle != IntPtr.Zero))
         {
             Debug.LogError($"Failed to set window ex style");
             return false;
@@ -558,23 +574,23 @@ public class DesktopHook : ImmediateModeShapeDrawer
         }
 
         IntPtr exStyle = WinApi.GetWindowLongPtr(_hwnd, GWL_Flags.GWL_EXSTYLE);
-        long newStyle = exStyle.ToInt64();
-        bool isTransparent = Mask.IsBitSet(newStyle, (uint)WindowStylesEx.WS_EX_TRANSPARENT);
+        long newExStyle = exStyle.ToInt64();
+        bool isExTransparent = Mask.IsBitSet(newExStyle, (uint)WindowStylesEx.WS_EX_TRANSPARENT);
 
-        if (makeTransparent == isTransparent) {
+        if (makeTransparent == isExTransparent) {
             // no need to do anything
             return true;
         }
 
         if (makeTransparent)
         {
-            newStyle = Mask.SetBit(newStyle, (uint)WindowStylesEx.WS_EX_TRANSPARENT); // make everything clickthrough, always
+            newExStyle = Mask.SetBit(newExStyle, (uint)WindowStylesEx.WS_EX_TRANSPARENT); // make everything clickthrough, always
         } else
         {
-            newStyle = Mask.UnsetBit(newStyle, (uint)WindowStylesEx.WS_EX_TRANSPARENT); // make nothing clickthrough
+            newExStyle = Mask.UnsetBit(newExStyle, (uint)WindowStylesEx.WS_EX_TRANSPARENT); // make nothing clickthrough
         }
 
-        if ((WinApi.SetWindowLongPtr(_hwnd, GWL_Flags.GWL_EXSTYLE, new IntPtr(newStyle)) == IntPtr.Zero) && (exStyle != IntPtr.Zero))
+        if ((WinApi.SetWindowLongPtr(_hwnd, GWL_Flags.GWL_EXSTYLE, new IntPtr(newExStyle)) == IntPtr.Zero) && (exStyle != IntPtr.Zero))
         {
             Debug.LogError($"Failed to set window ex style");
             return false;
@@ -628,22 +644,55 @@ public class DesktopHook : ImmediateModeShapeDrawer
             Draw.Thickness = 1f;
             Draw.BlendMode = ShapesBlendMode.Opaque;
 
-            int screenHeight = Screen.currentResolution.height;
+            
 
             IntPtr listViewHwnd = DesktopIconMonitor.GetDesktopListView();
-            uint desktopDpi = WinApi.GetDpiForWindow(listViewHwnd);
-            Debug.Log($"desktop listview dpi: {desktopDpi}");
-            
-            float scale = 96.0f / desktopDpi;
 
-            Draw.Color = Color.cyan;
+            // Get icon spacing/size from ListView
+            const uint LVM_GETITEMSPACING = 0x1033;
+            IntPtr spacing = WinApi.SendMessage(listViewHwnd, LVM_GETITEMSPACING, IntPtr.Zero, IntPtr.Zero);
+            int iconWidth = (int)(spacing.ToInt32() & 0xFFFF);
+            int iconHeight = (int)((spacing.ToInt32() >> 16) & 0xFFFF);
+
+            uint desktopDpi = WinApi.GetDpiForSystem();//WinApi.GetDpiForWindow(listViewHwnd);
+            // Debug.Log($"desktop listview dpi: {desktopDpi}");
+            // Debug.Log($"Screen Resolution: {Screen.width}x{Screen.height}, Windows Screen: {Screen.currentResolution.width}x{Screen.currentResolution.height}");
+
+            const uint LVM_GETVIEW = 0x108F;
+            int viewMode = (int)WinApi.SendMessage(listViewHwnd, LVM_GETVIEW, IntPtr.Zero, IntPtr.Zero);
+            // 0 = Large icons, 1 = Small icons, 2 = List, 3 = Details, 4 = Tile
+
+            // For large icon view (desktop default), the icon graphic is typically:
+            
+            float offsetX = -14;
+            float offsetY = +14;
+
+
+            float scale = 1;//desktopDpi / 96f;
+
+            int screenHeight = Screen.currentResolution.height;
+            
+            Draw.Color = Color.magenta;
+            Draw.Sphere(cam.ScreenToWorldPoint(new Vector3(0f, 0f, -cam.transform.position.z)), 1f);
+            Draw.Sphere(cam.ScreenToWorldPoint(new Vector3(0f, Screen.currentResolution.height, -cam.transform.position.z)), 1f);
+            Draw.Color = Color.black;
+            Draw.Sphere(cam.ScreenToWorldPoint(new Vector3(0f, 0f, -cam.transform.position.z)), 0.1f);
+            Draw.Sphere(cam.ScreenToWorldPoint(new Vector3(0f, Screen.currentResolution.height, -cam.transform.position.z)), 0.1f);
+
             foreach (var iconPos in _iconMonitor.Icons)
             {
                 // Draw.Rectangle(item.bounds);
-                const float iconHeight = 100;
                 float y = screenHeight - iconPos.y - iconHeight;
-                var pos = cam.ScreenToWorldPoint(new Vector3(iconPos.x * scale, y * scale, -cam.transform.position.z));
-                Draw.RectangleBorder(pos, new Rect(0,0, 0.95f, 0.95f), 1);
+                var pos = cam.ScreenToWorldPoint(new Vector3(
+                    (iconPos.x + offsetX) * scale, //  - 0.5f * iconWidth
+                    (y + offsetY) * scale,
+                    -cam.transform.position.z));
+
+                Draw.Color = Color.cyan;
+                Draw.RectangleBorder(pos, new Rect(0,0, iconWidth, iconHeight), 1);
+
+                Draw.Color = Color.black;
+                Draw.Sphere(pos, 0.1f);
             }
         }
     }
