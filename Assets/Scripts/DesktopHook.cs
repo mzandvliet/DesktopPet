@@ -90,7 +90,8 @@ public class DesktopHook : ImmediateModeShapeDrawer
         Screen.fullScreenMode = FullScreenMode.Windowed;
         // Screen.SetResolution(3440, 1440, false);
 
-        if (ConfigureApplicationWindow())
+        // if (ConfigureTransparentFullscreenWindow())
+        if (ConfigureOpaqueBehindIconsWindow())
         {
             Debug.Log("Succesfully hooked into desktop background!");
         }
@@ -125,13 +126,15 @@ public class DesktopHook : ImmediateModeShapeDrawer
         /* Decide on window input-transparency based on whether cursor is hovering over anything interactive in the scene */
 
         var mousePosWin = SystemInput.GetCursorPosition();
-        if (ShouldCaptureInput(mousePosWin.x, mousePosWin.y))
-        {
-            SetWindowTransparent(false);
-        } else
-        {
-            SetWindowTransparent(true);
-        }
+
+        // If this app is capable of being in front of other windows, manage focus
+        // if (ShouldCaptureInput(mousePosWin.x, mousePosWin.y))
+        // {
+        //     SetWindowTransparent(false);
+        // } else
+        // {
+        //     SetWindowTransparent(true);
+        // }
 
         if (Time.frameCount % 60 == 0) {
             _iconMonitor.Update();
@@ -505,13 +508,17 @@ public class DesktopHook : ImmediateModeShapeDrawer
     Important:
     URP renderer needs to be configured to render to a buffer with transparency information in there!
     */
-    private bool ConfigureApplicationWindow()
+    private bool ConfigureTransparentFullscreenWindow()
     {
         if (!IsWindowsDesktop())
         {
             Debug.LogError($"Platform not supported: {Application.platform}");
             return false;
         }
+
+        // Set Unity camera to transparent
+        _camera.backgroundColor = new Color(0, 0, 0, 0);
+        _camera.clearFlags = CameraClearFlags.SolidColor;
 
         _hwnd = WinApi.GetActiveWindow();
         
@@ -557,18 +564,14 @@ public class DesktopHook : ImmediateModeShapeDrawer
         int dwmResult = WinApi.DwmExtendFrameIntoClientArea(_hwnd, ref margins);
         Debug.Log($"DWM result: 0x{dwmResult:X} (0 = S_OK)");
   
-        // Set Unity camera to transparent
-        _camera.backgroundColor = new Color(0, 0, 0, 0);
-        _camera.clearFlags = CameraClearFlags.SolidColor;
-
         SetWindowZOrder(ZWindowOrder.Bottom);
 
         return true;
     }
 
-    private bool SetApplicationWindowBehindIcons()
+    private bool ConfigureOpaqueBehindIconsWindow()
     {
-        if (Application.platform != RuntimePlatform.WindowsPlayer || Application.platform == RuntimePlatform.WindowsEditor)
+        if (!IsWindowsDesktop())
         {
             Debug.LogError($"Platform not supported: {Application.platform}");
             return false;
@@ -579,11 +582,48 @@ public class DesktopHook : ImmediateModeShapeDrawer
         _camera.clearFlags = CameraClearFlags.SolidColor;
 
         _hwnd = WinApi.GetActiveWindow();
-        var workerW = DesktopWindowTracker.GetDesktopBackgroundWindowWorker();
 
-        if (workerW == IntPtr.Zero)
+        try
+        {
+            const int PROCESS_PER_MONITOR_DPI_AWARE = 2;
+            WinApi.SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
+        }
+        catch
+        {
+            Debug.Log("Couldn't set DPI awarness, using fallback");
+            WinApi.SetProcessDPIAware(); // Fallback for older Windows
+        }
+
+        // Make it a popup window
+        if (WinApi.SetWindowLongPtr(_hwnd, GWL_Flags.GWL_STYLE, new IntPtr((uint)WindowStyles.WS_POPUP | (uint)WindowStyles.WS_VISIBLE)) == IntPtr.Zero)
+        {
+            Debug.LogError($"Failed to set popup window style");
+            return false;
+        }
+
+        // Force window to fit full-screen size, instead of work area size (which is minus taskbar?)
+        int screenWidth = Screen.currentResolution.width;
+        int screenHeight = Screen.currentResolution.height;
+        WinApi.SetWindowPos(_hwnd, IntPtr.Zero, 0, 0, screenWidth, screenHeight, WinApi.SWP_FRAMECHANGED | WinApi.SWP_SHOWWINDOW);
+
+        // Make it click-through, not take focus, hidden from taskbar and task switcher
+        IntPtr exStyle = WinApi.GetWindowLongPtr(_hwnd, GWL_Flags.GWL_EXSTYLE);
+        long newExStyle = exStyle.ToInt64();
+        // newExStyle |= (uint)WindowStylesEx.WS_EX_TOOLWINDOW; // prevent showing in task switcher and task bar (also puts app in separate windows Z-order list, not good)
+        // newExStyle |= (uint)WindowStylesEx.WS_EX_NOACTIVATE; // prevent taking focus
+        newExStyle |= (uint)WindowStylesEx.WS_EX_LAYERED;
+        newExStyle |= (uint)WindowStylesEx.WS_EX_TRANSPARENT; // make everything clickthrough, always
+
+        if ((WinApi.SetWindowLongPtr(_hwnd, GWL_Flags.GWL_EXSTYLE, new IntPtr(newExStyle)) == IntPtr.Zero) && (exStyle != IntPtr.Zero))
         {
             Debug.LogError($"Failed to set window ex style");
+            return false;
+        }
+
+        var workerW = DesktopWindowTracker.GetDesktopBackgroundWindowWorker();
+        if (workerW == IntPtr.Zero)
+        {
+            Debug.LogError($"Failed to set window as workerW child");
             return false;
             
         }

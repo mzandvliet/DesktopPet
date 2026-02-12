@@ -273,14 +273,13 @@ public class DesktopWindowTracker : MonoBehaviour
     public static IntPtr GetDesktopBackgroundWindowWorker()
     {
         IntPtr progmanHandle = GetProgramManagerWindowHandle();
-        // Debug.Log($"progmanHandle found: {progmanHandle}.");
+        Debug.Log($"progmanHandle found: {progmanHandle}.");
 
         IntPtr result = IntPtr.Zero;
 
         // Send 0x052C to Progman. This message directs Progman to spawn a 
         // WorkerW behind the desktop icons. If it is already there, nothing 
         // happens.
-        // Debug.Log("Triggering ProgramManager WorkerW spawn...");
         Win32.SendMessageTimeout(progmanHandle,
                                 0x052C,
                                 new IntPtr(0),
@@ -288,13 +287,14 @@ public class DesktopWindowTracker : MonoBehaviour
                                 SendMessageTimeoutFlags.SMTO_NORMAL,
                                 1000,
                                 out result);
+        Debug.Log($"Triggered ProgramManager WorkerW spawn... result: {result}");
 
-        // Debug.Log("Attempting to find WorkerW through progman procHandle...");
+        Debug.Log("Attempting to find WorkerW through progman procHandle...");
         IntPtr workerW = Win32.FindWindowEx(progmanHandle, IntPtr.Zero, "WorkerW", IntPtr.Zero); // windowName was null in example
 
         // If that doesn't work, try searching alternative layout
 
-        // Debug.Log("Alternatively, enumerate top-level windows to find SHELLDLL_DefView as child...");
+        Debug.Log("Enumerating top-level windows to find SHELLDLL_DefView as child...");
 
         // Enumerate top-level windows until finding SHELLDLL_DefView as child.
         Win32.EnumWindows(new Win32.EnumWindowsProc((topHandle, topParamHandle) =>
@@ -303,10 +303,21 @@ public class DesktopWindowTracker : MonoBehaviour
 
             if (SHELLDLL_DefView != IntPtr.Zero)
             {
+                Debug.Log("found SHELLDLL_DefView");
+
                 // If found, take next sibling as workerW
                 // > Gets the WorkerW Window after the current one.
                 workerW = Win32.FindWindowEx(IntPtr.Zero, topHandle, "WorkerW", IntPtr.Zero);
-                return false;
+                if (workerW != IntPtr.Zero)
+                {
+                    Debug.Log("found workerW");
+                }
+                // else
+                // {
+                //     Debug.Log("using shellview parent as workerW");
+                //     workerW = topHandle;
+                // }
+                // return false;
             }
 
             return true; // Continue enumeration
