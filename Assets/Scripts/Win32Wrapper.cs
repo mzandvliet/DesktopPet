@@ -204,6 +204,11 @@ namespace DrawBehindDesktopIcons
         ShowWindow = 0x0040
     }
 
+    public enum ShowWindowFlags : int
+    {
+        SW_Show = 5
+    }
+
     public enum WindowLongFlags : int
     {
         GWL_EXSTYLE = -20,
@@ -301,7 +306,12 @@ namespace DrawBehindDesktopIcons
         WS_VISIBLE = 0x10000000,
 
         /// <summary>The window has a vertical scroll bar.</summary>
-        WS_VSCROLL = 0x200000
+        WS_VSCROLL = 0x200000,
+
+        /// <summary>
+        /// The window has a sizing border. Same as the WS_SIZEBOX style.
+        /// </summary>
+        WS_THICKFRAME = 0x00040000,
     }
 
     [Flags]

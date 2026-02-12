@@ -187,6 +187,12 @@ namespace Frantic.Windows
         [DllImport("user32.dll")]
         public static extern bool SendMessage(IntPtr hWnd, uint Msg, IntPtr wParam, ref Point lParam);
 
+        [DllImport("user32.dll")]
+        public static extern bool GetWindowRect(IntPtr hWnd, out RECT rect);
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetParent(IntPtr hWnd);
+
 
 
         [DllImport("user32.dll")]

@@ -275,53 +275,50 @@ public class DesktopWindowTracker : MonoBehaviour
         IntPtr progmanHandle = GetProgramManagerWindowHandle();
         Debug.Log($"progmanHandle found: {progmanHandle}.");
 
-        IntPtr result = IntPtr.Zero;
-
         // Send 0x052C to Progman. This message directs Progman to spawn a 
         // WorkerW behind the desktop icons. If it is already there, nothing 
         // happens.
+        Debug.Log("Triggering ProgramManager WorkerW spawn...");
         Win32.SendMessageTimeout(progmanHandle,
-                                0x052C,
-                                new IntPtr(0),
-                                IntPtr.Zero,
-                                SendMessageTimeoutFlags.SMTO_NORMAL,
-                                1000,
-                                out result);
-        Debug.Log($"Triggered ProgramManager WorkerW spawn... result: {result}");
+                               0x052C,
+                               IntPtr.Zero,
+                               IntPtr.Zero,
+                               SendMessageTimeoutFlags.SMTO_NORMAL,
+                               1000,
+                               out _);
 
         Debug.Log("Attempting to find WorkerW through progman procHandle...");
-        IntPtr workerW = Win32.FindWindowEx(progmanHandle, IntPtr.Zero, "WorkerW", IntPtr.Zero); // windowName was null in example
+        IntPtr workerW = IntPtr.Zero;
+        workerW = Win32.FindWindowEx(progmanHandle, IntPtr.Zero, "WorkerW", IntPtr.Zero);
 
         // If that doesn't work, try searching alternative layout
 
-        Debug.Log("Enumerating top-level windows to find SHELLDLL_DefView as child...");
-
-        // Enumerate top-level windows until finding SHELLDLL_DefView as child.
-        Win32.EnumWindows(new Win32.EnumWindowsProc((topHandle, topParamHandle) =>
+        if (workerW == IntPtr.Zero)
         {
-            IntPtr SHELLDLL_DefView = Win32.FindWindowEx(topHandle, IntPtr.Zero, "SHELLDLL_DefView", IntPtr.Zero);
+            Debug.Log("Alternatively, enumerate top-level windows to find SHELLDLL_DefView as child...");
 
-            if (SHELLDLL_DefView != IntPtr.Zero)
+            EnumWindows((hwnd, lParam) =>
             {
-                Debug.Log("found SHELLDLL_DefView");
-
-                // If found, take next sibling as workerW
-                // > Gets the WorkerW Window after the current one.
-                workerW = Win32.FindWindowEx(IntPtr.Zero, topHandle, "WorkerW", IntPtr.Zero);
-                if (workerW != IntPtr.Zero)
+                IntPtr shellView = Win32.FindWindowEx(hwnd, IntPtr.Zero, "SHELLDLL_DefView", IntPtr.Zero);
+                if (shellView != IntPtr.Zero)
                 {
-                    Debug.Log("found workerW");
+                    // Found the WorkerW with SHELLDLL_DefView
+                    // Get its next sibling under the same parent (Progman)
+                    IntPtr parent = WinApi.GetParent(hwnd);
+                    workerW = Win32.FindWindowEx(parent, hwnd, "WorkerW", IntPtr.Zero);
+                    return false;
                 }
-                // else
-                // {
-                //     Debug.Log("using shellview parent as workerW");
-                //     workerW = topHandle;
-                // }
-                // return false;
-            }
+                return true;
+            }, IntPtr.Zero);
+        }
 
-            return true; // Continue enumeration
-        }), IntPtr.Zero);
+        if (workerW != IntPtr.Zero)
+        {
+            Debug.Log($"Found WorkerW: {workerW}");
+        } else
+        {
+            Debug.LogError("Did not find WorkerW...");
+        }
 
         return workerW;
     }

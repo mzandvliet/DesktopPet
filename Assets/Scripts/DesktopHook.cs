@@ -100,7 +100,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
             Debug.Log("Error: Failed to hook into desktop background...");
         }
         
-        if (_iconMonitor.Initialize())
+        if (!_iconMonitor.Initialize())
         {
             Debug.Log("Error: Failed to initialize Desktop Icon Monitor...");
         }
@@ -223,6 +223,11 @@ public class DesktopHook : ImmediateModeShapeDrawer
 
     private void HandleClick(Vector2Int mousePosWin, Vector2Int mousePosUnity)
     {
+        if (_iconMonitor == null)
+        {
+            return;
+        }
+
         int iconIndex = _iconMonitor.HitTest((int)mousePosWin.x, mousePosWin.y);
 
         bool clickedIcon = iconIndex >= 0;
@@ -578,42 +583,59 @@ public class DesktopHook : ImmediateModeShapeDrawer
         }
 
         // Set Unity camera to transparent
-        _camera.backgroundColor = new Color(0, 0, 0, 0);
-        _camera.clearFlags = CameraClearFlags.SolidColor;
+        // _camera.backgroundColor = new Color(0, 0, 0, 1);
+        // _camera.clearFlags = CameraClearFlags.SolidColor;
 
         _hwnd = WinApi.GetActiveWindow();
 
-        try
-        {
-            const int PROCESS_PER_MONITOR_DPI_AWARE = 2;
-            WinApi.SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
-        }
-        catch
-        {
-            Debug.Log("Couldn't set DPI awarness, using fallback");
-            WinApi.SetProcessDPIAware(); // Fallback for older Windows
-        }
+        // try
+        // {
+        //     const int PROCESS_PER_MONITOR_DPI_AWARE = 2;
+        //     WinApi.SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
+        // }
+        // catch
+        // {
+        //     Debug.Log("Couldn't set DPI awarness, using fallback");
+        //     WinApi.SetProcessDPIAware(); // Fallback for older Windows
+        // }
 
-        // Make it a popup window
-        if (WinApi.SetWindowLongPtr(_hwnd, GWL_Flags.GWL_STYLE, new IntPtr((uint)WindowStyles.WS_POPUP | (uint)WindowStyles.WS_VISIBLE)) == IntPtr.Zero)
+        // // Make it a popup window
+        IntPtr style = WinApi.GetWindowLongPtr(_hwnd, GWL_Flags.GWL_STYLE);
+        long newStyle = style.ToInt64();
+        // newStyle = Mask.SetBit(newStyle, (uint)WindowStyles.WS_POPUP);
+        // newStyle = Mask.SetBit(newStyle, (uint)WindowStyles.WS_VISIBLE);
+        newStyle &= ~(
+                (uint)WindowStyles.WS_CAPTION |
+                (uint)WindowStyles.WS_THICKFRAME |
+                (uint)WindowStyles.WS_SYSMENU |
+                (uint)WindowStyles.WS_MAXIMIZEBOX |
+                (uint)WindowStyles.WS_MINIMIZEBOX
+        );
+        if (WinApi.SetWindowLongPtr(_hwnd, GWL_Flags.GWL_STYLE, new IntPtr(newStyle)) == IntPtr.Zero)
         {
             Debug.LogError($"Failed to set popup window style");
             return false;
         }
 
-        // Force window to fit full-screen size, instead of work area size (which is minus taskbar?)
-        int screenWidth = Screen.currentResolution.width;
-        int screenHeight = Screen.currentResolution.height;
-        WinApi.SetWindowPos(_hwnd, IntPtr.Zero, 0, 0, screenWidth, screenHeight, WinApi.SWP_FRAMECHANGED | WinApi.SWP_SHOWWINDOW);
+        // // // Force window to fit full-screen size, instead of work area size (which is minus taskbar?)
+        // int screenWidth = Screen.currentResolution.width;
+        // int screenHeight = Screen.currentResolution.height;
+        // WinApi.SetWindowPos(_hwnd, IntPtr.Zero, 0, 0, screenWidth, screenHeight, WinApi.SWP_FRAMECHANGED | WinApi.SWP_SHOWWINDOW);
 
-        // Make it click-through, not take focus, hidden from taskbar and task switcher
         IntPtr exStyle = WinApi.GetWindowLongPtr(_hwnd, GWL_Flags.GWL_EXSTYLE);
         long newExStyle = exStyle.ToInt64();
-        // newExStyle |= (uint)WindowStylesEx.WS_EX_TOOLWINDOW; // prevent showing in task switcher and task bar (also puts app in separate windows Z-order list, not good)
-        // newExStyle |= (uint)WindowStylesEx.WS_EX_NOACTIVATE; // prevent taking focus
-        newExStyle |= (uint)WindowStylesEx.WS_EX_LAYERED;
-        newExStyle |= (uint)WindowStylesEx.WS_EX_TRANSPARENT; // make everything clickthrough, always
-
+        // newExStyle = Mask.UnsetBit(newExStyle, (uint)WindowStylesEx.WS_EX_TOOLWINDOW);
+        // newExStyle = Mask.UnsetBit(newExStyle, (uint)WindowStylesEx.WS_EX_LAYERED);
+        newExStyle &= ~(
+                (uint)WindowStylesEx.WS_EX_DLGMODALFRAME |
+                (uint)WindowStylesEx.WS_EX_COMPOSITED |
+                (uint)WindowStylesEx.WS_EX_WINDOWEDGE |
+                (uint)WindowStylesEx.WS_EX_CLIENTEDGE |
+                (uint)WindowStylesEx.WS_EX_LAYERED |
+                (uint)WindowStylesEx.WS_EX_STATICEDGE |
+                (uint)WindowStylesEx.WS_EX_TOOLWINDOW |
+                (uint)WindowStylesEx.WS_EX_APPWINDOW
+        );
         if ((WinApi.SetWindowLongPtr(_hwnd, GWL_Flags.GWL_EXSTYLE, new IntPtr(newExStyle)) == IntPtr.Zero) && (exStyle != IntPtr.Zero))
         {
             Debug.LogError($"Failed to set window ex style");
@@ -625,10 +647,10 @@ public class DesktopHook : ImmediateModeShapeDrawer
         {
             Debug.LogError($"Failed to set window as workerW child");
             return false;
-            
         }
 
         Win32.SetParent(_hwnd, workerW);
+        Win32.ShowWindow(_hwnd, (int)ShowWindowFlags.SW_Show);
         return true;
     }
 
@@ -732,7 +754,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
             // 0 = Large icons, 1 = Small icons, 2 = List, 3 = Details, 4 = Tile (but on desktop)
 
             var iconSize = GetIconSize(iconWidth, iconHeight);
-            Debug.Log($"Icon size detected: {iconWidth}, {iconHeight} -> {iconSize}. Viewmode: {viewMode}");
+            // Debug.Log($"Icon size detected: {iconWidth}, {iconHeight} -> {iconSize}. Viewmode: {viewMode}");
 
             float offsetX = 0;
             float offsetY = 0;
