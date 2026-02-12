@@ -99,13 +99,21 @@ public class DesktopHook : ImmediateModeShapeDrawer
             Debug.Log("Error: Failed to hook into desktop background...");
         }
         
+        if (_iconMonitor.Initialize())
+        {
+            Debug.Log("Error: Failed to initialize Desktop Icon Monitor...");
+        }
+
         // DesktopWindowTracker.GetDesktopIconPositions();
         // _iconMonitor.Start();
     }
 
     private void OnDestroy()
     {
-        // _iconMonitor.Stop();
+        if (_iconMonitor != null)
+        {
+            _iconMonitor.Dispose();
+        }
     }
 
     private void Update()
@@ -212,6 +220,24 @@ public class DesktopHook : ImmediateModeShapeDrawer
 
     private void HandleClick(Vector2Int mousePosWin, Vector2Int mousePosUnity)
     {
+        int iconIndex = _iconMonitor.HitTest((int)mousePosWin.x, mousePosWin.y);
+
+        bool clickedIcon = iconIndex >= 0;
+
+        if (clickedIcon)
+        {
+            Debug.Log($"Clicked on desktop icon {iconIndex}");
+        }
+        else
+        {
+            Debug.Log("Clicked on game");
+        }
+
+        if (clickedIcon)
+        {
+            return;
+        }
+
         Ray ray = _camera.ScreenPointToRay(new Vector3(mousePosUnity.x, mousePosUnity.y, 0.1f));
         if (Physics.Raycast(ray, out RaycastHit hit, _maxRaycastDistance, _interactableLayers))
         {

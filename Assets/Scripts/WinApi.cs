@@ -223,5 +223,8 @@ namespace Frantic.Windows
 
         [DllImport("user32.dll")]
         public static extern bool ClientToScreen(IntPtr hWnd, ref Point point);
+
+        [DllImport("user32.dll")]
+        public static extern bool ScreenToClient(IntPtr hWnd, ref Point lpPoint);
     }
 }
