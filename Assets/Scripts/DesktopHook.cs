@@ -61,7 +61,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
 
     private double _lastFoodSpawnTime;
 
-    private bool _showDebug;
+    private bool _showDebug = true;
 
     public void Awake()
     {
@@ -628,12 +628,13 @@ public class DesktopHook : ImmediateModeShapeDrawer
         // IntPtr style = WinApi.GetWindowLongPtr(_hwnd, GWL_Flags.GWL_STYLE);
         // long newStyle = style.ToInt64();
 
-        long newStyle =
-            (uint)WindowStyles.WS_POPUP |
-            // (uint)WindowStyles.WS_THICKFRAME |
-            (uint)WindowStyles.WS_SYSMENU |
-            (uint)WindowStyles.WS_MAXIMIZEBOX |
-            (uint)WindowStyles.WS_MINIMIZEBOX;
+        long newStyle = 0;
+        newStyle |= (uint)WindowStyles.WS_POPUP;
+        // newStyle |= (uint)WindowStyles.WS_CAPTION;
+        // newStyle |= (uint)WindowStyles.WS_THICKFRAME;
+        // newStyle |= (uint)WindowStyles.WS_SYSMENU;
+        // newStyle |= (uint)WindowStyles.WS_MAXIMIZEBOX;
+        // newStyle |= (uint)WindowStyles.WS_MINIMIZEBOX;
 
         if (WinApi.SetWindowLongPtr(_hwnd, GWL_Flags.GWL_STYLE, new IntPtr(newStyle)) == IntPtr.Zero)
         {
@@ -653,9 +654,9 @@ public class DesktopHook : ImmediateModeShapeDrawer
             return false;
         }
 
-        Margins margins = new Margins { cxLeftWidth = -1 };
-        int dwmResult = WinApi.DwmExtendFrameIntoClientArea(_hwnd, ref margins);
-        Debug.Log($"DWM result: 0x{dwmResult:X} (0 = S_OK)");
+        // Margins margins = new Margins { cxLeftWidth = -1 };
+        // int dwmResult = WinApi.DwmExtendFrameIntoClientArea(_hwnd, ref margins);
+        // Debug.Log($"DWM result: 0x{dwmResult:X} (0 = S_OK)");
 
         var workerW = DesktopWindowTracker.GetDesktopBackgroundWindowWorker();
         if (workerW == IntPtr.Zero)
@@ -665,7 +666,6 @@ public class DesktopHook : ImmediateModeShapeDrawer
         }
 
         Win32.SetParent(_hwnd, workerW);
-        Win32.ShowWindow(_hwnd, (int)ShowWindowFlags.SW_Show);
 
         // Force window to fit full-screen size, instead of work area size (which is minus taskbar?)
         int screenWidth = Screen.currentResolution.width;
@@ -717,6 +717,10 @@ public class DesktopHook : ImmediateModeShapeDrawer
 
     private void SetWindowZOrder(ZWindowOrder order)
     {
+        /*
+        Todo: disable if running behind desktop icons
+        */
+
         switch (order)
         {
             case ZWindowOrder.Bottom:
@@ -750,7 +754,11 @@ public class DesktopHook : ImmediateModeShapeDrawer
             return;
         }
 
-        using (Draw.Command(cam, UnityEngine.Rendering.Universal.RenderPassEvent.AfterRenderingOpaques)) // UnityEngine.Rendering.Universal.RenderPassEvent.BeforeRendering
+        /*
+        If behind desktop icons mode
+        When rendering AfterOpaques, the rendering fails, only showing when overlaying something else that is opaque. Why?
+        */
+        using (Draw.Command(cam, UnityEngine.Rendering.Universal.RenderPassEvent.AfterRenderingTransparents))
         {
             Draw.SizeSpace = ThicknessSpace.Meters;
             Draw.ThicknessSpace = ThicknessSpace.Pixels;
