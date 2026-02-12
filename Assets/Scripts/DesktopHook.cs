@@ -61,7 +61,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
 
     private double _lastFoodSpawnTime;
 
-    private bool _showDebug = true;
+    private bool _showDebug = false;
 
     public void Awake()
     {
