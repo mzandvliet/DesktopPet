@@ -114,11 +114,14 @@ public class DesktopWindowTracker : MonoBehaviour
             if (!IsWindowVisible(hWnd))
                 return true;
 
-            // Skip tool windows (like tooltips)
+            // Skip tool windows
             uint exStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
             if (Mask.IsBitSet(exStyle, (uint)WindowStylesEx.WS_EX_TOOLWINDOW))
                 return true;
-            // if (Mask.IsBitSet(exStyle, (uint)WindowStylesEx.WS_EX_TRANSPARENT))
+            // Skip transparent and layered (unless its our own window...)
+            // if (Mask.IsBitSet(exStyle, (uint)WindowStylesEx.WS_EX_LAYERED) && hWnd != _myWindow)
+            //     return true;
+            // if (Mask.IsBitSet(exStyle, (uint)WindowStylesEx.WS_EX_TRANSPARENT) && hWnd != _myWindow)
             //     return true;
 
             // Get window bounds
@@ -141,6 +144,28 @@ public class DesktopWindowTracker : MonoBehaviour
             if (_title.ToString().Contains("Windows Input Experience"))
                 return true;
 
+            // Todo: filter these innocent windows out
+            if (_title.ToString().Contains("Settings"))
+            {
+                var threadId = WinApi.GetWindowThreadProcessId(hWnd, out IntPtr procId);
+                // Debug.Log($"threadID: {threadId}, processID: {procId}");
+
+                if (procId != IntPtr.Zero)
+                {
+                    var process = System.Diagnostics.Process.GetProcessById((int)procId);
+                    if (process != null)
+                    {
+                        if (
+                            process.ProcessName.Contains("ApplicationFrameHost") ||
+                            process.ProcessName.Contains("SystemSettings"))
+                        {
+                            return true;
+                        }
+                        // Debug.Log($"Found process: {process.ProcessName}, {process.MachineName}");
+                    }
+                }
+            }
+
             var info = new WindowInfo
             {
                 Handle = hWnd,
@@ -151,23 +176,7 @@ public class DesktopWindowTracker : MonoBehaviour
             };
             _visibleWindows.Add(info);
 
-            // Todo: filter these innocent windows out
-            // if (_title.ToString().Contains("Settings"))
-            // {
-            //     Debug.Log("Found a settings window:");
-            //     Debug.Log(info);
-            //     var threadId = WinApi.GetWindowThreadProcessId(hWnd, out IntPtr procId);
-            //     Debug.Log($"threadID: {threadId}, processID: {procId}");
-
-            //     if (procId != IntPtr.Zero)
-            //     {
-            //         var process = System.Diagnostics.Process.GetProcessById((int)procId);
-            //         if (process != null)
-            //         {
-            //             Debug.Log($"Found process: {process.ProcessName}, {process.MachineName}");
-            //         }
-            //     }
-            // }
+           
 
             return true; // Continue enumeration
         }, IntPtr.Zero);
