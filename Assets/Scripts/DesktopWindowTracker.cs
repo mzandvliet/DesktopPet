@@ -35,9 +35,6 @@ public class DesktopWindowTracker : MonoBehaviour
     private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
 
     [DllImport("user32.dll")]
-    private static extern bool IsWindowVisible(IntPtr hWnd);
-
-    [DllImport("user32.dll")]
     private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
 
     [DllImport("user32.dll", CharSet = CharSet.Unicode)]
@@ -111,7 +108,7 @@ public class DesktopWindowTracker : MonoBehaviour
             //     return true;
 
             // Only visible windows
-            if (!IsWindowVisible(hWnd))
+            if (!WinApi.IsWindowVisible(hWnd))
                 return true;
 
             // Skip tool windows
@@ -159,7 +156,9 @@ public class DesktopWindowTracker : MonoBehaviour
                             process.ProcessName.Contains("ApplicationFrameHost") ||
                             process.ProcessName.Contains("SystemSettings"))
                         {
-                            return true;
+                            if (!WinApi.IsWindowVisible(hWnd)) {
+                                return true;
+                            }
                         }
                         // Debug.Log($"Found process: {process.ProcessName}, {process.MachineName}");
                     }
