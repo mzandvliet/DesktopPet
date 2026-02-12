@@ -156,9 +156,9 @@ public class DesktopWindowTracker : MonoBehaviour
                             process.ProcessName.Contains("ApplicationFrameHost") ||
                             process.ProcessName.Contains("SystemSettings"))
                         {
-                            if (!WinApi.IsWindowVisible(hWnd)) {
+                            // if (!WinApi.IsWindowVisible(hWnd)) {
                                 return true;
-                            }
+                            // }
                         }
                         // Debug.Log($"Found process: {process.ProcessName}, {process.MachineName}");
                     }

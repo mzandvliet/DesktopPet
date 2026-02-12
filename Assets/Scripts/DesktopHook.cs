@@ -31,6 +31,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
 {
     [SerializeField] private Character _character;
     [SerializeField] private GameObject _foodPrefab;
+    [SerializeField] private ParticleSystem _foodParticles;
     [SerializeField] private Boids _boids;
 
     [SerializeField] private LayerMask _interactableLayers = -1;
@@ -91,7 +92,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
         // Screen.SetResolution(3440, 1440, false);
 
         // if (ConfigureTransparentFullscreenWindow())
-        if (ConfigureOpaqueBehindIconsWindow())
+        if (MakeWindowOpaqueBehindIcons())
         {
             Debug.Log("Succesfully hooked into desktop background!");
         }
@@ -126,6 +127,9 @@ public class DesktopHook : ImmediateModeShapeDrawer
         /* Decide on window input-transparency based on whether cursor is hovering over anything interactive in the scene */
 
         var mousePosWin = SystemInput.GetCursorPosition();
+
+        int iconIndex = _iconMonitor.HitTest((int)mousePosWin.x, mousePosWin.y);
+        bool overIcon = iconIndex >= 0;
 
         // If this app is capable of being in front of other windows, manage focus
         // if (ShouldCaptureInput(mousePosWin.x, mousePosWin.y))
@@ -170,6 +174,21 @@ public class DesktopHook : ImmediateModeShapeDrawer
         _character.SetMouseCursorWorld(mousePosWorld);
         var mouseRay = _camera.ScreenPointToRay(mouseScreenPoint);
         _boids.SetMouseData(mouseRay, mouseVelocityWorld);
+
+        _foodParticles.transform.position = mousePosWorld;
+        if (Time.timeAsDouble > _lastFoodSpawnTime + FoodSpawnDelay && !overIcon)
+        {
+            if (_foodParticles.isStopped) {
+                _foodParticles.Play();
+            }
+        }
+        else
+        {
+            if (_foodParticles.isPlaying)
+            {
+                _foodParticles.Stop();
+            }
+        }
 
         /* If clicking on the character, change its Z-order to sit above the currently active window */
 
@@ -229,7 +248,6 @@ public class DesktopHook : ImmediateModeShapeDrawer
         }
 
         int iconIndex = _iconMonitor.HitTest((int)mousePosWin.x, mousePosWin.y);
-
         bool clickedIcon = iconIndex >= 0;
 
         if (clickedIcon)
@@ -300,7 +318,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
 
         if (clickedDesktopBackground)
         {
-            if (Time.timeAsDouble > _lastFoodSpawnTime + 0.5f)
+            if (Time.timeAsDouble > _lastFoodSpawnTime + FoodSpawnDelay)
             {
                 var spawnPos = _camera.ScreenToWorldPoint(new Vector3(mousePosUnity.x, mousePosUnity.y, -_camera.transform.position.z));
                 GameObject.Instantiate(_foodPrefab, spawnPos, Quaternion.identity);
@@ -308,6 +326,8 @@ public class DesktopHook : ImmediateModeShapeDrawer
             }
         }
     }
+
+    private const float FoodSpawnDelay = 0.5f;
 
     private void OnGUI()
     {
@@ -512,8 +532,9 @@ public class DesktopHook : ImmediateModeShapeDrawer
     /* 
     Important:
     URP renderer needs to be configured to render to a buffer with transparency information in there!
+    and DXGI swapchain for DX11 needs to be unchecked to old style
     */
-    private bool ConfigureTransparentFullscreenWindow()
+    private bool MakeWindowTransparentFullscreen()
     {
         if (!IsWindowsDesktop())
         {
@@ -574,7 +595,12 @@ public class DesktopHook : ImmediateModeShapeDrawer
         return true;
     }
 
-    private bool ConfigureOpaqueBehindIconsWindow()
+    /* 
+    Important:
+    Only supports opaque render target
+    and DXGI swapchain for DX11 needs to be checked to new style
+    */
+    private bool MakeWindowOpaqueBehindIcons()
     {
         if (!IsWindowsDesktop())
         {
@@ -582,9 +608,8 @@ public class DesktopHook : ImmediateModeShapeDrawer
             return false;
         }
 
-        // Set Unity camera to transparent
-        _camera.backgroundColor = new Color(0, 0, 0, 1);
-        _camera.clearFlags = CameraClearFlags.SolidColor;
+        // Set Unity camera to skybox
+        _camera.clearFlags = CameraClearFlags.Skybox;
 
         _hwnd = WinApi.GetActiveWindow();
 
@@ -599,7 +624,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
             WinApi.SetProcessDPIAware(); // Fallback for older Windows
         }
 
-        // // Make it a popup window
+        // // Make it a borderless window
         // IntPtr style = WinApi.GetWindowLongPtr(_hwnd, GWL_Flags.GWL_STYLE);
         // long newStyle = style.ToInt64();
 
@@ -619,26 +644,18 @@ public class DesktopHook : ImmediateModeShapeDrawer
         IntPtr exStyle = WinApi.GetWindowLongPtr(_hwnd, GWL_Flags.GWL_EXSTYLE);
         long newExStyle = exStyle.ToInt64();
         newExStyle = Mask.UnsetBit(newExStyle, (uint)WindowStylesEx.WS_EX_TOOLWINDOW);
-        newExStyle = Mask.UnsetBit(newExStyle, (uint)WindowStylesEx.WS_EX_LAYERED);
-        // newExStyle &= ~(
-        //         (uint)WindowStylesEx.WS_EX_DLGMODALFRAME |
-        //         (uint)WindowStylesEx.WS_EX_COMPOSITED |
-        //         (uint)WindowStylesEx.WS_EX_WINDOWEDGE |
-        //         (uint)WindowStylesEx.WS_EX_CLIENTEDGE |
-        //         (uint)WindowStylesEx.WS_EX_LAYERED |
-        //         (uint)WindowStylesEx.WS_EX_STATICEDGE |
-        //         (uint)WindowStylesEx.WS_EX_TOOLWINDOW |
-        //         (uint)WindowStylesEx.WS_EX_APPWINDOW
-        // );
+        newExStyle = Mask.SetBit(newExStyle, (uint)WindowStylesEx.WS_EX_TRANSPARENT);
+        newExStyle = Mask.SetBit(newExStyle, (uint)WindowStylesEx.WS_EX_LAYERED);
+
         if ((WinApi.SetWindowLongPtr(_hwnd, GWL_Flags.GWL_EXSTYLE, new IntPtr(newExStyle)) == IntPtr.Zero) && (exStyle != IntPtr.Zero))
         {
             Debug.LogError($"Failed to set window ex style");
             return false;
         }
 
-        // Margins margins = new Margins { cxLeftWidth = -1 };
-        // int dwmResult = WinApi.DwmExtendFrameIntoClientArea(_hwnd, ref margins);
-        // Debug.Log($"DWM result: 0x{dwmResult:X} (0 = S_OK)");
+        Margins margins = new Margins { cxLeftWidth = -1 };
+        int dwmResult = WinApi.DwmExtendFrameIntoClientArea(_hwnd, ref margins);
+        Debug.Log($"DWM result: 0x{dwmResult:X} (0 = S_OK)");
 
         var workerW = DesktopWindowTracker.GetDesktopBackgroundWindowWorker();
         if (workerW == IntPtr.Zero)
