@@ -33,7 +33,11 @@ public class DesktopIconMonitor : IDisposable
 
     private IntPtr _listViewHwnd;
     IntPtr _explorerProcess;
+    IntPtr _remotePointBuffer;
     IntPtr _remoteHitBuffer;
+
+    byte[] _localPointBuffer;
+    byte[] _localHitBuffer;
 
     public List<Point> Icons
     {
@@ -52,6 +56,9 @@ public class DesktopIconMonitor : IDisposable
 
     public bool Initialize()
     {
+        _localPointBuffer = new byte[Marshal.SizeOf(typeof(Point))];
+        _localHitBuffer = new byte[Marshal.SizeOf<LVHITTESTINFO>()];
+
         _listViewHwnd = GetDesktopListView();
 
         IntPtr processId;
@@ -64,13 +71,22 @@ public class DesktopIconMonitor : IDisposable
             return false;
         }
 
+        _remotePointBuffer = WinApi.VirtualAllocEx(_explorerProcess, IntPtr.Zero, (uint)Marshal.SizeOf(typeof(Point)),
+                MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+
+        if (_remotePointBuffer == IntPtr.Zero)
+        {
+            Debug.LogError("DesktopWindowTracker: Failed to allocate point memory in explorer process");
+            return false;
+        }
+
         int bufferSize = Marshal.SizeOf<LVHITTESTINFO>();
         _remoteHitBuffer = WinApi.VirtualAllocEx(_explorerProcess, IntPtr.Zero, (uint)bufferSize,
             MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 
         if (_remoteHitBuffer == IntPtr.Zero)
         {
-            Debug.LogError("DesktopWindowTracker: Failed to allocate memory in explorer process");
+            Debug.LogError("DesktopWindowTracker: Failed to allocate hittest memory in explorer process");
             return false;
         }
 
@@ -79,6 +95,12 @@ public class DesktopIconMonitor : IDisposable
 
     public void Dispose()
     {
+        if (_remotePointBuffer != IntPtr.Zero)
+        {
+            WinApi.VirtualFreeEx(_explorerProcess, _remotePointBuffer, 0, MEM_RELEASE);
+            _remotePointBuffer = IntPtr.Zero;
+        }
+
         if (_remoteHitBuffer != IntPtr.Zero)
         {
             WinApi.VirtualFreeEx(_explorerProcess, _remoteHitBuffer, 0, MEM_RELEASE);
@@ -140,12 +162,7 @@ public class DesktopIconMonitor : IDisposable
             // Get icon count
             int count = (int)WinApi.SendMessage(_listViewHwnd, WinApi.LVM_GETITEMCOUNT, IntPtr.Zero, IntPtr.Zero);
 
-            // Allocate memory in target process
-
-            IntPtr remoteBuffer = WinApi.VirtualAllocEx(_explorerProcess, IntPtr.Zero, (uint)Marshal.SizeOf(typeof(Point)),
-                MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-
-            if (remoteBuffer == IntPtr.Zero)
+            if (_remotePointBuffer == IntPtr.Zero)
             {
                 Debug.LogError("DesktopWindowTracker: Failed to allocate remote memory");
                 return false;
@@ -158,35 +175,27 @@ public class DesktopIconMonitor : IDisposable
             for (int i = 0; i < count; i++)
             {
                 // Send message with remote buffer address
-                WinApi.SendMessage(_listViewHwnd, WinApi.LVM_GETITEMPOSITION, (IntPtr)i, remoteBuffer);
+                WinApi.SendMessage(_listViewHwnd, WinApi.LVM_GETITEMPOSITION, (IntPtr)i, _remotePointBuffer);
 
                 // Read back the result
-                byte[] buffer = new byte[Marshal.SizeOf(typeof(Point))]; // todo: cache this memory
                 uint bytesRead;
-                WinApi.ReadProcessMemory(_explorerProcess, remoteBuffer, buffer, (uint)buffer.Length, out bytesRead);
+                WinApi.ReadProcessMemory(_explorerProcess, _remotePointBuffer, _localPointBuffer, (uint)_localPointBuffer.Length, out bytesRead);
 
-                // Convert to POINT
-                GCHandle handle = GCHandle.Alloc(buffer, GCHandleType.Pinned);
+                // Convert to Point
+                GCHandle handle = GCHandle.Alloc(_localPointBuffer, GCHandleType.Pinned);
                 Point clientPos = (Point)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(Point));
                 handle.Free();
 
                 // text.AppendLine($"{i}: {pos}");
 
+                // To screen coordinates
                 Point screenPos = clientPos;
                 WinApi.ClientToScreen(_listViewHwnd, ref screenPos);
-
-                if (i == 0)
-                {
-                    Debug.Log($"Icon: clientPos {clientPos} -> screenpos {screenPos}");
-                }
 
                 positions.Add(screenPos);
             }
 
             // Debug.Log(text.ToString());
-
-            // Free remote memory
-            WinApi.VirtualFreeEx(_explorerProcess, remoteBuffer, 0, MEM_RELEASE);
         }
         catch (Exception e)
         {
@@ -205,7 +214,6 @@ public class DesktopIconMonitor : IDisposable
             return -1;
         }
 
-        // Convert screen coords to ListView client coords
         Point testPoint = new Point { x = screenX, y = screenY };
         WinApi.ScreenToClient(_listViewHwnd, ref testPoint);
 
@@ -220,12 +228,11 @@ public class DesktopIconMonitor : IDisposable
         };
 
         // Marshal to bytes
-        byte[] buffer = new byte[Marshal.SizeOf<LVHITTESTINFO>()];
-        IntPtr ptr = Marshal.AllocHGlobal(buffer.Length);
+        IntPtr ptr = Marshal.AllocHGlobal(_localHitBuffer.Length);
         try
         {
             Marshal.StructureToPtr(hitTest, ptr, false);
-            Marshal.Copy(ptr, buffer, 0, buffer.Length);
+            Marshal.Copy(ptr, _localHitBuffer, 0, _localHitBuffer.Length);
         }
         finally
         {
@@ -234,7 +241,7 @@ public class DesktopIconMonitor : IDisposable
 
         // Write to remote process
         uint bytesWritten;
-        if (!WinApi.WriteProcessMemory(_explorerProcess, _remoteHitBuffer, buffer, (uint)buffer.Length, out bytesWritten))
+        if (!WinApi.WriteProcessMemory(_explorerProcess, _remoteHitBuffer, _localHitBuffer, (uint)_localHitBuffer.Length, out bytesWritten))
         {
             Debug.LogWarning("Failed to write hit test data");
             return -1;
@@ -244,19 +251,18 @@ public class DesktopIconMonitor : IDisposable
         WinApi.SendMessage(_listViewHwnd, LVM_HITTEST, IntPtr.Zero, _remoteHitBuffer);
 
         // Read result
-        byte[] resultBuffer = new byte[buffer.Length];
         uint bytesRead;
-        if (!WinApi.ReadProcessMemory(_explorerProcess, _remoteHitBuffer, resultBuffer, (uint)resultBuffer.Length, out bytesRead))
+        if (!WinApi.ReadProcessMemory(_explorerProcess, _remoteHitBuffer, _localHitBuffer, (uint)_localHitBuffer.Length, out bytesRead))
         {
             Debug.LogWarning("Failed to read hit test result");
             return -1;
         }
 
         // Unmarshal result
-        IntPtr resultPtr = Marshal.AllocHGlobal(resultBuffer.Length);
+        IntPtr resultPtr = Marshal.AllocHGlobal(_localHitBuffer.Length);
         try
         {
-            Marshal.Copy(resultBuffer, 0, resultPtr, resultBuffer.Length);
+            Marshal.Copy(_localHitBuffer, 0, resultPtr, _localHitBuffer.Length);
             LVHITTESTINFO result = Marshal.PtrToStructure<LVHITTESTINFO>(resultPtr);
             return result.iItem;
         }
