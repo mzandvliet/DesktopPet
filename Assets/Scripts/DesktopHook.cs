@@ -14,6 +14,7 @@ It can move itself up and down in Z-order to move in front of other windows or b
 
 Todo:
 
+- respond to desktop resolution change
 - tray icon / menu
 - suspend rendering/logic when user enters another full-screen app
 
@@ -654,9 +655,10 @@ public class DesktopHook : ImmediateModeShapeDrawer
             return false;
         }
 
-        // Margins margins = new Margins { cxLeftWidth = -1 };
-        // int dwmResult = WinApi.DwmExtendFrameIntoClientArea(_hwnd, ref margins);
-        // Debug.Log($"DWM result: 0x{dwmResult:X} (0 = S_OK)");
+        // Seems to be needed?
+        Margins margins = new Margins { cxLeftWidth = -1 };
+        int dwmResult = WinApi.DwmExtendFrameIntoClientArea(_hwnd, ref margins);
+        Debug.Log($"DWM result: 0x{dwmResult:X} (0 = S_OK)");
 
         var workerW = DesktopWindowTracker.GetDesktopBackgroundWindowWorker();
         if (workerW == IntPtr.Zero)
@@ -665,12 +667,13 @@ public class DesktopHook : ImmediateModeShapeDrawer
             return false;
         }
 
-        Win32.SetParent(_hwnd, workerW);
-
         // Force window to fit full-screen size, instead of work area size (which is minus taskbar?)
+        // IMPORTANT: Doing this *after* setparent seems to mess it up w.r.t. taskbar?
         int screenWidth = Screen.currentResolution.width;
         int screenHeight = Screen.currentResolution.height;
         WinApi.SetWindowPos(_hwnd, IntPtr.Zero, 0, 0, screenWidth, screenHeight, WinApi.SWP_FRAMECHANGED | WinApi.SWP_SHOWWINDOW);
+
+        Win32.SetParent(_hwnd, workerW);
 
         return true;
     }
