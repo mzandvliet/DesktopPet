@@ -345,6 +345,21 @@ public class DesktopWindowTracker : MonoBehaviour
         return isFullscreen;
     }
 
+    public RECT GetTaskbarRect()
+    {
+        IntPtr taskbar = WinApi.FindWindow("Shell_TrayWnd", null);
+        RECT rect;
+        WinApi.GetWindowRect(taskbar, out rect);
+        return rect;
+    }
+
+    public bool IsPointInTaskbar(int x, int y)
+    {
+        RECT taskbar = GetTaskbarRect();
+        return x >= taskbar.Left && x <= taskbar.Right &&
+               y >= taskbar.Top && y <= taskbar.Bottom;
+    }
+
     /*
     Original code was found here:
     https://x.com/TheMirzaBeig/status/1780088441448837276

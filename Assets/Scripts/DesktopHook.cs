@@ -163,7 +163,9 @@ public class DesktopHook : ImmediateModeShapeDrawer
         var mousePosWin = SystemInput.GetCursorPosition();
 
         int mouseIconIndex = _iconMonitor.HitTest((int)mousePosWin.x, mousePosWin.y);
-        bool mouseIsOverIcon = mouseIconIndex >= 0;
+        bool mouseIsOverWindowsUI = mouseIconIndex >= 0;
+
+        mouseIsOverWindowsUI |= _windowTracker.IsPointInTaskbar(mousePosWin.x, mousePosWin.y);
 
         // If this app is capable of being in front of other windows, manage focus
         // if (ShouldCaptureInput(mousePosWin.x, mousePosWin.y))
@@ -232,7 +234,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
 
         Vector3 foodParticlePos = mousePosWorld + (mouseHit ? mouseHitInfo.normal * 0.5f : Vector3.zero);
         _foodParticles.transform.position = foodParticlePos;
-        if (Time.timeAsDouble > _lastFoodSpawnTime + FoodSpawnDelay && !mouseIsOverIcon)
+        if (Time.timeAsDouble > _lastFoodSpawnTime + FoodSpawnDelay && !mouseIsOverWindowsUI)
         {
             if (_foodParticles.isStopped) {
                 _foodParticles.Play();
@@ -246,7 +248,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
             }
         }
 
-        if (SystemInput.GetKeyDown(KeyCode.Mouse0) && !mouseIsOverIcon)
+        if (SystemInput.GetKeyDown(KeyCode.Mouse0) && !mouseIsOverWindowsUI)
         {
             HandleClick(mousePosWin, mousePosUnity);
         }
