@@ -17,38 +17,6 @@ Todo: could lower the update rate, or do it only based on windows events?
 
 public class DesktopWindowTracker : MonoBehaviour
 {
-    [StructLayout(LayoutKind.Sequential)]
-    public struct RECT
-    {
-        public int Left;
-        public int Top;
-        public int Right;
-        public int Bottom;
-
-        public int Width => Right - Left;
-        public int Height => Bottom - Top;
-    }
-
-    private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
-
-    [DllImport("user32.dll")]
-    private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
-
-    [DllImport("user32.dll")]
-    private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
-
-    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-    private static extern int GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
-
-    [DllImport("user32.dll")]
-    private static extern IntPtr GetForegroundWindow();
-
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern uint GetWindowLong(IntPtr hWnd, int nIndex);
-
-    private const int GWL_EXSTYLE = -20;
-    private const uint WS_EX_TOOLWINDOW = 0x00000080;
-
     private static readonly StringBuilder _title = new StringBuilder(256);
 
     public class WindowInfo
@@ -97,11 +65,11 @@ public class DesktopWindowTracker : MonoBehaviour
     private void RefreshWindowList()
     {
         _visibleWindows.Clear();
-        IntPtr foregroundWindow = GetForegroundWindow();
+        IntPtr foregroundWindow = WinApi.GetForegroundWindow();
 
         int z = 0;
 
-        EnumWindows((hWnd, lParam) =>
+        WinApi.EnumWindows((hWnd, lParam) =>
         {
             // Skip our own window
             // if (hWnd == _myWindow)
@@ -112,7 +80,7 @@ public class DesktopWindowTracker : MonoBehaviour
                 return true;
 
             // Skip tool windows
-            uint exStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
+            long exStyle = WinApi.GetWindowLongPtr(hWnd, GWL_Flags.GWL_EXSTYLE).ToInt64();
             if (Mask.IsBitSet(exStyle, (uint)WindowStylesEx.WS_EX_TOOLWINDOW))
                 return true;
             // Skip transparent and layered (unless its our own window...)
@@ -122,7 +90,7 @@ public class DesktopWindowTracker : MonoBehaviour
             //     return true;
 
             // Get window bounds
-            if (!GetWindowRect(hWnd, out RECT rect))
+            if (!WinApi.GetWindowRect(hWnd, out RECT rect))
                 return true;
 
             // Skip tiny windows (likely not real windows)
@@ -132,7 +100,7 @@ public class DesktopWindowTracker : MonoBehaviour
             // Get title
             
             _title.Clear();
-            GetWindowText(hWnd, _title, _title.Capacity);
+            WinApi.GetWindowText(hWnd, _title, _title.Capacity);
 
             // Skip windows without titles (usually background processes)
             if (string.IsNullOrEmpty(_title.ToString()))
@@ -266,19 +234,29 @@ public class DesktopWindowTracker : MonoBehaviour
         return wHandle;
     }
 
-    public static bool IsAnyWindowFullscreen()
+    public static bool IsAnyWindowFullscreen(out IntPtr hWnd)
     {
-        IntPtr foreground = GetForegroundWindow();
+        IntPtr foreground = WinApi.GetForegroundWindow();
 
         RECT rect;
-        GetWindowRect(foreground, out rect);
+        WinApi.GetWindowRect(foreground, out rect);
 
         int width = rect.Right - rect.Left;
         int height = rect.Bottom - rect.Top;
 
-        // Check if foreground window covers the screen
-        return width >= Screen.currentResolution.width &&
-               height >= Screen.currentResolution.height;
+        bool isFullscreen =
+            width >= Screen.currentResolution.width &&
+            height >= Screen.currentResolution.height;
+
+        if (isFullscreen)
+        {
+            hWnd = foreground;
+        } else
+        {
+            hWnd = IntPtr.Zero;
+        }
+
+        return isFullscreen;
     }
 
     /*
@@ -315,7 +293,7 @@ public class DesktopWindowTracker : MonoBehaviour
         {
             Debug.Log("Alternatively, enumerate top-level windows to find SHELLDLL_DefView as child...");
 
-            EnumWindows((hwnd, lParam) =>
+            WinApi.EnumWindows((hwnd, lParam) =>
             {
                 IntPtr shellView = Win32.FindWindowEx(hwnd, IntPtr.Zero, "SHELLDLL_DefView", IntPtr.Zero);
                 if (shellView != IntPtr.Zero)

@@ -254,12 +254,22 @@ public class DesktopHook : ImmediateModeShapeDrawer
         game or video.
         */
 
-        bool reduceCompute = DesktopWindowTracker.IsAnyWindowFullscreen();
+        /*
+        Todo:
+        - report which app it is (for debugging, filtering out false positives)
+        - filter out Discord Desktop Streaming's invisible window (and others like it)
+        - Make all game logic robust to drastically lowered framerate and resolution
+        */
+
+        IntPtr fullscreenHwnd;
+        bool reduceCompute = DesktopWindowTracker.IsAnyWindowFullscreen(out fullscreenHwnd);
         if (reduceCompute)
         {
             if (Application.targetFrameRate == FramerateActive)
-            {
-                Debug.Log("Full-screen app detected, setting low power mode");
+            {   
+                _text.Clear();
+                WinApi.GetWindowText(fullscreenHwnd, _text, _text.Capacity);
+                Debug.Log($"Full-screen app detected: {fullscreenHwnd} {_text.ToString()}, setting low power mode");
                 Application.targetFrameRate = FramerateHidden;
             }
         }
