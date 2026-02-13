@@ -248,7 +248,7 @@ public class DesktopIconMonitor : IDisposable
         }
 
         // Perform hit test
-        WinApi.SendMessage(_listViewHwnd, LVM_HITTEST, IntPtr.Zero, _remoteHitBuffer);
+        WinApi.SendMessage(_listViewHwnd, LVM_HITTEST, IntPtr.Zero, _remoteHitBuffer); // perf: 1ms? wow
 
         // Read result
         uint bytesRead;

@@ -266,6 +266,21 @@ public class DesktopWindowTracker : MonoBehaviour
         return wHandle;
     }
 
+    public static bool IsAnyWindowFullscreen()
+    {
+        IntPtr foreground = GetForegroundWindow();
+
+        RECT rect;
+        GetWindowRect(foreground, out rect);
+
+        int width = rect.Right - rect.Left;
+        int height = rect.Bottom - rect.Top;
+
+        // Check if foreground window covers the screen
+        return width >= Screen.currentResolution.width &&
+               height >= Screen.currentResolution.height;
+    }
+
     /*
     Original code was found here:
     https://x.com/TheMirzaBeig/status/1780088441448837276

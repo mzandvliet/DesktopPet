@@ -38,6 +38,9 @@ public class DesktopHook : ImmediateModeShapeDrawer
     [SerializeField] private LayerMask _interactableLayers = -1;
     [SerializeField] private float _maxRaycastDistance = 100f;
 
+    private const int FramerateActive = 30;
+    private const int FramerateHidden = 10;
+
     private Camera _camera;
     private static StringBuilder _text;
     private Vector2 _mouseClickPos;
@@ -75,7 +78,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
         _windowTracker = gameObject.AddComponent<DesktopWindowTracker>();
         _iconMonitor = new DesktopIconMonitor();
 
-        Application.targetFrameRate = 60;
+        Application.targetFrameRate = FramerateActive;
         Application.runInBackground = true;
 
         _camera = gameObject.GetComponent<Camera>();
@@ -121,12 +124,12 @@ public class DesktopHook : ImmediateModeShapeDrawer
 
         SystemInput.Process();
 
-        /* Decide on window input-transparency based on whether cursor is hovering over anything interactive in the scene */
+        /* See if mouse is over any desktop icons */
 
         var mousePosWin = SystemInput.GetCursorPosition();
 
-        int iconIndex = _iconMonitor.HitTest((int)mousePosWin.x, mousePosWin.y);
-        bool overIcon = iconIndex >= 0;
+        int mouseIconIndex = _iconMonitor.HitTest((int)mousePosWin.x, mousePosWin.y);
+        bool mouseIsOverIcon = mouseIconIndex >= 0;
 
         // If this app is capable of being in front of other windows, manage focus
         // if (ShouldCaptureInput(mousePosWin.x, mousePosWin.y))
@@ -139,6 +142,11 @@ public class DesktopHook : ImmediateModeShapeDrawer
 
         if (Time.frameCount % 60 == 0) {
             _iconMonitor.Update();
+        }
+
+        if (Time.frameCount % 60 == 30)
+        {
+            UpdatePerformanceSettings();
         }
 
         /* Update character, and determine whether it is in front of or behind the window that the cursor currently hovers over */
@@ -156,7 +164,9 @@ public class DesktopHook : ImmediateModeShapeDrawer
             // Debug.Log($"hov: {(hoveredWindowInfo != null ? hoveredWindowInfo : 0)} char: {(ourWindowInfo != null ? ourWindowInfo : 0)} | char in front: {characterInFrontOfHoveredWindow}");
         }
 
-        // to unity coordinates
+        /* Decide on window input-transparency based on whether cursor is hovering over anything interactive in the scene */
+
+        // mouse, screen to unity coordinates
         var mousePosUnity = mousePosWin;
         mousePosUnity.y = Screen.height - mousePosUnity.y;
 
@@ -173,7 +183,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
         _boids.SetMouseData(mouseRay, mouseVelocityWorld);
 
         _foodParticles.transform.position = mousePosWorld;
-        if (Time.timeAsDouble > _lastFoodSpawnTime + FoodSpawnDelay && !overIcon)
+        if (Time.timeAsDouble > _lastFoodSpawnTime + FoodSpawnDelay && !mouseIsOverIcon)
         {
             if (_foodParticles.isStopped) {
                 _foodParticles.Play();
@@ -189,7 +199,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
 
         /* If clicking on the character, change its Z-order to sit above the currently active window */
 
-        if (SystemInput.GetKeyDown(KeyCode.Mouse0))
+        if (SystemInput.GetKeyDown(KeyCode.Mouse0) && !mouseIsOverIcon)
         {
             _mouseClickPos = mousePosUnity;
 
@@ -237,30 +247,34 @@ public class DesktopHook : ImmediateModeShapeDrawer
         }
     }
 
-    private void HandleClick(Vector2Int mousePosWin, Vector2Int mousePosUnity)
+    private void UpdatePerformanceSettings()
     {
-        if (_iconMonitor == null)
-        {
-            return;
-        }
+        /*
+        Go into low-power mode when user starts playing any full-screen
+        game or video.
+        */
 
-        int iconIndex = _iconMonitor.HitTest((int)mousePosWin.x, mousePosWin.y);
-        bool clickedIcon = iconIndex >= 0;
-
-        if (clickedIcon)
+        bool reduceCompute = DesktopWindowTracker.IsAnyWindowFullscreen();
+        if (reduceCompute)
         {
-            Debug.Log($"Clicked on desktop icon {iconIndex}");
+            if (Application.targetFrameRate == FramerateActive)
+            {
+                Debug.Log("Full-screen app detected, setting low power mode");
+                Application.targetFrameRate = FramerateHidden;
+            }
         }
         else
         {
-            Debug.Log("Clicked on game");
+            if (Application.targetFrameRate == FramerateHidden)
+            {
+                Debug.Log("Full-screen app closed, setting normal power mode");
+                Application.targetFrameRate = FramerateActive;
+            }
         }
+    }
 
-        if (clickedIcon)
-        {
-            return;
-        }
-
+    private void HandleClick(Vector2Int mousePosWin, Vector2Int mousePosUnity)
+    {
         Ray ray = _camera.ScreenPointToRay(new Vector3(mousePosUnity.x, mousePosUnity.y, 0.1f));
         if (Physics.Raycast(ray, out RaycastHit hit, _maxRaycastDistance, _interactableLayers))
         {
@@ -293,10 +307,10 @@ public class DesktopHook : ImmediateModeShapeDrawer
         }
         else
         {
-            var windowUnderCursor = WinApi.WindowFromPoint(new Point(mousePosWin.x, mousePosWin.y));
-            var activeWindow = WinApi.GetActiveWindow();
-            var desktopWindow = WinApi.GetDesktopWindow();
-            var desktopShellWindow = DesktopWindowTracker.GetDesktopBackgroundWindow();
+            // var windowUnderCursor = WinApi.WindowFromPoint(new Point(mousePosWin.x, mousePosWin.y));
+            // var activeWindow = WinApi.GetActiveWindow();
+            // var desktopWindow = WinApi.GetDesktopWindow();
+            // var desktopShellWindow = DesktopWindowTracker.GetDesktopBackgroundWindow();
 
             DesktopWindowTracker.WindowInfo windowInfo;
             var isPointCoveredByWindow = _windowTracker.IsPointCoveredByWindow(mousePosWin, out windowInfo, _hwnd);
@@ -311,7 +325,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
         Todo: on mouse-up, if not a drag action
         */
 
-        Debug.Log($"clickedBackground: {clickedDesktopBackground}");
+        // Debug.Log($"clickedBackground: {clickedDesktopBackground}");
 
         if (clickedDesktopBackground)
         {
@@ -341,6 +355,17 @@ public class DesktopHook : ImmediateModeShapeDrawer
         {
             GUILayout.Label("Desktop Pet");
             GUILayout.Label("Hold ESCAPE for 1 second to quit");
+            GUILayout.Label($"Screen: {Screen.width}x{Screen.height}");
+            GUILayout.Label($"Camera pixels: {Camera.main.pixelWidth}x{Camera.main.pixelHeight}");
+            int rezWidth = (int)Mathf.Ceil(ScalableBufferManager.widthScaleFactor * Screen.currentResolution.width);
+            int rezHeight = (int)Mathf.Ceil(ScalableBufferManager.heightScaleFactor * Screen.currentResolution.height);
+            string rezText = string.Format("Scale: {0:F3}x{1:F3}\nResolution: {2}x{3}\n",
+                1,
+                1,
+                rezWidth,
+                rezHeight);
+            GUILayout.Label($"URP Render Scale: {rezText}");
+            GUILayout.Label($"Target framerate: {Application.targetFrameRate}, framerate: {(1f / Time.smoothDeltaTime):0.0} fps");
             GUILayout.Space(8f);
             GUILayout.Label($"Character State: {_character.State}");
             GUILayout.Label($"Idle State: {_character.IdleState}");
