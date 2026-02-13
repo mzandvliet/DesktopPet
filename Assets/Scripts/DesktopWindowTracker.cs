@@ -141,6 +141,9 @@ public class DesktopWindowTracker : MonoBehaviour
             if (_title.ToString().Contains("Windows Input Experience"))
                 return true;
 
+            if(_title.ToString().Contains("ScreenToGif"))
+                return true;
+
             // Todo: filter these innocent windows out
             if (_title.ToString().Contains("Settings"))
             {

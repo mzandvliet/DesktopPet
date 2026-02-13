@@ -80,10 +80,6 @@ public class DesktopHook : ImmediateModeShapeDrawer
 
         _camera = gameObject.GetComponent<Camera>();
 
-        // Transparent background
-        _camera.backgroundColor = new Color(0f, 0f, 0f, 0f);
-        _camera.clearFlags = CameraClearFlags.SolidColor;
-
         _text = new StringBuilder(4096);
     }
 
