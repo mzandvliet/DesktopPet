@@ -25,7 +25,8 @@ Wants, Needs & Desires
 public class Character : ImmediateModeShapeDrawer
 {
     [SerializeField] private Camera _camera; // needs this to know where is valid to move
-    [SerializeField] private LayerMask _theaterLayer;
+    [SerializeField] private LayerMask _characterMask;
+    [SerializeField] private LayerMask _foodMask;
 
     [SerializeField] private Transform _body;
 
@@ -128,7 +129,7 @@ public class Character : ImmediateModeShapeDrawer
         if mouse moves a lot, especially near it, that draws attention
         */
 
-        int numColliders = Physics.OverlapSphereNonAlloc(_transform.position, 1, _collidersNearby, _theaterLayer.value);
+        int numColliders = Physics.OverlapSphereNonAlloc(_transform.position, 1, _collidersNearby, _characterMask.value);
         for (int c = 0; c < numColliders; c++)
         {
             var character = _collidersNearby[c].transform.parent?.gameObject.GetComponent<Character>();
@@ -206,7 +207,7 @@ public class Character : ImmediateModeShapeDrawer
     void EnterIdleState()
     {
         // Eat if we're within range of food
-        int numColliders = Physics.OverlapSphereNonAlloc(_transform.position, 1, _collidersNearby, _theaterLayer.value);
+        int numColliders = Physics.OverlapSphereNonAlloc(_transform.position, 1, _collidersNearby, _foodMask.value);
         for (int c = 0; c < numColliders; c++)
         {
             var food = _collidersNearby[c].gameObject.GetComponent<Food>();
@@ -248,7 +249,7 @@ public class Character : ImmediateModeShapeDrawer
         - use a pathfinding technique to walk between open windows
         */
 
-        int numColliders = Physics.OverlapSphereNonAlloc(_transform.position, 100, _collidersNearby, _theaterLayer.value);
+        int numColliders = Physics.OverlapSphereNonAlloc(_transform.position, 100, _collidersNearby, _foodMask.value);
         float closestFoodDist = float.PositiveInfinity;
         Food closestFood = null;
         for (int c = 0; c < numColliders; c++)

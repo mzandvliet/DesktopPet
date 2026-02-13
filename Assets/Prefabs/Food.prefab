@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 904046904397008978}
   - component: {fileID: 2534848575138781115}
   - component: {fileID: 205610141764852700}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: Food
   m_TagString: Food
   m_Icon: {fileID: 0}
@@ -137,6 +137,10 @@ PrefabInstance:
     - target: {fileID: 4276804618037044389, guid: 9084118cb5332fa4c8b97c884a261e70, type: 3}
       propertyPath: m_Name
       value: FoodParticles
+      objectReference: {fileID: 0}
+    - target: {fileID: 4276804618037044389, guid: 9084118cb5332fa4c8b97c884a261e70, type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 4612784057557526183, guid: 9084118cb5332fa4c8b97c884a261e70, type: 3}
       propertyPath: m_LocalPosition.x
