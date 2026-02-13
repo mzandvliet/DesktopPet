@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Linq;
+using Frantic.DesktopPets;
 using Shapes;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.SocialPlatforms;
 using Rng = Unity.Mathematics.Random;
 
@@ -37,6 +39,9 @@ public class Character : ImmediateModeShapeDrawer
     [SerializeField] private Transform _eyeRight;
 
     private Transform _transform;
+    private Agent _agent;
+    private NPC _npc;
+
     private Rng _rng;
 
     private CharacterState _state;
@@ -52,8 +57,6 @@ public class Character : ImmediateModeShapeDrawer
 
     private double _lastBlinkTime = -1;
     private float _blinkDuration = 3;
-
-    private Vector3 _moveTargetLocation;
 
     private Vector3 _bodyBasePos;
     private Vector3 _handLeftBasePos;
@@ -81,6 +84,9 @@ public class Character : ImmediateModeShapeDrawer
     private void Awake()
     {
         _transform = gameObject.GetComponent<Transform>();
+        _agent = gameObject.GetComponent<Agent>();
+        _npc = gameObject.GetComponent<NPC>();
+
         _rng = RngManager.CreateRng();
 
         _collidersNearby = new Collider[64];
@@ -207,7 +213,7 @@ public class Character : ImmediateModeShapeDrawer
     void EnterIdleState()
     {
         // Eat if we're within range of food
-        int numColliders = Physics.OverlapSphereNonAlloc(_transform.position, 1, _collidersNearby, _foodMask.value);
+        int numColliders = Physics.OverlapSphereNonAlloc(_transform.position, 2, _collidersNearby, _foodMask.value);
         for (int c = 0; c < numColliders; c++)
         {
             var food = _collidersNearby[c].gameObject.GetComponent<Food>();
@@ -230,7 +236,8 @@ public class Character : ImmediateModeShapeDrawer
 
         var lookDir = lookTarget - _transform.position;
         var lookRot = Quaternion.LookRotation(lookDir);
-        _transform.rotation = Quaternion.Slerp(_transform.rotation, lookRot, 4f * Time.deltaTime);
+        var rotation = Quaternion.Slerp(_transform.rotation, lookRot, 4f * Time.deltaTime);
+        _agent.RotateTo(rotation);
 
         // _transform.localScale = Vector3.one * (3f + (float)math.sin(Time.timeAsDouble * math.PI2 * 0.5f));
 
@@ -268,54 +275,41 @@ public class Character : ImmediateModeShapeDrawer
             }
         }
 
+        Vector3? targetLocation = _transform.position;
         if (closestFood != null)
         {
-            _moveTargetLocation = closestFood.transform.position;
-            return;
+            Debug.Log($"{gameObject.name} walking to food: {closestFood.name}");
+            targetLocation = closestFood.transform.position;
+        } else
+        {
+            Vector2 xy = _rng.NextFloat2(new float2(-10f, -10f), new float2(10f, 10f));
+            if (Physics.Raycast(new Vector3(xy.x, 100f, xy.y), Vector3.down, out RaycastHit hit, 100)) {
+                NavMeshHit navMeshHit;
+                if (NavMesh.SamplePosition(hit.point, out navMeshHit, 2f, NPC.AreaMask))
+                {
+                    Debug.Log($"{gameObject.name} walking to point: {hit.point}");
+                    targetLocation = navMeshHit.position;
+                }
+            }
         }
 
-        var bounds = _camera.ScreenToWorldPoint(new Vector3(0, 0, -_camera.transform.position.z));
-        bounds = math.abs(bounds);
-
-        _moveTargetLocation = new Vector3(
-            _rng.NextFloat(-0.5f * bounds.x, 0.5f * bounds.x),
-            _rng.NextFloat(-0.5f * bounds.y, 0.5f * bounds.y),
-            _rng.NextFloat(-4f, 4f));
+        if (targetLocation.HasValue)
+        {
+            _npc.MoveTo(targetLocation.Value);
+        } else
+        {
+            Debug.Log("Failed to navigate anywhere");
+        }
+        
     }
 
     void UpdateWalkingState()
     {
-        var targetDelta = _moveTargetLocation - _transform.position;
-        var targetDist = math.length(targetDelta);
-
-        if (targetDist < 0.05f)
+        if (_npc.NavigationState == NPC.NavState.Arrived || _npc.NavigationState == NPC.NavState.Error)
         {
+            Debug.Log("Done moving");
             ChangeState(CharacterState.Idle);
             return;
-        }
-
-        const float charMoveSpeed = 2f;
-
-        var targetDir = targetDelta / targetDist;
-        var lookDir = _moveTargetLocation - _transform.position;
-
-        var lookRot = Quaternion.LookRotation(lookDir);
-        _transform.rotation = Quaternion.Slerp(_transform.rotation, lookRot, 4f * Time.deltaTime);
-
-        if (math.dot(_transform.forward, targetDir.normalized) < 0.5f)
-        {
-            // Wait until we're looking roughly in the target direction before actually walking there
-            return;
-        }
-        
-        // move
-        _transform.position += targetDir * (charMoveSpeed * Time.deltaTime);
-
-        // Todo: derive a useful notion of world-space units to pixel units to determine useful speeds? Perspective muddles this though...
-        
-        if (lookDir.z < 0) {
-            // if moving towards screen, tilt look direction such that face is visible to player
-            lookDir.z = transform.position.z - 2f; 
         }
 
         /* Animate */
@@ -337,7 +331,7 @@ public class Character : ImmediateModeShapeDrawer
 
     public override void DrawShapes(Camera cam)
     {
-        using (Draw.Command(cam, UnityEngine.Rendering.Universal.RenderPassEvent.AfterRenderingOpaques)) // UnityEngine.Rendering.Universal.RenderPassEvent.BeforeRendering
+        using (Draw.Command(cam, UnityEngine.Rendering.Universal.RenderPassEvent.AfterRenderingOpaques))
         {
             Draw.ThicknessSpace = ThicknessSpace.Meters;
             Draw.RadiusSpace = ThicknessSpace.Meters;
@@ -347,6 +341,32 @@ public class Character : ImmediateModeShapeDrawer
             DrawMouth(_body, _mouthShape, _mouthPath);
             DrawEyebrow(_body, _eyeLeft, _eyebrowShape, _eyePaths[0]);
             DrawEyebrow(_body, _eyeRight, _eyebrowShape, _eyePaths[1]);
+        }
+
+        using (Draw.Command(cam))
+        {
+            Draw.ThicknessSpace = ThicknessSpace.Pixels;
+            Draw.RadiusSpace = ThicknessSpace.Meters;
+            Draw.Thickness = 2f;
+            Draw.BlendMode = ShapesBlendMode.Opaque;
+
+            Draw.Text(_npc.transform.position + Vector3.up, $"State: {_npc.NavigationState}", TextAlign.Center, 6);
+
+            DrawNavPath(_npc);
+        }
+    }
+
+    private static void DrawNavPath(NPC npc)
+    {
+        Vector3 offset = new Vector3(0, 1f, 0f);
+        var npcCorners = npc.NavPath.corners;
+        if (npc.NavPathIdx >= 0 && npc.NavPathIdx < npcCorners.Length)
+        {
+            Draw.Line(npc.Agent.transform.position, npcCorners[npc.NavPathIdx] + offset, Color.yellow);
+            for (int c = npc.NavPathIdx; c < npcCorners.Length - 1; c++)
+            {
+                Draw.Line(npcCorners[c + 0] + offset, npcCorners[c + 1] + offset, Color.white);
+            }
         }
     }
 
