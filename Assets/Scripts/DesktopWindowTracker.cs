@@ -95,9 +95,8 @@ public class DesktopWindowTracker : MonoBehaviour
 
             // Debug.Log($"{hWnd}, self: {_hWnd}");
 
-            // Always include our own window
-            if (hWnd == DesktopHook.HWnd) {
-                Debug.Log("Tracking self window");
+            // include our own window
+            if (hWnd == DesktopHook.HWnd && DesktopHook.Instance.WindowMode != DesktopHook.AppWindowMode.BehindDesktopIcons) {
                 TrackWindow(hWnd, rect);
                 return true;
             }
@@ -167,7 +166,7 @@ public class DesktopWindowTracker : MonoBehaviour
 
         /*
         our window sitting behind desktop icons is in a different Z list, so is not enumerated
-        add it manually
+        add it manually as the last window
         */
         if (DesktopHook.Instance.WindowMode == DesktopHook.AppWindowMode.BehindDesktopIcons) {
             // Get window rect
