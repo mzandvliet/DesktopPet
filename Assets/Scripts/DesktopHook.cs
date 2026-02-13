@@ -5,6 +5,7 @@ using Unity.Mathematics;
 using Frantic.Windows;
 using DrawBehindDesktopIcons;
 using Shapes;
+using System.Collections.Generic;
 
 /*
 
@@ -30,7 +31,6 @@ ignore it in DesktopWindowTracker
 
 public class DesktopHook : ImmediateModeShapeDrawer
 {
-    [SerializeField] private Character _character;
     [SerializeField] private GameObject _foodPrefab;
     [SerializeField] private ParticleSystem _foodParticles;
     [SerializeField] private Boids _boids;
@@ -43,7 +43,6 @@ public class DesktopHook : ImmediateModeShapeDrawer
 
     private Camera _camera;
     private static StringBuilder _text;
-    private Vector2 _mouseClickPos;
     private Vector3 _lastMousePosWorld;
     private float _escapeTimer;
     private float _debugToggleTimer;
@@ -54,7 +53,18 @@ public class DesktopHook : ImmediateModeShapeDrawer
     private static WndProcDelegate _newWndProcDelegate;
     private static IntPtr _oldWndProc;
     private static DesktopHook _instance;
-    private IntPtr _hwnd;
+    public static DesktopHook Instance
+    {
+        get => _instance;
+    }
+
+    private AppWindowMode _windowMode;
+    public AppWindowMode WindowMode
+    {
+        get => _windowMode;
+    }
+    
+    private static IntPtr _hwnd;
 
     // Cached state for window mouse-cursor focus check
     private static Vector2 _lastTestedMousePos;
@@ -64,6 +74,13 @@ public class DesktopHook : ImmediateModeShapeDrawer
     private const float CACHE_DISTANCE = 3f; // pixels
 
     private double _lastFoodSpawnTime;
+
+    private List<Character> _characters;
+
+    public static IntPtr HWnd
+    {
+        get => _hwnd;
+    }
 
     private bool _showDebug = false;
 
@@ -78,18 +95,35 @@ public class DesktopHook : ImmediateModeShapeDrawer
         _windowTracker = gameObject.AddComponent<DesktopWindowTracker>();
         _iconMonitor = new DesktopIconMonitor();
 
+        _camera = gameObject.GetComponent<Camera>();
+        _characters = new List<Character>();
+        _characters.AddRange(GameObject.FindObjectsByType<Character>(FindObjectsSortMode.None));
+
+        _text = new StringBuilder(4096);
+
         Application.targetFrameRate = FramerateActive;
         Application.runInBackground = true;
 
-        _camera = gameObject.GetComponent<Camera>();
-
-        _text = new StringBuilder(4096);
+        /*
+        Get handle to our application window
+        IMPORTANT: only works *before* MakeWindowOpaqueBehindIcons
+        */
+        _hwnd = DesktopWindowTracker.GetUnityWindowHandle();
     }
 
     private void Start()
     {
         Screen.fullScreenMode = FullScreenMode.Windowed;
         // Screen.SetResolution(3440, 1440, false);
+
+        if (_hwnd == IntPtr.Zero)
+        {
+            Debug.LogError("Couldn't retrieve app's window handle");
+            return;
+        } else
+        {
+            Debug.Log($"Succesfully got our window handle: {_hwnd}");
+        }
 
         // if (ConfigureTransparentFullscreenWindow())
         if (MakeWindowOpaqueBehindIcons())
@@ -149,40 +183,55 @@ public class DesktopHook : ImmediateModeShapeDrawer
             UpdatePerformanceSettings();
         }
 
-        /* Update character, and determine whether it is in front of or behind the window that the cursor currently hovers over */
+        /*
+        Determine whether our app is in front of or behind the window that the cursor currently
+        hovers over. This can be used later to have elements act in front of those other windows
+        */
 
-        bool characterInFrontOfHoveredWindow = false;
+        bool appIsInFrontOfHoveredWindow = false;
         DesktopWindowTracker.WindowInfo hoveredWindowInfo;
         _windowTracker.IsPointCoveredByWindow(mousePosWin, out hoveredWindowInfo, _hwnd);
         var ourWindowInfo = _windowTracker.GetWindowInfo(_hwnd);
         if (hoveredWindowInfo != null && ourWindowInfo != null)
         {
-            characterInFrontOfHoveredWindow = ourWindowInfo.Z < hoveredWindowInfo.Z;
-        }
-        if (SystemInput.GetKeyDown(KeyCode.Space))
-        {
-            // Debug.Log($"hov: {(hoveredWindowInfo != null ? hoveredWindowInfo : 0)} char: {(ourWindowInfo != null ? ourWindowInfo : 0)} | char in front: {characterInFrontOfHoveredWindow}");
+            appIsInFrontOfHoveredWindow = ourWindowInfo.Z < hoveredWindowInfo.Z;
         }
 
-        /* Decide on window input-transparency based on whether cursor is hovering over anything interactive in the scene */
+        /* Hit testing! Find out if cursor is hovering over anything interactive in the scene,
+        or on any other part of the Windows Desktop that we should know about */
 
         // mouse, screen to unity coordinates
         var mousePosUnity = mousePosWin;
         mousePosUnity.y = Screen.height - mousePosUnity.y;
 
-        var camCharDist = math.abs(_character.transform.position.z - _camera.transform.position.z);
-        float lookWorldZ = camCharDist + (characterInFrontOfHoveredWindow ? +2f : -2f);
-        var mouseScreenPoint = new Vector3(mousePosUnity.x, mousePosUnity.y, lookWorldZ);
-        var mousePosWorld = _camera.ScreenToWorldPoint(mouseScreenPoint);
+        var mouseScreenPoint = new Vector3(mousePosUnity.x, mousePosUnity.y, 0.01f);
+        var mouseRay = _camera.ScreenPointToRay(mouseScreenPoint);
+
+        Vector3 mousePosWorld;
+
+        Ray ray = _camera.ScreenPointToRay(new Vector3(mousePosUnity.x, mousePosUnity.y, 0.1f));
+        bool mouseHit = Physics.Raycast(ray, out RaycastHit mouseHitInfo, _maxRaycastDistance, _interactableLayers);
+        if (mouseHit)
+        {
+            mousePosWorld = mouseHitInfo.point;
+        } else
+        {
+            var freeFloatingMouseScreenPoint = new Vector3(mousePosUnity.x, mousePosUnity.y, -_camera.transform.position.z);
+            mousePosWorld = _camera.ScreenToWorldPoint(freeFloatingMouseScreenPoint);
+        }
 
         var mouseVelocityWorld = mousePosWorld - _lastMousePosWorld;
         _lastMousePosWorld = mousePosWorld;
 
-        _character.SetMouseCursorWorld(mousePosWorld);
-        var mouseRay = _camera.ScreenPointToRay(mouseScreenPoint);
         _boids.SetMouseData(mouseRay, mouseVelocityWorld);
 
-        _foodParticles.transform.position = mousePosWorld;
+        foreach (var character in _characters)
+        {
+            character.SetMouseCursorWorld(mousePosWorld);
+        }
+
+        Vector3 foodParticlePos = mousePosWorld + (mouseHit ? mouseHitInfo.normal * 0.5f : Vector3.zero);
+        _foodParticles.transform.position = foodParticlePos;
         if (Time.timeAsDouble > _lastFoodSpawnTime + FoodSpawnDelay && !mouseIsOverIcon)
         {
             if (_foodParticles.isStopped) {
@@ -197,12 +246,8 @@ public class DesktopHook : ImmediateModeShapeDrawer
             }
         }
 
-        /* If clicking on the character, change its Z-order to sit above the currently active window */
-
         if (SystemInput.GetKeyDown(KeyCode.Mouse0) && !mouseIsOverIcon)
         {
-            _mouseClickPos = mousePosUnity;
-
             HandleClick(mousePosWin, mousePosUnity);
         }
 
@@ -262,14 +307,16 @@ public class DesktopHook : ImmediateModeShapeDrawer
         */
 
         IntPtr fullscreenHwnd;
-        bool reduceCompute = DesktopWindowTracker.IsAnyWindowFullscreen(out fullscreenHwnd);
+        bool reduceCompute =
+            DesktopWindowTracker.IsAnyWindowFullscreen(out fullscreenHwnd) &&
+            fullscreenHwnd != _hwnd; // exclude our own fullscreen window 😅
         if (reduceCompute)
         {
             if (Application.targetFrameRate == FramerateActive)
             {   
                 _text.Clear();
                 WinApi.GetWindowText(fullscreenHwnd, _text, _text.Capacity);
-                Debug.Log($"Full-screen app detected: {fullscreenHwnd} {_text.ToString()}, setting low power mode");
+                Debug.Log($"Full-screen app detected: {fullscreenHwnd} - \"{_text.ToString()}\", setting low power mode");
                 Application.targetFrameRate = FramerateHidden;
             }
         }
@@ -285,66 +332,70 @@ public class DesktopHook : ImmediateModeShapeDrawer
 
     private void HandleClick(Vector2Int mousePosWin, Vector2Int mousePosUnity)
     {
-        Ray ray = _camera.ScreenPointToRay(new Vector3(mousePosUnity.x, mousePosUnity.y, 0.1f));
-        if (Physics.Raycast(ray, out RaycastHit hit, _maxRaycastDistance, _interactableLayers))
+        Debug.Log("Handle click");
+
+        // click should not be blocked by any window closer in Z-order
+        var ourWindowInfo = _windowTracker.GetWindowInfo(_hwnd);
+        if (ourWindowInfo == null)
         {
-            // Todo: click should not be blocked by any window closer in Z-order
-            bool clickedCharacter = hit.collider.transform.parent?.GetComponent<Character>();
+            Debug.LogError("Failed to get our app's windowInfo");
+            return;
+        }
+        bool clickedCloserWindow = _windowTracker.IsPointCoveredByWindow(mousePosWin, out DesktopWindowTracker.WindowInfo windowInfo, ourWindowInfo.Z);
 
-            var ourWindowInfo = _windowTracker.GetWindowInfo(_hwnd);
-            bool clickedWindow = _windowTracker.IsPointCoveredByWindow(mousePosWin, out DesktopWindowTracker.WindowInfo windowInfo, ourWindowInfo.Z);
+        if (clickedCloserWindow)
+        {
+            return;
+        }
 
-            Debug.Log($"clickedCharacter: {clickedCharacter}");
-            if (clickedCharacter && !clickedWindow)
+        Debug.Log("Will raycast");
+
+        bool clickedSolidGeometry = false;
+
+        Ray ray = _camera.ScreenPointToRay(new Vector3(mousePosUnity.x, mousePosUnity.y, 0.1f));
+        if (Physics.Raycast(ray, out RaycastHit hitInfo, _maxRaycastDistance, _interactableLayers))
+        {
+            // We clicked into our world
+
+            Debug.Log("Hit world");
+
+            // Did we click a character?
+            var parent = hitInfo.collider.transform.parent;
+            var character = parent != null ? parent.GetComponent<Character>() : null;
+            bool clickedCharacter = character != null;
+
+            if (clickedCharacter)
             {
                 // SetWindowZOrder(ZWindowOrder.Front);
-                _character.OnClicked();
+                Debug.Log("Hit character");
+                character.OnClicked();
                 return;
+            }
+            
+            else
+            {
+                Debug.Log("Hit other geometry");
+                clickedSolidGeometry = true;
             }
         }
 
-        // If clicked desktop background, with nothing else in focus, this is our territory
-
-        // get active window?
-        // if none of our tracked visible windows catches the click?
-        // if click doesn't hit any desktop icons
-
-        bool clickedDesktopBackground;
-
-        if (Application.isEditor)
-        {
-            clickedDesktopBackground = true;
-        }
-        else
-        {
-            // var windowUnderCursor = WinApi.WindowFromPoint(new Point(mousePosWin.x, mousePosWin.y));
-            // var activeWindow = WinApi.GetActiveWindow();
-            // var desktopWindow = WinApi.GetDesktopWindow();
-            // var desktopShellWindow = DesktopWindowTracker.GetDesktopBackgroundWindow();
-
-            DesktopWindowTracker.WindowInfo windowInfo;
-            var isPointCoveredByWindow = _windowTracker.IsPointCoveredByWindow(mousePosWin, out windowInfo, _hwnd);
-
-            // Debug.Log($"Click: windowUnderCursor: {windowUnderCursor}, activeWindow: {activeWindow}, pointCovered: {isPointCoveredByWindow}, windowInfo: {windowInfo}");
-            // Debug.Log($"desktopWindow: {desktopWindow}, desktopShellWindow: {desktopShellWindow}");
-
-            clickedDesktopBackground = !isPointCoveredByWindow;
-        }
-
-        /*
-        Todo: on mouse-up, if not a drag action
-        */
-
-        // Debug.Log($"clickedBackground: {clickedDesktopBackground}");
-
-        if (clickedDesktopBackground)
+        if (clickedSolidGeometry)
         {
             if (Time.timeAsDouble > _lastFoodSpawnTime + FoodSpawnDelay)
             {
-                var spawnPos = _camera.ScreenToWorldPoint(new Vector3(mousePosUnity.x, mousePosUnity.y, -_camera.transform.position.z));
+                Debug.Log("spawn food on geometry");
+                var spawnPos = hitInfo.point + hitInfo.normal * 0.5f; // todo: unify with mouse hover behaviour
                 GameObject.Instantiate(_foodPrefab, spawnPos, Quaternion.identity);
                 _lastFoodSpawnTime = Time.timeAsDouble;
             }
+        }
+
+        else
+        {
+            Debug.Log("Spawn food in air");
+            var spawnPos = _camera.ScreenToWorldPoint(new Vector3(mousePosUnity.x, mousePosUnity.y, -_camera.transform.position.z));
+            GameObject.Instantiate(_foodPrefab, spawnPos, Quaternion.identity);
+            _lastFoodSpawnTime = Time.timeAsDouble;
         }
     }
 
@@ -377,12 +428,14 @@ public class DesktopHook : ImmediateModeShapeDrawer
             GUILayout.Label($"URP Render Scale: {rezText}");
             GUILayout.Label($"Target framerate: {Application.targetFrameRate}, framerate: {(1f / Time.smoothDeltaTime):0.0} fps");
             GUILayout.Space(8f);
-            GUILayout.Label($"Character State: {_character.State}");
-            GUILayout.Label($"Idle State: {_character.IdleState}");
+            for (int c = 0; c < _characters.Count; c++)
+            {
+                var character = _characters[c];
+                GUILayout.Label($"Character {c}:");
+                GUILayout.Label($"\tState: {character.State}");
+                GUILayout.Label($"\tIdle State: {character.IdleState}");
+            }
             GUILayout.Space(8f);
-            GUILayout.Label($"Last Click Pos: {_mouseClickPos}");
-            GUILayout.Label($"Last Tested Pos: {_lastTestedMousePos}");
-            GUILayout.Label($"Last Hit Result: {_lastHitResult}");
 
             IntPtr exStyle = WinApi.GetWindowLongPtr(_hwnd, GWL_Flags.GWL_EXSTYLE);
             long newStyle = exStyle.ToInt64();
@@ -390,6 +443,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
             GUILayout.Label($"Window Transparent: {isTransparent}");
 
             GUILayout.Space(8f);
+            GUILayout.Label($"Our window: {_hwnd}");
             GUILayout.Label($"Open windows: {_windowTracker.VisibleWindows.Count}");
             for (int w = 0; w < _windowTracker.VisibleWindows.Count; w++)
             {
@@ -578,8 +632,6 @@ public class DesktopHook : ImmediateModeShapeDrawer
         _camera.backgroundColor = new Color(0, 0, 0, 0);
         _camera.clearFlags = CameraClearFlags.SolidColor;
 
-        _hwnd = WinApi.GetActiveWindow();
-        
         try
         {
             const int PROCESS_PER_MONITOR_DPI_AWARE = 2;
@@ -624,6 +676,8 @@ public class DesktopHook : ImmediateModeShapeDrawer
   
         SetWindowZOrder(ZWindowOrder.Bottom);
 
+        _windowMode = AppWindowMode.TransparentZOrdered;
+
         return true;
     }
 
@@ -642,8 +696,6 @@ public class DesktopHook : ImmediateModeShapeDrawer
 
         // Set Unity camera to skybox
         _camera.clearFlags = CameraClearFlags.Skybox;
-
-        _hwnd = WinApi.GetActiveWindow();
 
         try
         {
@@ -706,6 +758,8 @@ public class DesktopHook : ImmediateModeShapeDrawer
 
         Win32.SetParent(_hwnd, workerW);
 
+        _windowMode = AppWindowMode.BehindDesktopIcons;
+
         return true;
     }
 
@@ -714,6 +768,11 @@ public class DesktopHook : ImmediateModeShapeDrawer
         if (!IsWindowsDesktop())
         {
             return true;
+        }
+
+        if (_windowMode != AppWindowMode.TransparentZOrdered)
+        {
+            return false;
         }
 
         IntPtr exStyle = WinApi.GetWindowLongPtr(_hwnd, GWL_Flags.GWL_EXSTYLE);
@@ -874,7 +933,14 @@ public class DesktopHook : ImmediateModeShapeDrawer
         }
     }
 
-   private enum DesktopIconSize
+    public enum AppWindowMode
+    {
+        None,
+        TransparentZOrdered,
+        BehindDesktopIcons
+    }
+
+    private enum DesktopIconSize
     {
         Small,
         Medium,

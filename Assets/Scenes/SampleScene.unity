@@ -171,6 +171,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_3 (10)
       objectReference: {fileID: 0}
+    - target: {fileID: 4258580758064045444, guid: 3c4662a0c0e53694784da660487d9857, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -192,6 +196,10 @@ PrefabInstance:
     - target: {fileID: 4099606098330065139, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
       propertyPath: m_Name
       value: Spruce_3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4099606098330065139, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 8299122029891668983, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
       propertyPath: m_LocalPosition.x
@@ -295,6 +303,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_2 (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 2764050508806169457, guid: d47efa5fc9d674048ab1194b7a6d9663, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -316,7 +328,7 @@ GameObject:
   - component: {fileID: 14141368}
   - component: {fileID: 14141370}
   - component: {fileID: 14141369}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -464,7 +476,7 @@ GameObject:
   - component: {fileID: 15685082}
   - component: {fileID: 15685084}
   - component: {fileID: 15685083}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -554,7 +566,7 @@ GameObject:
   - component: {fileID: 28204598}
   - component: {fileID: 28204600}
   - component: {fileID: 28204599}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -644,7 +656,7 @@ GameObject:
   - component: {fileID: 32030902}
   - component: {fileID: 32030904}
   - component: {fileID: 32030903}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -734,7 +746,7 @@ GameObject:
   - component: {fileID: 38778611}
   - component: {fileID: 38778613}
   - component: {fileID: 38778612}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -951,7 +963,7 @@ GameObject:
   - component: {fileID: 42350714}
   - component: {fileID: 42350716}
   - component: {fileID: 42350715}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1042,6 +1054,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_1 (9)
       objectReference: {fileID: 0}
+    - target: {fileID: 7367940160253519381, guid: 2022f62d05d2ce04f8b2fdb53bd7a173, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 7756974631522492903, guid: 2022f62d05d2ce04f8b2fdb53bd7a173, type: 3}
       propertyPath: m_LocalPosition.x
       value: 9.534963
@@ -1103,7 +1119,7 @@ GameObject:
   - component: {fileID: 43859211}
   - component: {fileID: 43859213}
   - component: {fileID: 43859212}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1193,7 +1209,7 @@ GameObject:
   - component: {fileID: 50857816}
   - component: {fileID: 50857818}
   - component: {fileID: 50857817}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1283,7 +1299,7 @@ GameObject:
   - component: {fileID: 58350364}
   - component: {fileID: 58350366}
   - component: {fileID: 58350365}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1373,7 +1389,7 @@ GameObject:
   - component: {fileID: 62041818}
   - component: {fileID: 62041820}
   - component: {fileID: 62041819}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1504,6 +1520,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_3 (7)
       objectReference: {fileID: 0}
+    - target: {fileID: 4258580758064045444, guid: 3c4662a0c0e53694784da660487d9857, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1525,7 +1545,7 @@ GameObject:
   - component: {fileID: 63228497}
   - component: {fileID: 63228499}
   - component: {fileID: 63228498}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1615,7 +1635,7 @@ GameObject:
   - component: {fileID: 73095339}
   - component: {fileID: 73095341}
   - component: {fileID: 73095340}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1783,7 +1803,7 @@ GameObject:
   - component: {fileID: 78473606}
   - component: {fileID: 78473608}
   - component: {fileID: 78473607}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_11
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1874,6 +1894,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_3 (4)
       objectReference: {fileID: 0}
+    - target: {fileID: 4099606098330065139, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 8299122029891668983, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
       propertyPath: m_LocalPosition.x
       value: -36.1856
@@ -1933,7 +1957,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 88390154}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stones
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2359,7 +2383,7 @@ GameObject:
   - component: {fileID: 92649637}
   - component: {fileID: 92649639}
   - component: {fileID: 92649638}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2449,7 +2473,7 @@ GameObject:
   - component: {fileID: 97934432}
   - component: {fileID: 97934434}
   - component: {fileID: 97934433}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2539,7 +2563,7 @@ GameObject:
   - component: {fileID: 99037562}
   - component: {fileID: 99037564}
   - component: {fileID: 99037563}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2629,7 +2653,7 @@ GameObject:
   - component: {fileID: 100766478}
   - component: {fileID: 100766480}
   - component: {fileID: 100766479}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2719,7 +2743,7 @@ GameObject:
   - component: {fileID: 103319615}
   - component: {fileID: 103319617}
   - component: {fileID: 103319616}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2809,7 +2833,7 @@ GameObject:
   - component: {fileID: 109671441}
   - component: {fileID: 109671443}
   - component: {fileID: 109671442}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2899,7 +2923,7 @@ GameObject:
   - component: {fileID: 110868941}
   - component: {fileID: 110868943}
   - component: {fileID: 110868942}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2989,7 +3013,7 @@ GameObject:
   - component: {fileID: 115743033}
   - component: {fileID: 115743035}
   - component: {fileID: 115743034}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3079,7 +3103,7 @@ GameObject:
   - component: {fileID: 117640364}
   - component: {fileID: 117640366}
   - component: {fileID: 117640365}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3285,7 +3309,7 @@ GameObject:
   - component: {fileID: 126816441}
   - component: {fileID: 126816443}
   - component: {fileID: 126816442}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3375,7 +3399,7 @@ GameObject:
   - component: {fileID: 138356261}
   - component: {fileID: 138356263}
   - component: {fileID: 138356262}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3465,7 +3489,7 @@ GameObject:
   - component: {fileID: 138799637}
   - component: {fileID: 138799639}
   - component: {fileID: 138799638}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3555,7 +3579,7 @@ GameObject:
   - component: {fileID: 144638855}
   - component: {fileID: 144638857}
   - component: {fileID: 144638856}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3645,7 +3669,7 @@ GameObject:
   - component: {fileID: 145685071}
   - component: {fileID: 145685073}
   - component: {fileID: 145685072}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3735,7 +3759,7 @@ GameObject:
   - component: {fileID: 146661982}
   - component: {fileID: 146661984}
   - component: {fileID: 146661983}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3825,7 +3849,7 @@ GameObject:
   - component: {fileID: 149659689}
   - component: {fileID: 149659691}
   - component: {fileID: 149659690}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3915,7 +3939,7 @@ GameObject:
   - component: {fileID: 152310703}
   - component: {fileID: 152310705}
   - component: {fileID: 152310704}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4005,7 +4029,7 @@ GameObject:
   - component: {fileID: 164853893}
   - component: {fileID: 164853895}
   - component: {fileID: 164853894}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4222,7 +4246,7 @@ GameObject:
   - component: {fileID: 173734389}
   - component: {fileID: 173734391}
   - component: {fileID: 173734390}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4312,7 +4336,7 @@ GameObject:
   - component: {fileID: 174522346}
   - component: {fileID: 174522348}
   - component: {fileID: 174522347}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4403,6 +4427,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_3 (15)
       objectReference: {fileID: 0}
+    - target: {fileID: 4099606098330065139, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 8299122029891668983, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
       propertyPath: m_LocalPosition.x
       value: -43.125404
@@ -4464,7 +4492,7 @@ GameObject:
   - component: {fileID: 183997318}
   - component: {fileID: 183997320}
   - component: {fileID: 183997319}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4555,6 +4583,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_2 (11)
       objectReference: {fileID: 0}
+    - target: {fileID: 858470600396141883, guid: 9442ab764d113474f883ee16f6d238ed, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 3511528704128054980, guid: 9442ab764d113474f883ee16f6d238ed, type: 3}
       propertyPath: m_LocalPosition.x
       value: 39.212505
@@ -4616,7 +4648,7 @@ GameObject:
   - component: {fileID: 201886969}
   - component: {fileID: 201886971}
   - component: {fileID: 201886970}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4706,7 +4738,7 @@ GameObject:
   - component: {fileID: 202200274}
   - component: {fileID: 202200276}
   - component: {fileID: 202200275}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4796,7 +4828,7 @@ GameObject:
   - component: {fileID: 215515446}
   - component: {fileID: 215515448}
   - component: {fileID: 215515447}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4927,6 +4959,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_2 (9)
       objectReference: {fileID: 0}
+    - target: {fileID: 2764050508806169457, guid: d47efa5fc9d674048ab1194b7a6d9663, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -4948,6 +4984,10 @@ PrefabInstance:
     - target: {fileID: 4099606098330065139, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
       propertyPath: m_Name
       value: Spruce_3 (14)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4099606098330065139, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 8299122029891668983, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
       propertyPath: m_LocalPosition.x
@@ -5010,7 +5050,7 @@ GameObject:
   - component: {fileID: 225888854}
   - component: {fileID: 225888856}
   - component: {fileID: 225888855}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_8
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5100,7 +5140,7 @@ GameObject:
   - component: {fileID: 229079921}
   - component: {fileID: 229079923}
   - component: {fileID: 229079922}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5190,7 +5230,7 @@ GameObject:
   - component: {fileID: 229283934}
   - component: {fileID: 229283936}
   - component: {fileID: 229283935}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5321,6 +5361,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_3 (15)
       objectReference: {fileID: 0}
+    - target: {fileID: 4258580758064045444, guid: 3c4662a0c0e53694784da660487d9857, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -5342,7 +5386,7 @@ GameObject:
   - component: {fileID: 249584674}
   - component: {fileID: 249584676}
   - component: {fileID: 249584675}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5432,7 +5476,7 @@ GameObject:
   - component: {fileID: 251569286}
   - component: {fileID: 251569288}
   - component: {fileID: 251569287}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5522,7 +5566,7 @@ GameObject:
   - component: {fileID: 257951873}
   - component: {fileID: 257951875}
   - component: {fileID: 257951874}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5612,7 +5656,7 @@ GameObject:
   - component: {fileID: 258272705}
   - component: {fileID: 258272707}
   - component: {fileID: 258272706}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5702,7 +5746,7 @@ GameObject:
   - component: {fileID: 264392411}
   - component: {fileID: 264392413}
   - component: {fileID: 264392412}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5792,7 +5836,7 @@ GameObject:
   - component: {fileID: 272221057}
   - component: {fileID: 272221059}
   - component: {fileID: 272221058}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5883,6 +5927,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_1 (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 7367940160253519381, guid: 2022f62d05d2ce04f8b2fdb53bd7a173, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 7756974631522492903, guid: 2022f62d05d2ce04f8b2fdb53bd7a173, type: 3}
       propertyPath: m_LocalPosition.x
       value: -9.753801
@@ -5944,7 +5992,7 @@ GameObject:
   - component: {fileID: 288871503}
   - component: {fileID: 288871505}
   - component: {fileID: 288871504}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6096,7 +6144,7 @@ GameObject:
   - component: {fileID: 294510127}
   - component: {fileID: 294510129}
   - component: {fileID: 294510128}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6253,7 +6301,7 @@ GameObject:
   - component: {fileID: 300020004}
   - component: {fileID: 300020006}
   - component: {fileID: 300020005}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6343,7 +6391,7 @@ GameObject:
   - component: {fileID: 300339619}
   - component: {fileID: 300339621}
   - component: {fileID: 300339620}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6433,7 +6481,7 @@ GameObject:
   - component: {fileID: 300490553}
   - component: {fileID: 300490555}
   - component: {fileID: 300490554}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6564,6 +6612,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_1 (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 1883724064078997930, guid: 81b2e2c177cf54941894634a24162308, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6618,7 +6670,7 @@ GameObject:
   - component: {fileID: 322273697}
   - component: {fileID: 322273699}
   - component: {fileID: 322273698}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6708,7 +6760,7 @@ GameObject:
   - component: {fileID: 325953045}
   - component: {fileID: 325953047}
   - component: {fileID: 325953046}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -6816,12 +6868,12 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 169213451}
-  - {fileID: 706842038}
-  - {fileID: 40507519}
   - {fileID: 1021553287}
   - {fileID: 88390154}
   - {fileID: 2016672416}
+  - {fileID: 169213451}
+  - {fileID: 706842038}
+  - {fileID: 40507519}
   - {fileID: 721881891}
   - {fileID: 1075524159}
   - {fileID: 647252788}
@@ -6838,7 +6890,7 @@ GameObject:
   - component: {fileID: 327292180}
   - component: {fileID: 327292182}
   - component: {fileID: 327292181}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7068,7 +7120,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DesktopHook
   useCullingMasks: 0
-  _character: {fileID: 1708317061}
   _foodPrefab: {fileID: 1314191554671303762, guid: 8214f49531cf91744867c0339c3a58e0, type: 3}
   _foodParticles: {fileID: 1894763659}
   _boids: {fileID: 292536723}
@@ -7087,6 +7138,10 @@ PrefabInstance:
     - target: {fileID: 858470600396141883, guid: 9442ab764d113474f883ee16f6d238ed, type: 3}
       propertyPath: m_Name
       value: Spruce_2 (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 858470600396141883, guid: 9442ab764d113474f883ee16f6d238ed, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 3511528704128054980, guid: 9442ab764d113474f883ee16f6d238ed, type: 3}
       propertyPath: m_LocalPosition.x
@@ -7149,7 +7204,7 @@ GameObject:
   - component: {fileID: 340332088}
   - component: {fileID: 340332090}
   - component: {fileID: 340332089}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7239,7 +7294,7 @@ GameObject:
   - component: {fileID: 340560960}
   - component: {fileID: 340560962}
   - component: {fileID: 340560961}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7329,7 +7384,7 @@ GameObject:
   - component: {fileID: 341581004}
   - component: {fileID: 341581006}
   - component: {fileID: 341581005}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7419,7 +7474,7 @@ GameObject:
   - component: {fileID: 342798448}
   - component: {fileID: 342798450}
   - component: {fileID: 342798449}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7550,6 +7605,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_3 (16)
       objectReference: {fileID: 0}
+    - target: {fileID: 4258580758064045444, guid: 3c4662a0c0e53694784da660487d9857, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -7571,7 +7630,7 @@ GameObject:
   - component: {fileID: 361766578}
   - component: {fileID: 361766580}
   - component: {fileID: 361766579}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7661,7 +7720,7 @@ GameObject:
   - component: {fileID: 362088490}
   - component: {fileID: 362088492}
   - component: {fileID: 362088491}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7792,6 +7851,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_2 (5)
       objectReference: {fileID: 0}
+    - target: {fileID: 2764050508806169457, guid: d47efa5fc9d674048ab1194b7a6d9663, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -7813,7 +7876,7 @@ GameObject:
   - component: {fileID: 371264241}
   - component: {fileID: 371264243}
   - component: {fileID: 371264242}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7903,7 +7966,7 @@ GameObject:
   - component: {fileID: 374450936}
   - component: {fileID: 374450938}
   - component: {fileID: 374450937}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7993,7 +8056,7 @@ GameObject:
   - component: {fileID: 379280542}
   - component: {fileID: 379280544}
   - component: {fileID: 379280543}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8174,7 +8237,7 @@ GameObject:
   - component: {fileID: 383123444}
   - component: {fileID: 383123446}
   - component: {fileID: 383123445}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8264,7 +8327,7 @@ GameObject:
   - component: {fileID: 388366702}
   - component: {fileID: 388366704}
   - component: {fileID: 388366703}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8355,6 +8418,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_3 (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 4099606098330065139, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 8299122029891668983, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
       propertyPath: m_LocalPosition.x
       value: 13.1293
@@ -8416,7 +8483,7 @@ GameObject:
   - component: {fileID: 399598870}
   - component: {fileID: 399598872}
   - component: {fileID: 399598871}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8633,7 +8700,7 @@ GameObject:
   - component: {fileID: 415514900}
   - component: {fileID: 415514902}
   - component: {fileID: 415514901}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8723,7 +8790,7 @@ GameObject:
   - component: {fileID: 418638447}
   - component: {fileID: 418638449}
   - component: {fileID: 418638448}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8814,6 +8881,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_1 (8)
       objectReference: {fileID: 0}
+    - target: {fileID: 7367940160253519381, guid: 2022f62d05d2ce04f8b2fdb53bd7a173, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 7756974631522492903, guid: 2022f62d05d2ce04f8b2fdb53bd7a173, type: 3}
       propertyPath: m_LocalPosition.x
       value: 9.9
@@ -8875,7 +8946,7 @@ GameObject:
   - component: {fileID: 422950051}
   - component: {fileID: 422950053}
   - component: {fileID: 422950052}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8965,7 +9036,7 @@ GameObject:
   - component: {fileID: 426205714}
   - component: {fileID: 426205716}
   - component: {fileID: 426205715}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9096,6 +9167,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_3 (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 4258580758064045444, guid: 3c4662a0c0e53694784da660487d9857, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -9117,7 +9192,7 @@ GameObject:
   - component: {fileID: 427945484}
   - component: {fileID: 427945486}
   - component: {fileID: 427945485}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9207,7 +9282,7 @@ GameObject:
   - component: {fileID: 437136982}
   - component: {fileID: 437136984}
   - component: {fileID: 437136983}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9297,7 +9372,7 @@ GameObject:
   - component: {fileID: 443944880}
   - component: {fileID: 443944882}
   - component: {fileID: 443944881}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9387,7 +9462,7 @@ GameObject:
   - component: {fileID: 445760743}
   - component: {fileID: 445760745}
   - component: {fileID: 445760744}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9589,7 +9664,7 @@ GameObject:
   - component: {fileID: 458087562}
   - component: {fileID: 458087564}
   - component: {fileID: 458087563}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9679,7 +9754,7 @@ GameObject:
   - component: {fileID: 462590787}
   - component: {fileID: 462590789}
   - component: {fileID: 462590788}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9769,7 +9844,7 @@ GameObject:
   - component: {fileID: 463774327}
   - component: {fileID: 463774329}
   - component: {fileID: 463774328}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9900,6 +9975,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_3 (14)
       objectReference: {fileID: 0}
+    - target: {fileID: 4258580758064045444, guid: 3c4662a0c0e53694784da660487d9857, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -9921,7 +10000,7 @@ GameObject:
   - component: {fileID: 471691264}
   - component: {fileID: 471691266}
   - component: {fileID: 471691265}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10011,7 +10090,7 @@ GameObject:
   - component: {fileID: 472427177}
   - component: {fileID: 472427179}
   - component: {fileID: 472427178}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10101,7 +10180,7 @@ GameObject:
   - component: {fileID: 482750213}
   - component: {fileID: 482750215}
   - component: {fileID: 482750214}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10191,7 +10270,7 @@ GameObject:
   - component: {fileID: 486747261}
   - component: {fileID: 486747263}
   - component: {fileID: 486747262}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10281,7 +10360,7 @@ GameObject:
   - component: {fileID: 490615277}
   - component: {fileID: 490615279}
   - component: {fileID: 490615278}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10371,7 +10450,7 @@ GameObject:
   - component: {fileID: 492196037}
   - component: {fileID: 492196039}
   - component: {fileID: 492196038}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10461,7 +10540,7 @@ GameObject:
   - component: {fileID: 493755600}
   - component: {fileID: 493755602}
   - component: {fileID: 493755601}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10592,6 +10671,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_1
       objectReference: {fileID: 0}
+    - target: {fileID: 1883724064078997930, guid: 81b2e2c177cf54941894634a24162308, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -10654,6 +10737,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_1 (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 1883724064078997930, guid: 81b2e2c177cf54941894634a24162308, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -10675,7 +10762,7 @@ GameObject:
   - component: {fileID: 502137392}
   - component: {fileID: 502137394}
   - component: {fileID: 502137393}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10765,7 +10852,7 @@ GameObject:
   - component: {fileID: 503726522}
   - component: {fileID: 503726524}
   - component: {fileID: 503726523}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10968,6 +11055,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_3 (5)
       objectReference: {fileID: 0}
+    - target: {fileID: 4099606098330065139, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 8299122029891668983, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
       propertyPath: m_LocalPosition.x
       value: -29.358818
@@ -11029,7 +11120,7 @@ GameObject:
   - component: {fileID: 529354422}
   - component: {fileID: 529354424}
   - component: {fileID: 529354423}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11119,7 +11210,7 @@ GameObject:
   - component: {fileID: 529522438}
   - component: {fileID: 529522440}
   - component: {fileID: 529522439}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11210,6 +11301,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_3 (11)
       objectReference: {fileID: 0}
+    - target: {fileID: 4099606098330065139, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 8299122029891668983, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
       propertyPath: m_LocalPosition.x
       value: 45.99659
@@ -11271,7 +11366,7 @@ GameObject:
   - component: {fileID: 540616932}
   - component: {fileID: 540616934}
   - component: {fileID: 540616933}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11361,7 +11456,7 @@ GameObject:
   - component: {fileID: 540819351}
   - component: {fileID: 540819353}
   - component: {fileID: 540819352}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11451,7 +11546,7 @@ GameObject:
   - component: {fileID: 541242618}
   - component: {fileID: 541242620}
   - component: {fileID: 541242619}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11541,7 +11636,7 @@ GameObject:
   - component: {fileID: 548755312}
   - component: {fileID: 548755314}
   - component: {fileID: 548755313}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11631,7 +11726,7 @@ GameObject:
   - component: {fileID: 551026464}
   - component: {fileID: 551026466}
   - component: {fileID: 551026465}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11721,7 +11816,7 @@ GameObject:
   - component: {fileID: 551178166}
   - component: {fileID: 551178168}
   - component: {fileID: 551178167}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11811,7 +11906,7 @@ GameObject:
   - component: {fileID: 564952389}
   - component: {fileID: 564952391}
   - component: {fileID: 564952390}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -11901,7 +11996,7 @@ GameObject:
   - component: {fileID: 566150010}
   - component: {fileID: 566150012}
   - component: {fileID: 566150011}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12082,7 +12177,7 @@ GameObject:
   - component: {fileID: 579113636}
   - component: {fileID: 579113638}
   - component: {fileID: 579113637}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12172,7 +12267,7 @@ GameObject:
   - component: {fileID: 581173831}
   - component: {fileID: 581173833}
   - component: {fileID: 581173832}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12303,6 +12398,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_3 (17)
       objectReference: {fileID: 0}
+    - target: {fileID: 4258580758064045444, guid: 3c4662a0c0e53694784da660487d9857, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -12324,7 +12423,7 @@ GameObject:
   - component: {fileID: 588423152}
   - component: {fileID: 588423154}
   - component: {fileID: 588423153}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12415,6 +12514,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_2 (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 858470600396141883, guid: 9442ab764d113474f883ee16f6d238ed, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 3511528704128054980, guid: 9442ab764d113474f883ee16f6d238ed, type: 3}
       propertyPath: m_LocalPosition.x
       value: 30.248219
@@ -12476,7 +12579,7 @@ GameObject:
   - component: {fileID: 595941918}
   - component: {fileID: 595941920}
   - component: {fileID: 595941919}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12566,7 +12669,7 @@ GameObject:
   - component: {fileID: 602056529}
   - component: {fileID: 602056531}
   - component: {fileID: 602056530}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12656,7 +12759,7 @@ GameObject:
   - component: {fileID: 603588423}
   - component: {fileID: 603588425}
   - component: {fileID: 603588424}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12746,7 +12849,7 @@ GameObject:
   - component: {fileID: 604975100}
   - component: {fileID: 604975102}
   - component: {fileID: 604975101}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12836,7 +12939,7 @@ GameObject:
   - component: {fileID: 606641337}
   - component: {fileID: 606641339}
   - component: {fileID: 606641338}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12926,7 +13029,7 @@ GameObject:
   - component: {fileID: 608248946}
   - component: {fileID: 608248948}
   - component: {fileID: 608248947}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13016,7 +13119,7 @@ GameObject:
   - component: {fileID: 609222704}
   - component: {fileID: 609222706}
   - component: {fileID: 609222705}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13106,7 +13209,7 @@ GameObject:
   - component: {fileID: 612489205}
   - component: {fileID: 612489207}
   - component: {fileID: 612489206}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13197,6 +13300,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_3 (10)
       objectReference: {fileID: 0}
+    - target: {fileID: 4099606098330065139, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 8299122029891668983, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
       propertyPath: m_LocalPosition.x
       value: -27.649193
@@ -13258,7 +13365,7 @@ GameObject:
   - component: {fileID: 613219161}
   - component: {fileID: 613219163}
   - component: {fileID: 613219162}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13389,6 +13496,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_3 (8)
       objectReference: {fileID: 0}
+    - target: {fileID: 4258580758064045444, guid: 3c4662a0c0e53694784da660487d9857, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -13410,7 +13521,7 @@ GameObject:
   - component: {fileID: 615100326}
   - component: {fileID: 615100328}
   - component: {fileID: 615100327}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13500,7 +13611,7 @@ GameObject:
   - component: {fileID: 616540124}
   - component: {fileID: 616540126}
   - component: {fileID: 616540125}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13590,7 +13701,7 @@ GameObject:
   - component: {fileID: 616578841}
   - component: {fileID: 616578843}
   - component: {fileID: 616578842}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13681,6 +13792,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_3 (17)
       objectReference: {fileID: 0}
+    - target: {fileID: 4099606098330065139, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 8299122029891668983, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
       propertyPath: m_LocalPosition.x
       value: -63.717316
@@ -13742,7 +13857,7 @@ GameObject:
   - component: {fileID: 629089364}
   - component: {fileID: 629089366}
   - component: {fileID: 629089365}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13833,6 +13948,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_2 (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 858470600396141883, guid: 9442ab764d113474f883ee16f6d238ed, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 3511528704128054980, guid: 9442ab764d113474f883ee16f6d238ed, type: 3}
       propertyPath: m_LocalPosition.x
       value: -27.694424
@@ -13894,7 +14013,7 @@ GameObject:
   - component: {fileID: 638058376}
   - component: {fileID: 638058378}
   - component: {fileID: 638058377}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13984,7 +14103,7 @@ GameObject:
   - component: {fileID: 644049801}
   - component: {fileID: 644049803}
   - component: {fileID: 644049802}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14075,6 +14194,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_1 (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 7367940160253519381, guid: 2022f62d05d2ce04f8b2fdb53bd7a173, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 7756974631522492903, guid: 2022f62d05d2ce04f8b2fdb53bd7a173, type: 3}
       propertyPath: m_LocalPosition.x
       value: 17.27
@@ -14136,7 +14259,7 @@ GameObject:
   - component: {fileID: 645584037}
   - component: {fileID: 645584039}
   - component: {fileID: 645584038}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14272,7 +14395,7 @@ GameObject:
   - component: {fileID: 652313032}
   - component: {fileID: 652313034}
   - component: {fileID: 652313033}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14362,7 +14485,7 @@ GameObject:
   - component: {fileID: 652828084}
   - component: {fileID: 652828086}
   - component: {fileID: 652828085}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14452,7 +14575,7 @@ GameObject:
   - component: {fileID: 656773068}
   - component: {fileID: 656773070}
   - component: {fileID: 656773069}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14542,7 +14665,7 @@ GameObject:
   - component: {fileID: 671567477}
   - component: {fileID: 671567479}
   - component: {fileID: 671567478}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14633,6 +14756,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_3 (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 4099606098330065139, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 8299122029891668983, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
       propertyPath: m_LocalPosition.x
       value: -28.187977
@@ -14694,7 +14821,7 @@ GameObject:
   - component: {fileID: 689757031}
   - component: {fileID: 689757033}
   - component: {fileID: 689757032}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14784,7 +14911,7 @@ GameObject:
   - component: {fileID: 691513902}
   - component: {fileID: 691513904}
   - component: {fileID: 691513903}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14874,7 +15001,7 @@ GameObject:
   - component: {fileID: 694028337}
   - component: {fileID: 694028339}
   - component: {fileID: 694028338}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14964,7 +15091,7 @@ GameObject:
   - component: {fileID: 699603530}
   - component: {fileID: 699603532}
   - component: {fileID: 699603531}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -15054,7 +15181,7 @@ GameObject:
   - component: {fileID: 701114278}
   - component: {fileID: 701114280}
   - component: {fileID: 701114279}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -15144,6 +15271,10 @@ PrefabInstance:
     - target: {fileID: 4099606098330065139, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
       propertyPath: m_Name
       value: Spruce_3 (8)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4099606098330065139, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 8299122029891668983, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
       propertyPath: m_LocalPosition.x
@@ -15333,7 +15464,7 @@ GameObject:
   - component: {fileID: 715720750}
   - component: {fileID: 715720752}
   - component: {fileID: 715720751}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -15569,7 +15700,7 @@ GameObject:
   - component: {fileID: 727245336}
   - component: {fileID: 727245338}
   - component: {fileID: 727245337}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -15660,6 +15791,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_3 (20)
       objectReference: {fileID: 0}
+    - target: {fileID: 4099606098330065139, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 8299122029891668983, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
       propertyPath: m_LocalPosition.x
       value: -23.343704
@@ -15721,7 +15856,7 @@ GameObject:
   - component: {fileID: 733225455}
   - component: {fileID: 733225457}
   - component: {fileID: 733225456}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -15812,6 +15947,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_2 (6)
       objectReference: {fileID: 0}
+    - target: {fileID: 858470600396141883, guid: 9442ab764d113474f883ee16f6d238ed, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 3511528704128054980, guid: 9442ab764d113474f883ee16f6d238ed, type: 3}
       propertyPath: m_LocalPosition.x
       value: 24.37278
@@ -15873,7 +16012,7 @@ GameObject:
   - component: {fileID: 737268948}
   - component: {fileID: 737268950}
   - component: {fileID: 737268949}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16004,6 +16143,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_1 (6)
       objectReference: {fileID: 0}
+    - target: {fileID: 1883724064078997930, guid: 81b2e2c177cf54941894634a24162308, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -16025,7 +16168,7 @@ GameObject:
   - component: {fileID: 741214983}
   - component: {fileID: 741214985}
   - component: {fileID: 741214984}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16115,7 +16258,7 @@ GameObject:
   - component: {fileID: 746479867}
   - component: {fileID: 746479869}
   - component: {fileID: 746479868}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16205,7 +16348,7 @@ GameObject:
   - component: {fileID: 751218841}
   - component: {fileID: 751218843}
   - component: {fileID: 751218842}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16295,7 +16438,7 @@ GameObject:
   - component: {fileID: 752567573}
   - component: {fileID: 752567575}
   - component: {fileID: 752567574}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16476,7 +16619,7 @@ GameObject:
   - component: {fileID: 763883712}
   - component: {fileID: 763883714}
   - component: {fileID: 763883713}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16566,7 +16709,7 @@ GameObject:
   - component: {fileID: 764411199}
   - component: {fileID: 764411201}
   - component: {fileID: 764411200}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16656,7 +16799,7 @@ GameObject:
   - component: {fileID: 767243027}
   - component: {fileID: 767243029}
   - component: {fileID: 767243028}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16746,7 +16889,7 @@ GameObject:
   - component: {fileID: 768589577}
   - component: {fileID: 768589579}
   - component: {fileID: 768589578}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16836,7 +16979,7 @@ GameObject:
   - component: {fileID: 770078716}
   - component: {fileID: 770078718}
   - component: {fileID: 770078717}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -17038,7 +17181,7 @@ GameObject:
   - component: {fileID: 775640941}
   - component: {fileID: 775640943}
   - component: {fileID: 775640942}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -17128,7 +17271,7 @@ GameObject:
   - component: {fileID: 776234369}
   - component: {fileID: 776234371}
   - component: {fileID: 776234370}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -17218,7 +17361,7 @@ GameObject:
   - component: {fileID: 787929312}
   - component: {fileID: 787929314}
   - component: {fileID: 787929313}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -17308,7 +17451,7 @@ GameObject:
   - component: {fileID: 793831009}
   - component: {fileID: 793831011}
   - component: {fileID: 793831010}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -17398,7 +17541,7 @@ GameObject:
   - component: {fileID: 797834349}
   - component: {fileID: 797834351}
   - component: {fileID: 797834350}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -17488,7 +17631,7 @@ GameObject:
   - component: {fileID: 808379161}
   - component: {fileID: 808379163}
   - component: {fileID: 808379162}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -17619,6 +17762,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_2 (4)
       objectReference: {fileID: 0}
+    - target: {fileID: 2764050508806169457, guid: d47efa5fc9d674048ab1194b7a6d9663, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -17640,7 +17787,7 @@ GameObject:
   - component: {fileID: 822051263}
   - component: {fileID: 822051265}
   - component: {fileID: 822051264}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -17730,7 +17877,7 @@ GameObject:
   - component: {fileID: 825441534}
   - component: {fileID: 825441536}
   - component: {fileID: 825441535}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -17861,6 +18008,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_2 (10)
       objectReference: {fileID: 0}
+    - target: {fileID: 2764050508806169457, guid: d47efa5fc9d674048ab1194b7a6d9663, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -17882,7 +18033,7 @@ GameObject:
   - component: {fileID: 828295871}
   - component: {fileID: 828295873}
   - component: {fileID: 828295872}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -18062,6 +18213,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_2 (8)
       objectReference: {fileID: 0}
+    - target: {fileID: 2764050508806169457, guid: d47efa5fc9d674048ab1194b7a6d9663, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -18083,7 +18238,7 @@ GameObject:
   - component: {fileID: 837199335}
   - component: {fileID: 837199337}
   - component: {fileID: 837199336}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -18173,7 +18328,7 @@ GameObject:
   - component: {fileID: 837504952}
   - component: {fileID: 837504954}
   - component: {fileID: 837504953}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -18263,7 +18418,7 @@ GameObject:
   - component: {fileID: 838268301}
   - component: {fileID: 838268303}
   - component: {fileID: 838268302}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -18394,6 +18549,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_3 (12)
       objectReference: {fileID: 0}
+    - target: {fileID: 4258580758064045444, guid: 3c4662a0c0e53694784da660487d9857, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -18415,7 +18574,7 @@ GameObject:
   - component: {fileID: 874621934}
   - component: {fileID: 874621936}
   - component: {fileID: 874621935}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -18546,6 +18705,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_3 (13)
       objectReference: {fileID: 0}
+    - target: {fileID: 4258580758064045444, guid: 3c4662a0c0e53694784da660487d9857, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -18567,7 +18730,7 @@ GameObject:
   - component: {fileID: 899487287}
   - component: {fileID: 899487289}
   - component: {fileID: 899487288}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -18657,7 +18820,7 @@ GameObject:
   - component: {fileID: 902547993}
   - component: {fileID: 902547995}
   - component: {fileID: 902547994}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -18747,7 +18910,7 @@ GameObject:
   - component: {fileID: 902641719}
   - component: {fileID: 902641721}
   - component: {fileID: 902641720}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -18837,7 +19000,7 @@ GameObject:
   - component: {fileID: 907892480}
   - component: {fileID: 907892482}
   - component: {fileID: 907892481}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -18968,6 +19131,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_3 (11)
       objectReference: {fileID: 0}
+    - target: {fileID: 4258580758064045444, guid: 3c4662a0c0e53694784da660487d9857, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -18989,7 +19156,7 @@ GameObject:
   - component: {fileID: 938669686}
   - component: {fileID: 938669688}
   - component: {fileID: 938669687}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19079,7 +19246,7 @@ GameObject:
   - component: {fileID: 961271362}
   - component: {fileID: 961271364}
   - component: {fileID: 961271363}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19169,7 +19336,7 @@ GameObject:
   - component: {fileID: 963937399}
   - component: {fileID: 963937401}
   - component: {fileID: 963937400}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19259,7 +19426,7 @@ GameObject:
   - component: {fileID: 965944608}
   - component: {fileID: 965944610}
   - component: {fileID: 965944609}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19349,7 +19516,7 @@ GameObject:
   - component: {fileID: 967012367}
   - component: {fileID: 967012369}
   - component: {fileID: 967012368}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19439,7 +19606,7 @@ GameObject:
   - component: {fileID: 974375429}
   - component: {fileID: 974375431}
   - component: {fileID: 974375430}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19529,7 +19696,7 @@ GameObject:
   - component: {fileID: 975597487}
   - component: {fileID: 975597489}
   - component: {fileID: 975597488}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19619,7 +19786,7 @@ GameObject:
   - component: {fileID: 977291217}
   - component: {fileID: 977291219}
   - component: {fileID: 977291218}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19709,7 +19876,7 @@ GameObject:
   - component: {fileID: 984144186}
   - component: {fileID: 984144188}
   - component: {fileID: 984144187}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19800,6 +19967,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_1 (7)
       objectReference: {fileID: 0}
+    - target: {fileID: 7367940160253519381, guid: 2022f62d05d2ce04f8b2fdb53bd7a173, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 7756974631522492903, guid: 2022f62d05d2ce04f8b2fdb53bd7a173, type: 3}
       propertyPath: m_LocalPosition.x
       value: -13.1
@@ -19861,7 +20032,7 @@ GameObject:
   - component: {fileID: 991473702}
   - component: {fileID: 991473704}
   - component: {fileID: 991473703}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19951,7 +20122,7 @@ GameObject:
   - component: {fileID: 993808031}
   - component: {fileID: 993808033}
   - component: {fileID: 993808032}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20082,6 +20253,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_2 (11)
       objectReference: {fileID: 0}
+    - target: {fileID: 2764050508806169457, guid: d47efa5fc9d674048ab1194b7a6d9663, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -20103,7 +20278,7 @@ GameObject:
   - component: {fileID: 1001333539}
   - component: {fileID: 1001333541}
   - component: {fileID: 1001333540}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20193,7 +20368,7 @@ GameObject:
   - component: {fileID: 1013537173}
   - component: {fileID: 1013537175}
   - component: {fileID: 1013537174}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20283,7 +20458,7 @@ GameObject:
   - component: {fileID: 1013600819}
   - component: {fileID: 1013600821}
   - component: {fileID: 1013600820}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20373,7 +20548,7 @@ GameObject:
   - component: {fileID: 1014507840}
   - component: {fileID: 1014507842}
   - component: {fileID: 1014507841}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20464,6 +20639,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_1 (6)
       objectReference: {fileID: 0}
+    - target: {fileID: 7367940160253519381, guid: 2022f62d05d2ce04f8b2fdb53bd7a173, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 7756974631522492903, guid: 2022f62d05d2ce04f8b2fdb53bd7a173, type: 3}
       propertyPath: m_LocalPosition.x
       value: 31.89
@@ -20525,7 +20704,7 @@ GameObject:
   - component: {fileID: 1021553287}
   - component: {fileID: 1021553289}
   - component: {fileID: 1021553288}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Terrain
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20618,7 +20797,7 @@ GameObject:
   - component: {fileID: 1029643756}
   - component: {fileID: 1029643758}
   - component: {fileID: 1029643757}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20708,7 +20887,7 @@ GameObject:
   - component: {fileID: 1036920319}
   - component: {fileID: 1036920321}
   - component: {fileID: 1036920320}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20910,7 +21089,7 @@ GameObject:
   - component: {fileID: 1039633938}
   - component: {fileID: 1039633940}
   - component: {fileID: 1039633939}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -21000,7 +21179,7 @@ GameObject:
   - component: {fileID: 1041363845}
   - component: {fileID: 1041363847}
   - component: {fileID: 1041363846}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -21090,7 +21269,7 @@ GameObject:
   - component: {fileID: 1046286561}
   - component: {fileID: 1046286563}
   - component: {fileID: 1046286562}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -21180,7 +21359,7 @@ GameObject:
   - component: {fileID: 1046397388}
   - component: {fileID: 1046397390}
   - component: {fileID: 1046397389}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -21270,7 +21449,7 @@ GameObject:
   - component: {fileID: 1049065664}
   - component: {fileID: 1049065666}
   - component: {fileID: 1049065665}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -21361,6 +21540,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_3 (9)
       objectReference: {fileID: 0}
+    - target: {fileID: 4099606098330065139, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 8299122029891668983, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
       propertyPath: m_LocalPosition.x
       value: 26.646824
@@ -21422,7 +21605,7 @@ GameObject:
   - component: {fileID: 1055601818}
   - component: {fileID: 1055601820}
   - component: {fileID: 1055601819}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -21512,7 +21695,7 @@ GameObject:
   - component: {fileID: 1057201051}
   - component: {fileID: 1057201053}
   - component: {fileID: 1057201052}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -21602,7 +21785,7 @@ GameObject:
   - component: {fileID: 1063469004}
   - component: {fileID: 1063469006}
   - component: {fileID: 1063469005}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -21692,7 +21875,7 @@ GameObject:
   - component: {fileID: 1070803057}
   - component: {fileID: 1070803059}
   - component: {fileID: 1070803058}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -21878,7 +22061,7 @@ GameObject:
   - component: {fileID: 1078769426}
   - component: {fileID: 1078769428}
   - component: {fileID: 1078769427}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -21968,7 +22151,7 @@ GameObject:
   - component: {fileID: 1079797330}
   - component: {fileID: 1079797332}
   - component: {fileID: 1079797331}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -22058,7 +22241,7 @@ GameObject:
   - component: {fileID: 1083928853}
   - component: {fileID: 1083928855}
   - component: {fileID: 1083928854}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -22189,6 +22372,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_1 (4)
       objectReference: {fileID: 0}
+    - target: {fileID: 1883724064078997930, guid: 81b2e2c177cf54941894634a24162308, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -22210,7 +22397,7 @@ GameObject:
   - component: {fileID: 1091372404}
   - component: {fileID: 1091372406}
   - component: {fileID: 1091372405}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_6
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -22300,7 +22487,7 @@ GameObject:
   - component: {fileID: 1091923383}
   - component: {fileID: 1091923385}
   - component: {fileID: 1091923384}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -22390,7 +22577,7 @@ GameObject:
   - component: {fileID: 1100878579}
   - component: {fileID: 1100878581}
   - component: {fileID: 1100878580}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -22480,7 +22667,7 @@ GameObject:
   - component: {fileID: 1106282294}
   - component: {fileID: 1106282296}
   - component: {fileID: 1106282295}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -22570,7 +22757,7 @@ GameObject:
   - component: {fileID: 1121627590}
   - component: {fileID: 1121627592}
   - component: {fileID: 1121627591}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -22660,7 +22847,7 @@ GameObject:
   - component: {fileID: 1132330698}
   - component: {fileID: 1132330700}
   - component: {fileID: 1132330699}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -22750,7 +22937,7 @@ GameObject:
   - component: {fileID: 1134693852}
   - component: {fileID: 1134693854}
   - component: {fileID: 1134693853}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -22841,6 +23028,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_3 (6)
       objectReference: {fileID: 0}
+    - target: {fileID: 4099606098330065139, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 8299122029891668983, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
       propertyPath: m_LocalPosition.x
       value: 13.756211
@@ -22903,6 +23094,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_2 (10)
       objectReference: {fileID: 0}
+    - target: {fileID: 858470600396141883, guid: 9442ab764d113474f883ee16f6d238ed, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 3511528704128054980, guid: 9442ab764d113474f883ee16f6d238ed, type: 3}
       propertyPath: m_LocalPosition.x
       value: -50.956234
@@ -22964,7 +23159,7 @@ GameObject:
   - component: {fileID: 1150498398}
   - component: {fileID: 1150498400}
   - component: {fileID: 1150498399}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -23054,7 +23249,7 @@ GameObject:
   - component: {fileID: 1153510791}
   - component: {fileID: 1153510793}
   - component: {fileID: 1153510792}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -23185,6 +23380,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_2 (7)
       objectReference: {fileID: 0}
+    - target: {fileID: 2764050508806169457, guid: d47efa5fc9d674048ab1194b7a6d9663, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -23206,7 +23405,7 @@ GameObject:
   - component: {fileID: 1153808485}
   - component: {fileID: 1153808487}
   - component: {fileID: 1153808486}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -23296,7 +23495,7 @@ GameObject:
   - component: {fileID: 1159563605}
   - component: {fileID: 1159563607}
   - component: {fileID: 1159563606}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -23386,7 +23585,7 @@ GameObject:
   - component: {fileID: 1162096790}
   - component: {fileID: 1162096792}
   - component: {fileID: 1162096791}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -23476,7 +23675,7 @@ GameObject:
   - component: {fileID: 1163946611}
   - component: {fileID: 1163946613}
   - component: {fileID: 1163946612}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -23566,7 +23765,7 @@ GameObject:
   - component: {fileID: 1164229227}
   - component: {fileID: 1164229229}
   - component: {fileID: 1164229228}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -23656,7 +23855,7 @@ GameObject:
   - component: {fileID: 1178856884}
   - component: {fileID: 1178856886}
   - component: {fileID: 1178856885}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -23746,7 +23945,7 @@ GameObject:
   - component: {fileID: 1184669767}
   - component: {fileID: 1184669769}
   - component: {fileID: 1184669768}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -23837,6 +24036,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_1 (5)
       objectReference: {fileID: 0}
+    - target: {fileID: 7367940160253519381, guid: 2022f62d05d2ce04f8b2fdb53bd7a173, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 7756974631522492903, guid: 2022f62d05d2ce04f8b2fdb53bd7a173, type: 3}
       propertyPath: m_LocalPosition.x
       value: -30.455227
@@ -23898,7 +24101,7 @@ GameObject:
   - component: {fileID: 1195646237}
   - component: {fileID: 1195646239}
   - component: {fileID: 1195646238}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -23988,7 +24191,7 @@ GameObject:
   - component: {fileID: 1211906025}
   - component: {fileID: 1211906027}
   - component: {fileID: 1211906026}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24078,7 +24281,7 @@ GameObject:
   - component: {fileID: 1214613331}
   - component: {fileID: 1214613333}
   - component: {fileID: 1214613332}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24169,6 +24372,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_3 (16)
       objectReference: {fileID: 0}
+    - target: {fileID: 4099606098330065139, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 8299122029891668983, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
       propertyPath: m_LocalPosition.x
       value: -42.04109
@@ -24230,7 +24437,7 @@ GameObject:
   - component: {fileID: 1237103054}
   - component: {fileID: 1237103056}
   - component: {fileID: 1237103055}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24320,7 +24527,7 @@ GameObject:
   - component: {fileID: 1237163233}
   - component: {fileID: 1237163235}
   - component: {fileID: 1237163234}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24410,7 +24617,7 @@ GameObject:
   - component: {fileID: 1247948909}
   - component: {fileID: 1247948911}
   - component: {fileID: 1247948910}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24500,7 +24707,7 @@ GameObject:
   - component: {fileID: 1248708930}
   - component: {fileID: 1248708932}
   - component: {fileID: 1248708931}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24590,7 +24797,7 @@ GameObject:
   - component: {fileID: 1258112242}
   - component: {fileID: 1258112244}
   - component: {fileID: 1258112243}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24680,7 +24887,7 @@ GameObject:
   - component: {fileID: 1259816162}
   - component: {fileID: 1259816164}
   - component: {fileID: 1259816163}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24770,7 +24977,7 @@ GameObject:
   - component: {fileID: 1261612797}
   - component: {fileID: 1261612799}
   - component: {fileID: 1261612798}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24860,7 +25067,7 @@ GameObject:
   - component: {fileID: 1265220858}
   - component: {fileID: 1265220860}
   - component: {fileID: 1265220859}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24991,6 +25198,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_1 (11)
       objectReference: {fileID: 0}
+    - target: {fileID: 1883724064078997930, guid: 81b2e2c177cf54941894634a24162308, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -25012,7 +25223,7 @@ GameObject:
   - component: {fileID: 1267562870}
   - component: {fileID: 1267562872}
   - component: {fileID: 1267562871}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25102,7 +25313,7 @@ GameObject:
   - component: {fileID: 1270615838}
   - component: {fileID: 1270615840}
   - component: {fileID: 1270615839}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25192,7 +25403,7 @@ GameObject:
   - component: {fileID: 1273514125}
   - component: {fileID: 1273514127}
   - component: {fileID: 1273514126}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25282,7 +25493,7 @@ GameObject:
   - component: {fileID: 1274993751}
   - component: {fileID: 1274993753}
   - component: {fileID: 1274993752}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25372,7 +25583,7 @@ GameObject:
   - component: {fileID: 1278405430}
   - component: {fileID: 1278405432}
   - component: {fileID: 1278405431}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25462,7 +25673,7 @@ GameObject:
   - component: {fileID: 1278971436}
   - component: {fileID: 1278971438}
   - component: {fileID: 1278971437}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25552,7 +25763,7 @@ GameObject:
   - component: {fileID: 1281083620}
   - component: {fileID: 1281083622}
   - component: {fileID: 1281083621}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25642,7 +25853,7 @@ GameObject:
   - component: {fileID: 1286536851}
   - component: {fileID: 1286536853}
   - component: {fileID: 1286536852}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25732,7 +25943,7 @@ GameObject:
   - component: {fileID: 1294700157}
   - component: {fileID: 1294700159}
   - component: {fileID: 1294700158}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25822,7 +26033,7 @@ GameObject:
   - component: {fileID: 1295559131}
   - component: {fileID: 1295559133}
   - component: {fileID: 1295559132}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25912,7 +26123,7 @@ GameObject:
   - component: {fileID: 1295756690}
   - component: {fileID: 1295756692}
   - component: {fileID: 1295756691}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26002,7 +26213,7 @@ GameObject:
   - component: {fileID: 1300256808}
   - component: {fileID: 1300256810}
   - component: {fileID: 1300256809}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_5
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26092,7 +26303,7 @@ GameObject:
   - component: {fileID: 1301823834}
   - component: {fileID: 1301823836}
   - component: {fileID: 1301823835}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26182,7 +26393,7 @@ GameObject:
   - component: {fileID: 1311154298}
   - component: {fileID: 1311154300}
   - component: {fileID: 1311154299}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26272,7 +26483,7 @@ GameObject:
   - component: {fileID: 1313282551}
   - component: {fileID: 1313282553}
   - component: {fileID: 1313282552}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26362,7 +26573,7 @@ GameObject:
   - component: {fileID: 1313745320}
   - component: {fileID: 1313745322}
   - component: {fileID: 1313745321}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26452,7 +26663,7 @@ GameObject:
   - component: {fileID: 1318792521}
   - component: {fileID: 1318792523}
   - component: {fileID: 1318792522}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26542,7 +26753,7 @@ GameObject:
   - component: {fileID: 1325163525}
   - component: {fileID: 1325163527}
   - component: {fileID: 1325163526}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26632,7 +26843,7 @@ GameObject:
   - component: {fileID: 1337205210}
   - component: {fileID: 1337205212}
   - component: {fileID: 1337205211}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26763,6 +26974,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_3 (5)
       objectReference: {fileID: 0}
+    - target: {fileID: 4258580758064045444, guid: 3c4662a0c0e53694784da660487d9857, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -26825,6 +27040,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_1 (8)
       objectReference: {fileID: 0}
+    - target: {fileID: 1883724064078997930, guid: 81b2e2c177cf54941894634a24162308, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -26846,7 +27065,7 @@ GameObject:
   - component: {fileID: 1350352082}
   - component: {fileID: 1350352084}
   - component: {fileID: 1350352083}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26936,7 +27155,7 @@ GameObject:
   - component: {fileID: 1353787922}
   - component: {fileID: 1353787924}
   - component: {fileID: 1353787923}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27026,7 +27245,7 @@ GameObject:
   - component: {fileID: 1356811604}
   - component: {fileID: 1356811606}
   - component: {fileID: 1356811605}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27116,7 +27335,7 @@ GameObject:
   - component: {fileID: 1366727213}
   - component: {fileID: 1366727215}
   - component: {fileID: 1366727214}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27297,7 +27516,7 @@ GameObject:
   - component: {fileID: 1377192365}
   - component: {fileID: 1377192367}
   - component: {fileID: 1377192366}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27387,7 +27606,7 @@ GameObject:
   - component: {fileID: 1385543542}
   - component: {fileID: 1385543544}
   - component: {fileID: 1385543543}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27477,7 +27696,7 @@ GameObject:
   - component: {fileID: 1386944299}
   - component: {fileID: 1386944301}
   - component: {fileID: 1386944300}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27567,7 +27786,7 @@ GameObject:
   - component: {fileID: 1401677005}
   - component: {fileID: 1401677007}
   - component: {fileID: 1401677006}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27657,7 +27876,7 @@ GameObject:
   - component: {fileID: 1402833312}
   - component: {fileID: 1402833314}
   - component: {fileID: 1402833313}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27747,7 +27966,7 @@ GameObject:
   - component: {fileID: 1408692439}
   - component: {fileID: 1408692441}
   - component: {fileID: 1408692440}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27837,7 +28056,7 @@ GameObject:
   - component: {fileID: 1410054731}
   - component: {fileID: 1410054733}
   - component: {fileID: 1410054732}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -27927,7 +28146,7 @@ GameObject:
   - component: {fileID: 1411802064}
   - component: {fileID: 1411802066}
   - component: {fileID: 1411802065}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28174,6 +28393,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_2 (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 2764050508806169457, guid: d47efa5fc9d674048ab1194b7a6d9663, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -28195,7 +28418,7 @@ GameObject:
   - component: {fileID: 1424731062}
   - component: {fileID: 1424731064}
   - component: {fileID: 1424731063}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28285,7 +28508,7 @@ GameObject:
   - component: {fileID: 1425197960}
   - component: {fileID: 1425197962}
   - component: {fileID: 1425197961}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28416,6 +28639,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_1 (5)
       objectReference: {fileID: 0}
+    - target: {fileID: 1883724064078997930, guid: 81b2e2c177cf54941894634a24162308, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -28437,7 +28664,7 @@ GameObject:
   - component: {fileID: 1425717604}
   - component: {fileID: 1425717606}
   - component: {fileID: 1425717605}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28618,7 +28845,7 @@ GameObject:
   - component: {fileID: 1432758263}
   - component: {fileID: 1432758265}
   - component: {fileID: 1432758264}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28708,7 +28935,7 @@ GameObject:
   - component: {fileID: 1433484000}
   - component: {fileID: 1433484002}
   - component: {fileID: 1433484001}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28798,7 +29025,7 @@ GameObject:
   - component: {fileID: 1433923198}
   - component: {fileID: 1433923200}
   - component: {fileID: 1433923199}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28888,7 +29115,7 @@ GameObject:
   - component: {fileID: 1434335630}
   - component: {fileID: 1434335632}
   - component: {fileID: 1434335631}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28978,7 +29205,7 @@ GameObject:
   - component: {fileID: 1435007907}
   - component: {fileID: 1435007909}
   - component: {fileID: 1435007908}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29068,7 +29295,7 @@ GameObject:
   - component: {fileID: 1439712684}
   - component: {fileID: 1439712686}
   - component: {fileID: 1439712685}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29158,7 +29385,7 @@ GameObject:
   - component: {fileID: 1440189985}
   - component: {fileID: 1440189987}
   - component: {fileID: 1440189986}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29248,7 +29475,7 @@ GameObject:
   - component: {fileID: 1444088923}
   - component: {fileID: 1444088925}
   - component: {fileID: 1444088924}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29338,7 +29565,7 @@ GameObject:
   - component: {fileID: 1444641328}
   - component: {fileID: 1444641330}
   - component: {fileID: 1444641329}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29428,7 +29655,7 @@ GameObject:
   - component: {fileID: 1457967941}
   - component: {fileID: 1457967943}
   - component: {fileID: 1457967942}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29518,7 +29745,7 @@ GameObject:
   - component: {fileID: 1462904611}
   - component: {fileID: 1462904613}
   - component: {fileID: 1462904612}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29608,7 +29835,7 @@ GameObject:
   - component: {fileID: 1466323019}
   - component: {fileID: 1466323021}
   - component: {fileID: 1466323020}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29698,7 +29925,7 @@ GameObject:
   - component: {fileID: 1471325046}
   - component: {fileID: 1471325048}
   - component: {fileID: 1471325047}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29829,6 +30056,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_1 (9)
       objectReference: {fileID: 0}
+    - target: {fileID: 1883724064078997930, guid: 81b2e2c177cf54941894634a24162308, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -29850,7 +30081,7 @@ GameObject:
   - component: {fileID: 1474706647}
   - component: {fileID: 1474706649}
   - component: {fileID: 1474706648}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29940,7 +30171,7 @@ GameObject:
   - component: {fileID: 1477228418}
   - component: {fileID: 1477228420}
   - component: {fileID: 1477228419}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -30030,7 +30261,7 @@ GameObject:
   - component: {fileID: 1482384977}
   - component: {fileID: 1482384979}
   - component: {fileID: 1482384978}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -30121,6 +30352,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_1
       objectReference: {fileID: 0}
+    - target: {fileID: 7367940160253519381, guid: 2022f62d05d2ce04f8b2fdb53bd7a173, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 7756974631522492903, guid: 2022f62d05d2ce04f8b2fdb53bd7a173, type: 3}
       propertyPath: m_LocalPosition.x
       value: -14.95
@@ -30182,7 +30417,7 @@ GameObject:
   - component: {fileID: 1492926544}
   - component: {fileID: 1492926546}
   - component: {fileID: 1492926545}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -30272,7 +30507,7 @@ GameObject:
   - component: {fileID: 1496945015}
   - component: {fileID: 1496945017}
   - component: {fileID: 1496945016}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -30362,7 +30597,7 @@ GameObject:
   - component: {fileID: 1499991280}
   - component: {fileID: 1499991282}
   - component: {fileID: 1499991281}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -30452,7 +30687,7 @@ GameObject:
   - component: {fileID: 1502150509}
   - component: {fileID: 1502150511}
   - component: {fileID: 1502150510}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -30542,7 +30777,7 @@ GameObject:
   - component: {fileID: 1503436009}
   - component: {fileID: 1503436011}
   - component: {fileID: 1503436010}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -30632,7 +30867,7 @@ GameObject:
   - component: {fileID: 1504448160}
   - component: {fileID: 1504448162}
   - component: {fileID: 1504448161}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -30723,6 +30958,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_3 (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 4099606098330065139, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 8299122029891668983, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
       propertyPath: m_LocalPosition.x
       value: 23.045261
@@ -30784,7 +31023,7 @@ GameObject:
   - component: {fileID: 1522176213}
   - component: {fileID: 1522176215}
   - component: {fileID: 1522176214}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -30874,7 +31113,7 @@ GameObject:
   - component: {fileID: 1523294584}
   - component: {fileID: 1523294586}
   - component: {fileID: 1523294585}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -30964,7 +31203,7 @@ GameObject:
   - component: {fileID: 1525500339}
   - component: {fileID: 1525500341}
   - component: {fileID: 1525500340}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31095,6 +31334,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_3 (4)
       objectReference: {fileID: 0}
+    - target: {fileID: 4258580758064045444, guid: 3c4662a0c0e53694784da660487d9857, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -31116,7 +31359,7 @@ GameObject:
   - component: {fileID: 1527607781}
   - component: {fileID: 1527607783}
   - component: {fileID: 1527607782}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31247,6 +31490,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_3 (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 4258580758064045444, guid: 3c4662a0c0e53694784da660487d9857, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -31268,7 +31515,7 @@ GameObject:
   - component: {fileID: 1536480690}
   - component: {fileID: 1536480692}
   - component: {fileID: 1536480691}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31358,7 +31605,7 @@ GameObject:
   - component: {fileID: 1537210594}
   - component: {fileID: 1537210596}
   - component: {fileID: 1537210595}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31449,6 +31696,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_2 (9)
       objectReference: {fileID: 0}
+    - target: {fileID: 858470600396141883, guid: 9442ab764d113474f883ee16f6d238ed, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 3511528704128054980, guid: 9442ab764d113474f883ee16f6d238ed, type: 3}
       propertyPath: m_LocalPosition.x
       value: 34.66555
@@ -31510,7 +31761,7 @@ GameObject:
   - component: {fileID: 1556399891}
   - component: {fileID: 1556399893}
   - component: {fileID: 1556399892}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31600,7 +31851,7 @@ GameObject:
   - component: {fileID: 1562256127}
   - component: {fileID: 1562256129}
   - component: {fileID: 1562256128}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31690,7 +31941,7 @@ GameObject:
   - component: {fileID: 1568654026}
   - component: {fileID: 1568654028}
   - component: {fileID: 1568654027}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31780,7 +32031,7 @@ GameObject:
   - component: {fileID: 1569855769}
   - component: {fileID: 1569855771}
   - component: {fileID: 1569855770}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31870,7 +32121,7 @@ GameObject:
   - component: {fileID: 1573029425}
   - component: {fileID: 1573029427}
   - component: {fileID: 1573029426}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31960,7 +32211,7 @@ GameObject:
   - component: {fileID: 1581519851}
   - component: {fileID: 1581519853}
   - component: {fileID: 1581519852}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -32051,6 +32302,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_1 (4)
       objectReference: {fileID: 0}
+    - target: {fileID: 7367940160253519381, guid: 2022f62d05d2ce04f8b2fdb53bd7a173, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 7756974631522492903, guid: 2022f62d05d2ce04f8b2fdb53bd7a173, type: 3}
       propertyPath: m_LocalPosition.x
       value: -54.5
@@ -32112,7 +32367,7 @@ GameObject:
   - component: {fileID: 1591935859}
   - component: {fileID: 1591935861}
   - component: {fileID: 1591935860}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -32203,6 +32458,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_2 (5)
       objectReference: {fileID: 0}
+    - target: {fileID: 858470600396141883, guid: 9442ab764d113474f883ee16f6d238ed, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 3511528704128054980, guid: 9442ab764d113474f883ee16f6d238ed, type: 3}
       propertyPath: m_LocalPosition.x
       value: -60.1
@@ -32265,6 +32524,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_3 (19)
       objectReference: {fileID: 0}
+    - target: {fileID: 4099606098330065139, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 8299122029891668983, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
       propertyPath: m_LocalPosition.x
       value: -14.161083
@@ -32326,7 +32589,7 @@ GameObject:
   - component: {fileID: 1600228290}
   - component: {fileID: 1600228292}
   - component: {fileID: 1600228291}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -32416,7 +32679,7 @@ GameObject:
   - component: {fileID: 1600667531}
   - component: {fileID: 1600667533}
   - component: {fileID: 1600667532}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -32506,7 +32769,7 @@ GameObject:
   - component: {fileID: 1613459178}
   - component: {fileID: 1613459180}
   - component: {fileID: 1613459179}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -32596,7 +32859,7 @@ GameObject:
   - component: {fileID: 1625198975}
   - component: {fileID: 1625198977}
   - component: {fileID: 1625198976}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -32686,7 +32949,7 @@ GameObject:
   - component: {fileID: 1627165412}
   - component: {fileID: 1627165414}
   - component: {fileID: 1627165413}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -32776,7 +33039,7 @@ GameObject:
   - component: {fileID: 1630046460}
   - component: {fileID: 1630046462}
   - component: {fileID: 1630046461}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -32866,7 +33129,7 @@ GameObject:
   - component: {fileID: 1631318037}
   - component: {fileID: 1631318039}
   - component: {fileID: 1631318038}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -32956,7 +33219,7 @@ GameObject:
   - component: {fileID: 1633000443}
   - component: {fileID: 1633000445}
   - component: {fileID: 1633000444}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -33046,7 +33309,7 @@ GameObject:
   - component: {fileID: 1637820378}
   - component: {fileID: 1637820380}
   - component: {fileID: 1637820379}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -33136,7 +33399,7 @@ GameObject:
   - component: {fileID: 1645038323}
   - component: {fileID: 1645038325}
   - component: {fileID: 1645038324}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -33226,7 +33489,7 @@ GameObject:
   - component: {fileID: 1645948480}
   - component: {fileID: 1645948482}
   - component: {fileID: 1645948481}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -33317,6 +33580,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_1 (10)
       objectReference: {fileID: 0}
+    - target: {fileID: 7367940160253519381, guid: 2022f62d05d2ce04f8b2fdb53bd7a173, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 7756974631522492903, guid: 2022f62d05d2ce04f8b2fdb53bd7a173, type: 3}
       propertyPath: m_LocalPosition.x
       value: -17.5
@@ -33378,7 +33645,7 @@ GameObject:
   - component: {fileID: 1652403741}
   - component: {fileID: 1652403743}
   - component: {fileID: 1652403742}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -33468,7 +33735,7 @@ GameObject:
   - component: {fileID: 1653423697}
   - component: {fileID: 1653423699}
   - component: {fileID: 1653423698}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -33558,7 +33825,7 @@ GameObject:
   - component: {fileID: 1663784634}
   - component: {fileID: 1663784636}
   - component: {fileID: 1663784635}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -33648,7 +33915,7 @@ GameObject:
   - component: {fileID: 1669677072}
   - component: {fileID: 1669677074}
   - component: {fileID: 1669677073}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -33738,7 +34005,7 @@ GameObject:
   - component: {fileID: 1683645198}
   - component: {fileID: 1683645200}
   - component: {fileID: 1683645199}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -33869,6 +34136,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_2 (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 2764050508806169457, guid: d47efa5fc9d674048ab1194b7a6d9663, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -33890,7 +34161,7 @@ GameObject:
   - component: {fileID: 1690523065}
   - component: {fileID: 1690523067}
   - component: {fileID: 1690523066}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -33980,7 +34251,7 @@ GameObject:
   - component: {fileID: 1693071785}
   - component: {fileID: 1693071787}
   - component: {fileID: 1693071786}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34070,7 +34341,7 @@ GameObject:
   - component: {fileID: 1693895110}
   - component: {fileID: 1693895112}
   - component: {fileID: 1693895111}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34160,7 +34431,7 @@ GameObject:
   - component: {fileID: 1700443586}
   - component: {fileID: 1700443588}
   - component: {fileID: 1700443587}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34250,7 +34521,7 @@ GameObject:
   - component: {fileID: 1703592676}
   - component: {fileID: 1703592678}
   - component: {fileID: 1703592677}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34340,7 +34611,7 @@ GameObject:
   - component: {fileID: 1703784657}
   - component: {fileID: 1703784659}
   - component: {fileID: 1703784658}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34526,6 +34797,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_1 (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 1883724064078997930, guid: 81b2e2c177cf54941894634a24162308, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -34547,7 +34822,7 @@ GameObject:
   - component: {fileID: 1715895959}
   - component: {fileID: 1715895961}
   - component: {fileID: 1715895960}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34637,7 +34912,7 @@ GameObject:
   - component: {fileID: 1719587995}
   - component: {fileID: 1719587997}
   - component: {fileID: 1719587996}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34727,7 +35002,7 @@ GameObject:
   - component: {fileID: 1725518623}
   - component: {fileID: 1725518625}
   - component: {fileID: 1725518624}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34817,7 +35092,7 @@ GameObject:
   - component: {fileID: 1726003953}
   - component: {fileID: 1726003955}
   - component: {fileID: 1726003954}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34907,7 +35182,7 @@ GameObject:
   - component: {fileID: 1733421827}
   - component: {fileID: 1733421829}
   - component: {fileID: 1733421828}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34997,7 +35272,7 @@ GameObject:
   - component: {fileID: 1737301786}
   - component: {fileID: 1737301788}
   - component: {fileID: 1737301787}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -35087,7 +35362,7 @@ GameObject:
   - component: {fileID: 1740873308}
   - component: {fileID: 1740873310}
   - component: {fileID: 1740873309}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -35177,7 +35452,7 @@ GameObject:
   - component: {fileID: 1742432181}
   - component: {fileID: 1742432183}
   - component: {fileID: 1742432182}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -35267,7 +35542,7 @@ GameObject:
   - component: {fileID: 1746346345}
   - component: {fileID: 1746346347}
   - component: {fileID: 1746346346}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -35357,7 +35632,7 @@ GameObject:
   - component: {fileID: 1756778559}
   - component: {fileID: 1756778561}
   - component: {fileID: 1756778560}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -35447,7 +35722,7 @@ GameObject:
   - component: {fileID: 1761275472}
   - component: {fileID: 1761275474}
   - component: {fileID: 1761275473}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -35537,7 +35812,7 @@ GameObject:
   - component: {fileID: 1763711941}
   - component: {fileID: 1763711943}
   - component: {fileID: 1763711942}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -35627,7 +35902,7 @@ GameObject:
   - component: {fileID: 1767598190}
   - component: {fileID: 1767598192}
   - component: {fileID: 1767598191}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -35717,7 +35992,7 @@ GameObject:
   - component: {fileID: 1770716276}
   - component: {fileID: 1770716278}
   - component: {fileID: 1770716277}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -35807,7 +36082,7 @@ GameObject:
   - component: {fileID: 1772115147}
   - component: {fileID: 1772115149}
   - component: {fileID: 1772115148}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -35897,7 +36172,7 @@ GameObject:
   - component: {fileID: 1779086101}
   - component: {fileID: 1779086103}
   - component: {fileID: 1779086102}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -35987,7 +36262,7 @@ GameObject:
   - component: {fileID: 1791739020}
   - component: {fileID: 1791739022}
   - component: {fileID: 1791739021}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -36077,7 +36352,7 @@ GameObject:
   - component: {fileID: 1795403545}
   - component: {fileID: 1795403547}
   - component: {fileID: 1795403546}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -36167,7 +36442,7 @@ GameObject:
   - component: {fileID: 1795964739}
   - component: {fileID: 1795964741}
   - component: {fileID: 1795964740}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -36257,7 +36532,7 @@ GameObject:
   - component: {fileID: 1799331974}
   - component: {fileID: 1799331976}
   - component: {fileID: 1799331975}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -36347,7 +36622,7 @@ GameObject:
   - component: {fileID: 1807320751}
   - component: {fileID: 1807320753}
   - component: {fileID: 1807320752}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -36437,7 +36712,7 @@ GameObject:
   - component: {fileID: 1816315431}
   - component: {fileID: 1816315433}
   - component: {fileID: 1816315432}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_7
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -36527,7 +36802,7 @@ GameObject:
   - component: {fileID: 1819337787}
   - component: {fileID: 1819337789}
   - component: {fileID: 1819337788}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -36617,7 +36892,7 @@ GameObject:
   - component: {fileID: 1820514239}
   - component: {fileID: 1820514241}
   - component: {fileID: 1820514240}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -36707,7 +36982,7 @@ GameObject:
   - component: {fileID: 1825554786}
   - component: {fileID: 1825554788}
   - component: {fileID: 1825554787}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -36797,7 +37072,7 @@ GameObject:
   - component: {fileID: 1828205950}
   - component: {fileID: 1828205952}
   - component: {fileID: 1828205951}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -36887,7 +37162,7 @@ GameObject:
   - component: {fileID: 1832595302}
   - component: {fileID: 1832595304}
   - component: {fileID: 1832595303}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -37068,7 +37343,7 @@ GameObject:
   - component: {fileID: 1838448055}
   - component: {fileID: 1838448057}
   - component: {fileID: 1838448056}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -37158,7 +37433,7 @@ GameObject:
   - component: {fileID: 1845056462}
   - component: {fileID: 1845056464}
   - component: {fileID: 1845056463}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -37249,6 +37524,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_1 (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 7367940160253519381, guid: 2022f62d05d2ce04f8b2fdb53bd7a173, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 7756974631522492903, guid: 2022f62d05d2ce04f8b2fdb53bd7a173, type: 3}
       propertyPath: m_LocalPosition.x
       value: 29.819954
@@ -37310,7 +37589,7 @@ GameObject:
   - component: {fileID: 1849819835}
   - component: {fileID: 1849819837}
   - component: {fileID: 1849819836}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -37400,7 +37679,7 @@ GameObject:
   - component: {fileID: 1858952738}
   - component: {fileID: 1858952740}
   - component: {fileID: 1858952739}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -37490,7 +37769,7 @@ GameObject:
   - component: {fileID: 1859956609}
   - component: {fileID: 1859956611}
   - component: {fileID: 1859956610}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -37580,7 +37859,7 @@ GameObject:
   - component: {fileID: 1864952942}
   - component: {fileID: 1864952944}
   - component: {fileID: 1864952943}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -37766,6 +38045,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_1 (7)
       objectReference: {fileID: 0}
+    - target: {fileID: 1883724064078997930, guid: 81b2e2c177cf54941894634a24162308, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -37787,6 +38070,10 @@ PrefabInstance:
     - target: {fileID: 4099606098330065139, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
       propertyPath: m_Name
       value: Spruce_3 (18)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4099606098330065139, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 8299122029891668983, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
       propertyPath: m_LocalPosition.x
@@ -37849,7 +38136,7 @@ GameObject:
   - component: {fileID: 1876387111}
   - component: {fileID: 1876387113}
   - component: {fileID: 1876387112}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -37980,6 +38267,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_3
       objectReference: {fileID: 0}
+    - target: {fileID: 4258580758064045444, guid: 3c4662a0c0e53694784da660487d9857, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -38001,7 +38292,7 @@ GameObject:
   - component: {fileID: 1881862342}
   - component: {fileID: 1881862344}
   - component: {fileID: 1881862343}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -38091,7 +38382,7 @@ GameObject:
   - component: {fileID: 1883958000}
   - component: {fileID: 1883958002}
   - component: {fileID: 1883958001}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -38182,6 +38473,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_2 (4)
       objectReference: {fileID: 0}
+    - target: {fileID: 858470600396141883, guid: 9442ab764d113474f883ee16f6d238ed, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 3511528704128054980, guid: 9442ab764d113474f883ee16f6d238ed, type: 3}
       propertyPath: m_LocalPosition.x
       value: -45.30194
@@ -38243,7 +38538,7 @@ GameObject:
   - component: {fileID: 1893010076}
   - component: {fileID: 1893010078}
   - component: {fileID: 1893010077}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -38333,7 +38628,7 @@ GameObject:
   - component: {fileID: 1894483332}
   - component: {fileID: 1894483334}
   - component: {fileID: 1894483333}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -38638,6 +38933,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_3 (9)
       objectReference: {fileID: 0}
+    - target: {fileID: 4258580758064045444, guid: 3c4662a0c0e53694784da660487d9857, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -38659,7 +38958,7 @@ GameObject:
   - component: {fileID: 1897635838}
   - component: {fileID: 1897635840}
   - component: {fileID: 1897635839}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -38790,6 +39089,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_3 (6)
       objectReference: {fileID: 0}
+    - target: {fileID: 4258580758064045444, guid: 3c4662a0c0e53694784da660487d9857, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -38811,7 +39114,7 @@ GameObject:
   - component: {fileID: 1903720484}
   - component: {fileID: 1903720486}
   - component: {fileID: 1903720485}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -38901,7 +39204,7 @@ GameObject:
   - component: {fileID: 1904380663}
   - component: {fileID: 1904380665}
   - component: {fileID: 1904380664}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -38991,7 +39294,7 @@ GameObject:
   - component: {fileID: 1915354899}
   - component: {fileID: 1915354901}
   - component: {fileID: 1915354900}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39081,7 +39384,7 @@ GameObject:
   - component: {fileID: 1915739686}
   - component: {fileID: 1915739688}
   - component: {fileID: 1915739687}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39171,7 +39474,7 @@ GameObject:
   - component: {fileID: 1919978479}
   - component: {fileID: 1919978481}
   - component: {fileID: 1919978480}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39261,7 +39564,7 @@ GameObject:
   - component: {fileID: 1930332209}
   - component: {fileID: 1930332211}
   - component: {fileID: 1930332210}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39351,7 +39654,7 @@ GameObject:
   - component: {fileID: 1931020210}
   - component: {fileID: 1931020212}
   - component: {fileID: 1931020211}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39553,7 +39856,7 @@ GameObject:
   - component: {fileID: 1932243331}
   - component: {fileID: 1932243333}
   - component: {fileID: 1932243332}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39643,7 +39946,7 @@ GameObject:
   - component: {fileID: 1935778623}
   - component: {fileID: 1935778625}
   - component: {fileID: 1935778624}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39733,7 +40036,7 @@ GameObject:
   - component: {fileID: 1943889578}
   - component: {fileID: 1943889580}
   - component: {fileID: 1943889579}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39864,6 +40167,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_3 (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 4258580758064045444, guid: 3c4662a0c0e53694784da660487d9857, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -39885,7 +40192,7 @@ GameObject:
   - component: {fileID: 1953609319}
   - component: {fileID: 1953609321}
   - component: {fileID: 1953609320}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39975,7 +40282,7 @@ GameObject:
   - component: {fileID: 1959717198}
   - component: {fileID: 1959717200}
   - component: {fileID: 1959717199}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40106,6 +40413,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_2 (6)
       objectReference: {fileID: 0}
+    - target: {fileID: 2764050508806169457, guid: d47efa5fc9d674048ab1194b7a6d9663, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -40127,7 +40438,7 @@ GameObject:
   - component: {fileID: 1961040172}
   - component: {fileID: 1961040174}
   - component: {fileID: 1961040173}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40217,7 +40528,7 @@ GameObject:
   - component: {fileID: 1962701958}
   - component: {fileID: 1962701960}
   - component: {fileID: 1962701959}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_10
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40308,6 +40619,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_3 (12)
       objectReference: {fileID: 0}
+    - target: {fileID: 4099606098330065139, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 8299122029891668983, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
       propertyPath: m_LocalPosition.x
       value: -41.92738
@@ -40369,7 +40684,7 @@ GameObject:
   - component: {fileID: 1963778422}
   - component: {fileID: 1963778424}
   - component: {fileID: 1963778423}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40459,7 +40774,7 @@ GameObject:
   - component: {fileID: 1966275374}
   - component: {fileID: 1966275376}
   - component: {fileID: 1966275375}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40611,7 +40926,7 @@ GameObject:
   - component: {fileID: 1979559078}
   - component: {fileID: 1979559080}
   - component: {fileID: 1979559079}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40701,7 +41016,7 @@ GameObject:
   - component: {fileID: 1982344936}
   - component: {fileID: 1982344938}
   - component: {fileID: 1982344937}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40791,6 +41106,10 @@ PrefabInstance:
     - target: {fileID: 4099606098330065139, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
       propertyPath: m_Name
       value: Spruce_3 (13)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4099606098330065139, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 8299122029891668983, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
       propertyPath: m_LocalPosition.x
@@ -41006,6 +41325,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_1 (10)
       objectReference: {fileID: 0}
+    - target: {fileID: 1883724064078997930, guid: 81b2e2c177cf54941894634a24162308, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -41027,7 +41350,7 @@ GameObject:
   - component: {fileID: 2000302703}
   - component: {fileID: 2000302705}
   - component: {fileID: 2000302704}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41117,7 +41440,7 @@ GameObject:
   - component: {fileID: 2009469481}
   - component: {fileID: 2009469483}
   - component: {fileID: 2009469482}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41207,7 +41530,7 @@ GameObject:
   - component: {fileID: 2010943134}
   - component: {fileID: 2010943136}
   - component: {fileID: 2010943135}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41298,6 +41621,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_3 (7)
       objectReference: {fileID: 0}
+    - target: {fileID: 4099606098330065139, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 8299122029891668983, guid: 0d1e2db71cb736c47a358e0376ca3f20, type: 3}
       propertyPath: m_LocalPosition.x
       value: -15.247807
@@ -41357,7 +41684,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2016672416}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Trees
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41477,6 +41804,10 @@ PrefabInstance:
     - target: {fileID: 7367940160253519381, guid: 2022f62d05d2ce04f8b2fdb53bd7a173, type: 3}
       propertyPath: m_Name
       value: Spruce_1 (11)
+      objectReference: {fileID: 0}
+    - target: {fileID: 7367940160253519381, guid: 2022f62d05d2ce04f8b2fdb53bd7a173, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 7756974631522492903, guid: 2022f62d05d2ce04f8b2fdb53bd7a173, type: 3}
       propertyPath: m_LocalPosition.x
@@ -41630,7 +41961,7 @@ GameObject:
   - component: {fileID: 2019717220}
   - component: {fileID: 2019717222}
   - component: {fileID: 2019717221}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41720,7 +42051,7 @@ GameObject:
   - component: {fileID: 2026583618}
   - component: {fileID: 2026583620}
   - component: {fileID: 2026583619}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41810,7 +42141,7 @@ GameObject:
   - component: {fileID: 2033692738}
   - component: {fileID: 2033692740}
   - component: {fileID: 2033692739}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41900,7 +42231,7 @@ GameObject:
   - component: {fileID: 2040879482}
   - component: {fileID: 2040879484}
   - component: {fileID: 2040879483}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41990,7 +42321,7 @@ GameObject:
   - component: {fileID: 2050226378}
   - component: {fileID: 2050226380}
   - component: {fileID: 2050226379}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42080,7 +42411,7 @@ GameObject:
   - component: {fileID: 2051615347}
   - component: {fileID: 2051615349}
   - component: {fileID: 2051615348}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42170,7 +42501,7 @@ GameObject:
   - component: {fileID: 2055059816}
   - component: {fileID: 2055059818}
   - component: {fileID: 2055059817}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42260,7 +42591,7 @@ GameObject:
   - component: {fileID: 2062759653}
   - component: {fileID: 2062759655}
   - component: {fileID: 2062759654}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42350,7 +42681,7 @@ GameObject:
   - component: {fileID: 2065502813}
   - component: {fileID: 2065502815}
   - component: {fileID: 2065502814}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42440,7 +42771,7 @@ GameObject:
   - component: {fileID: 2067076497}
   - component: {fileID: 2067076499}
   - component: {fileID: 2067076498}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42530,7 +42861,7 @@ GameObject:
   - component: {fileID: 2068053255}
   - component: {fileID: 2068053257}
   - component: {fileID: 2068053256}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42620,7 +42951,7 @@ GameObject:
   - component: {fileID: 2068589797}
   - component: {fileID: 2068589799}
   - component: {fileID: 2068589798}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42711,6 +43042,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_2 (7)
       objectReference: {fileID: 0}
+    - target: {fileID: 858470600396141883, guid: 9442ab764d113474f883ee16f6d238ed, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 3511528704128054980, guid: 9442ab764d113474f883ee16f6d238ed, type: 3}
       propertyPath: m_LocalPosition.x
       value: -45.11047
@@ -42772,7 +43107,7 @@ GameObject:
   - component: {fileID: 2069317480}
   - component: {fileID: 2069317482}
   - component: {fileID: 2069317481}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42862,7 +43197,7 @@ GameObject:
   - component: {fileID: 2073331695}
   - component: {fileID: 2073331697}
   - component: {fileID: 2073331696}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42953,6 +43288,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_2 (8)
       objectReference: {fileID: 0}
+    - target: {fileID: 858470600396141883, guid: 9442ab764d113474f883ee16f6d238ed, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 3511528704128054980, guid: 9442ab764d113474f883ee16f6d238ed, type: 3}
       propertyPath: m_LocalPosition.x
       value: 42.77525
@@ -43014,7 +43353,7 @@ GameObject:
   - component: {fileID: 2082020576}
   - component: {fileID: 2082020578}
   - component: {fileID: 2082020577}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -43104,7 +43443,7 @@ GameObject:
   - component: {fileID: 2082827504}
   - component: {fileID: 2082827506}
   - component: {fileID: 2082827505}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -43194,7 +43533,7 @@ GameObject:
   - component: {fileID: 2086388172}
   - component: {fileID: 2086388174}
   - component: {fileID: 2086388173}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -43284,7 +43623,7 @@ GameObject:
   - component: {fileID: 2087659614}
   - component: {fileID: 2087659616}
   - component: {fileID: 2087659615}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -43374,7 +43713,7 @@ GameObject:
   - component: {fileID: 2094605917}
   - component: {fileID: 2094605919}
   - component: {fileID: 2094605918}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -43464,7 +43803,7 @@ GameObject:
   - component: {fileID: 2095627667}
   - component: {fileID: 2095627669}
   - component: {fileID: 2095627668}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -43555,6 +43894,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Spruce_2
       objectReference: {fileID: 0}
+    - target: {fileID: 858470600396141883, guid: 9442ab764d113474f883ee16f6d238ed, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 3511528704128054980, guid: 9442ab764d113474f883ee16f6d238ed, type: 3}
       propertyPath: m_LocalPosition.x
       value: 17.79
@@ -43616,7 +43959,7 @@ GameObject:
   - component: {fileID: 2111438527}
   - component: {fileID: 2111438529}
   - component: {fileID: 2111438528}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_9
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -43706,7 +44049,7 @@ GameObject:
   - component: {fileID: 2121585918}
   - component: {fileID: 2121585920}
   - component: {fileID: 2121585919}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -43796,7 +44139,7 @@ GameObject:
   - component: {fileID: 2124525284}
   - component: {fileID: 2124525286}
   - component: {fileID: 2124525285}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -43886,7 +44229,7 @@ GameObject:
   - component: {fileID: 2126046055}
   - component: {fileID: 2126046057}
   - component: {fileID: 2126046056}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -43976,7 +44319,7 @@ GameObject:
   - component: {fileID: 2126316142}
   - component: {fileID: 2126316144}
   - component: {fileID: 2126316143}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -44066,7 +44409,7 @@ GameObject:
   - component: {fileID: 2126597088}
   - component: {fileID: 2126597090}
   - component: {fileID: 2126597089}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -44197,6 +44540,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tree_2
       objectReference: {fileID: 0}
+    - target: {fileID: 2764050508806169457, guid: d47efa5fc9d674048ab1194b7a6d9663, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -44218,7 +44565,7 @@ GameObject:
   - component: {fileID: 2134878453}
   - component: {fileID: 2134878455}
   - component: {fileID: 2134878454}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -44308,7 +44655,7 @@ GameObject:
   - component: {fileID: 2137486718}
   - component: {fileID: 2137486720}
   - component: {fileID: 2137486719}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -44398,7 +44745,7 @@ GameObject:
   - component: {fileID: 2138075476}
   - component: {fileID: 2138075478}
   - component: {fileID: 2138075477}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -44488,7 +44835,7 @@ GameObject:
   - component: {fileID: 2138948976}
   - component: {fileID: 2138948978}
   - component: {fileID: 2138948977}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -44578,7 +44925,7 @@ GameObject:
   - component: {fileID: 2146034960}
   - component: {fileID: 2146034962}
   - component: {fileID: 2146034961}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -44668,7 +45015,7 @@ GameObject:
   - component: {fileID: 2146436087}
   - component: {fileID: 2146436089}
   - component: {fileID: 2146436088}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Stone_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

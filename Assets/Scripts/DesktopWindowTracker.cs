@@ -34,7 +34,7 @@ public class DesktopWindowTracker : MonoBehaviour
     }
 
     private List<WindowInfo> _visibleWindows = new List<WindowInfo>();
-    private IntPtr _myWindow;
+    private WindowInfo _ourWindowInfo;
 
     [SerializeField] private float _updateInterval = 0.5f; // Update twice per second
     private float _lastUpdate;
@@ -46,12 +46,8 @@ public class DesktopWindowTracker : MonoBehaviour
 
     private void Start()
     {
-        _myWindow = GetActiveWindow();
         RefreshWindowList();
     }
-
-    [DllImport("user32.dll")]
-    private static extern IntPtr GetActiveWindow();
 
     private void Update()
     {
@@ -65,17 +61,52 @@ public class DesktopWindowTracker : MonoBehaviour
     private void RefreshWindowList()
     {
         _visibleWindows.Clear();
-        IntPtr foregroundWindow = WinApi.GetForegroundWindow();
 
+        if (DesktopHook.HWnd == IntPtr.Zero)
+        {
+            Debug.LogError("Cannot refresh window list, our application handle is zero");
+            return;
+        }
+
+        IntPtr foregroundWindow = WinApi.GetForegroundWindow();
         int z = 0;
+
+        void TrackWindow(IntPtr hWnd, RECT rect)
+        {
+            var info = new WindowInfo
+            {
+                Handle = hWnd,
+                Rect = rect,
+                Z = z++,
+                Title = _title.ToString(),
+                IsActive = hWnd == foregroundWindow
+            };
+            _visibleWindows.Add(info);
+        }
 
         WinApi.EnumWindows((hWnd, lParam) =>
         {
-            // Skip our own window
-            // if (hWnd == _myWindow)
-            //     return true;
+            // Get window rect
+            bool validRect = WinApi.GetWindowRect(hWnd, out RECT rect);
 
-            // Only visible windows
+            // Get window title
+            _title.Clear();
+            WinApi.GetWindowText(hWnd, _title, _title.Capacity);
+
+            // Debug.Log($"{hWnd}, self: {_hWnd}");
+
+            // Always include our own window
+            if (hWnd == DesktopHook.HWnd) {
+                Debug.Log("Tracking self window");
+                TrackWindow(hWnd, rect);
+                return true;
+            }
+
+            // skip if no valid rect
+            if (!validRect)
+                return true;
+
+            // Skip invisible windows
             if (!WinApi.IsWindowVisible(hWnd))
                 return true;
 
@@ -89,30 +120,21 @@ public class DesktopWindowTracker : MonoBehaviour
             // if (Mask.IsBitSet(exStyle, (uint)WindowStylesEx.WS_EX_TRANSPARENT) && hWnd != _myWindow)
             //     return true;
 
-            // Get window bounds
-            if (!WinApi.GetWindowRect(hWnd, out RECT rect))
-                return true;
-
             // Skip tiny windows (likely not real windows)
             if (rect.Width < 50 || rect.Height < 50)
                 return true;
-
-            // Get title
-            
-            _title.Clear();
-            WinApi.GetWindowText(hWnd, _title, _title.Capacity);
 
             // Skip windows without titles (usually background processes)
             if (string.IsNullOrEmpty(_title.ToString()))
                 return true;
 
+            // Skip windows with specific titles
             if (_title.ToString().Contains("Windows Input Experience"))
                 return true;
-
             if(_title.ToString().Contains("ScreenToGif"))
                 return true;
 
-            // Todo: filter these innocent windows out
+            // Filter these innocent windows out
             if (_title.ToString().Contains("Settings"))
             {
                 var threadId = WinApi.GetWindowThreadProcessId(hWnd, out IntPtr procId);
@@ -136,22 +158,68 @@ public class DesktopWindowTracker : MonoBehaviour
                 }
             }
 
-            var info = new WindowInfo
-            {
-                Handle = hWnd,
-                Rect = rect,
-                Z = z++,
-                Title = _title.ToString(),
-                IsActive = hWnd == foregroundWindow
-            };
-            _visibleWindows.Add(info);
-
-           
+            // If we made it past all the filters, track this window
+            TrackWindow(hWnd, rect);
 
             return true; // Continue enumeration
         }, IntPtr.Zero);
 
+
+        /*
+        our window sitting behind desktop icons is in a different Z list, so is not enumerated
+        add it manually
+        */
+        if (DesktopHook.Instance.WindowMode == DesktopHook.AppWindowMode.BehindDesktopIcons) {
+            // Get window rect
+            bool validRect = WinApi.GetWindowRect(DesktopHook.HWnd, out RECT rect);
+            // Get window title
+            _title.Clear();
+            WinApi.GetWindowText(DesktopHook.HWnd, _title, _title.Capacity);
+            _ourWindowInfo = new WindowInfo
+            {
+                Handle = DesktopHook.HWnd,
+                Rect = rect,
+                Z = z++,
+                Title = _title.ToString(),
+                IsActive = DesktopHook.HWnd == foregroundWindow
+            };
+            _visibleWindows.Add(_ourWindowInfo);
+        }
+
         // Debug.Log($"Found {_visibleWindows.Count} visible windows");
+    }
+
+    public static IntPtr GetUnityWindowHandle()
+    {
+        IntPtr returnHwnd = IntPtr.Zero;
+
+        var currentProcess = System.Diagnostics.Process.GetCurrentProcess();
+        if (currentProcess != null) {
+            returnHwnd = currentProcess.MainWindowHandle;
+            Debug.Log($"Current process: {currentProcess.ProcessName}");
+        } else
+        {
+            Debug.LogError("Failed to get current process, have no window handle");
+        }
+
+        // var threadId = Win32.GetCurrentThreadId();
+        // /*
+        // Bug: using a lambda here can mess up when compiling with IL2CPP
+        // see : https://discussions.unity.com/t/how-do-you-reliably-the-hwnd-window-handle-of-the-games-own-window/699477/7
+        // */
+        // Win32.EnumThreadWindows(threadId,
+        //     (hWnd, lParam) =>
+        //     {
+        //         if (returnHwnd == IntPtr.Zero) returnHwnd = hWnd;
+        //         return true;
+        //     }, IntPtr.Zero);
+
+        if (returnHwnd == IntPtr.Zero)
+        {
+            Debug.LogError("Curernt window process handle is zero?");
+        }
+
+        return returnHwnd;
     }
 
     public WindowInfo GetWindowInfo(IntPtr hWnd)
@@ -236,10 +304,15 @@ public class DesktopWindowTracker : MonoBehaviour
 
     public static bool IsAnyWindowFullscreen(out IntPtr hWnd)
     {
-        IntPtr foreground = WinApi.GetForegroundWindow();
+        /*
+        Todo:
+        the update loop is already gathering all of this info
+        use that instead of doing it again here
+        */
+        IntPtr foregroundHwnd = WinApi.GetForegroundWindow();
 
         RECT rect;
-        WinApi.GetWindowRect(foreground, out rect);
+        WinApi.GetWindowRect(foregroundHwnd, out rect);
 
         int width = rect.Right - rect.Left;
         int height = rect.Bottom - rect.Top;
@@ -248,9 +321,23 @@ public class DesktopWindowTracker : MonoBehaviour
             width >= Screen.currentResolution.width &&
             height >= Screen.currentResolution.height;
 
+        // if (!WinApi.IsWindowVisible(foregroundHwnd))
+        //     isFullscreen = false;
+
+        // Skip tool windows
+        long exStyle = WinApi.GetWindowLongPtr(foregroundHwnd, GWL_Flags.GWL_EXSTYLE).ToInt64();
+        if (Mask.IsBitSet(exStyle, (uint)WindowStylesEx.WS_EX_TOOLWINDOW))
+            isFullscreen = false;
+        
+        // Skip empty titles (mostly background processes)
+        _title.Clear();
+        WinApi.GetWindowText(foregroundHwnd, _title, _title.Capacity);
+        if (string.IsNullOrEmpty(_title.ToString()))
+            isFullscreen = false;
+
         if (isFullscreen)
         {
-            hWnd = foreground;
+            hWnd = foregroundHwnd;
         } else
         {
             hWnd = IntPtr.Zero;
