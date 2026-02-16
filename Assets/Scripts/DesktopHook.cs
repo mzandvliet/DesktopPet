@@ -236,15 +236,23 @@ public class DesktopHook : ImmediateModeShapeDrawer
         _foodParticles.transform.position = foodParticlePos;
         if (Time.timeAsDouble > _lastFoodSpawnTime + FoodSpawnDelay && !mouseIsOverWindowsUI)
         {
-            if (_foodParticles.isStopped) {
-                _foodParticles.Play();
+            // if (_foodParticles.isStopped) {
+            //     _foodParticles.Play();
+            // }
+            if (!_foodParticles.gameObject.activeSelf)
+            {
+                _foodParticles.gameObject.SetActive(true);
             }
         }
         else
         {
-            if (_foodParticles.isPlaying)
+            // if (_foodParticles.isPlaying)
+            // {
+            //     _foodParticles.Stop();
+            // }
+            if (_foodParticles.gameObject.activeSelf)
             {
-                _foodParticles.Stop();
+                _foodParticles.gameObject.SetActive(false);
             }
         }
 
