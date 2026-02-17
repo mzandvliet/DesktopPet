@@ -15,6 +15,7 @@ It can move itself up and down in Z-order to move in front of other windows or b
 
 Todo:
 
+- multi-monitor screen positioning and sizing (choose monitor, take that resolution and position)
 - respond to desktop resolution change
 - tray icon / menu
 - suspend rendering/logic when user enters another full-screen app

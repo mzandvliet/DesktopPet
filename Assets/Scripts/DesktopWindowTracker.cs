@@ -86,10 +86,8 @@ public class DesktopWindowTracker : MonoBehaviour
 
         WinApi.EnumWindows((hWnd, lParam) =>
         {
-            // Get window rect
             bool validRect = WinApi.GetWindowRect(hWnd, out RECT rect);
 
-            // Get window title
             _title.Clear();
             WinApi.GetWindowText(hWnd, _title, _title.Capacity);
 
@@ -101,11 +99,9 @@ public class DesktopWindowTracker : MonoBehaviour
                 return true;
             }
 
-            // skip if no valid rect
             if (!validRect)
                 return true;
 
-            // Skip invisible windows
             if (!WinApi.IsWindowVisible(hWnd))
                 return true;
 
@@ -192,6 +188,12 @@ public class DesktopWindowTracker : MonoBehaviour
     {
         IntPtr returnHwnd = IntPtr.Zero;
 
+        /*
+        Using current process' main window handle seems to be reliable.
+        
+        IMPORTANT: Do this *before* messing with the window setup, as that
+        can make this process return IntPtr.zero, at which point we're lost.
+        */
         var currentProcess = System.Diagnostics.Process.GetCurrentProcess();
         if (currentProcess != null) {
             returnHwnd = currentProcess.MainWindowHandle;
