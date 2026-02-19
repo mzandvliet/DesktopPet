@@ -2,6 +2,20 @@
 #ifndef SHAPE_RENDER_INCLUDED
 #define SHAPE_RENDER_INCLUDED
 
+float4 BlendOver(float4 a, float4 b) {
+    // premultiply alpha
+    a.rgb = a.rgb * a.a;
+    b.rgb = b.rgb * b.a;
+    
+    // blend
+    float4 c = b + (1 - b.a) * a;
+    
+    // unpremultiply
+    c.rgb = c.rgb / c.a;
+
+    return c;
+}
+
 // https://iquilezles.org/articles/distfunctions2d/
 
 float CircleSDF(float2 uv, float2 center, float radius)
@@ -31,45 +45,52 @@ float SDFtoAlpha(float dist, float aaWidth)
     return 1.0 - smoothstep(-aaWidth, aaWidth, dist);
 }
 
-void RenderSingleEye(float2 uv, float2 eyePos, float eyeRadius, inout float3 color, inout float alpha) {
-    eyeRadius *= (1.0 + sin(_Time[1]) * 0.25);
-    float eyeDist = CircleSDF(uv, eyePos, eyeRadius);
-    float eyeAlpha = SDFtoAlpha(eyeDist, 0.0025);
-    
-    float2 highlightPos = float2(1,1) * (eyeRadius * 0.5);
-    float highlightRadius = (eyeRadius * 0.2) * (1.0 + sin(_Time[3] * 4) * 0.05);
-    float highlightDist = CircleSDF(uv, eyePos + highlightPos, highlightRadius);
-    float highlightAlpha = SDFtoAlpha(highlightDist, 0.0025);
-
-    color = lerp(color, float3(0,0,0), eyeAlpha);
-    color = lerp(color, float3(1,1,1), highlightAlpha);
-    alpha = max(alpha, eyeAlpha);
-    alpha = max(alpha, highlightAlpha);
+void RenderHighlight(float2 uv, float2 pos, float radius, inout float4 color) {
+    float dist = CircleSDF(uv, pos, radius);
+    float alpha = SDFtoAlpha(dist, 0.0025);
+    float4 highlightColor = float4(float3(1,1,1), alpha);
+    color = BlendOver(color, highlightColor);
 }
 
-void RenderMouth(float2 uv, float2 mouthPos, inout float3 color, inout float alpha) {
-    // Todo: transform uv and/or mouthPos into coords relative to the function
+
+void RenderSingleEye(float2 uv, float2 eyePos, float eyeRadius, inout float4 color) {
+    eyeRadius *= (1.0 + sin(_Time[3] * 11.37) * 0.02);
+    float eyeDist = CircleSDF(uv, eyePos, eyeRadius);
+    float eyeAlpha = SDFtoAlpha(eyeDist, 0.0025);
+    float4 eyeColor = float4(float3(0,0,0), eyeAlpha);
+    color = BlendOver(color, eyeColor);
+    
+    float2 highlightPos = eyePos + float2(1,1) * (eyeRadius * 0.5);
+    float highlightRadius = (eyeRadius * 0.2) * (1.0 + sin(_Time[3] * 4) * 0.05);
+    RenderHighlight(uv, highlightPos, highlightRadius, color);
+    highlightPos = eyePos + float2(-1,-1) * (eyeRadius * 0.5);
+    highlightRadius *= 0.5;
+    RenderHighlight(uv, highlightPos, highlightRadius, color);
+}
+
+void RenderMouth(float2 uv, float2 mouthPos, inout float4 color) {
+    /*
+    Todo: transform uv and/or mouthPos into coords relative to the function
+
+    Like, do it properly, understand the space, don't just guess
+    */
 
     uv -= mouthPos;
-    uv *= float2(8 + 4 * sin(_Time[1]), 8 + 2 * sin(_Time[2]));
+    uv *= float2(8 + 2 * sin(_Time[3] * 1.37), 16 + 4 * sin(_Time[3] * 1.735));
 
     float mouthDist = sdRoundedBox(uv, mouthPos, float4(0.2, 0.4, 0.2, 0.4));
     float mouthAlpha = SDFtoAlpha(mouthDist, 0.0025 * 8);
 
-    color = lerp(color, float3(0,0,0), mouthAlpha);
-    alpha = max(alpha, mouthAlpha);
+    float4 mouthColor = float4(float3(0,0,0) * mouthAlpha, mouthAlpha);
+    color = BlendOver(color, mouthColor);
 }
 
-void RenderFace_float(float2 uv, float2 facePos, float2 eyeRadius, out float3 color, out float alpha) {
-    color = float3(1,1,1);
-    alpha = 0;
+void RenderFace_float(float2 uv, float2 facePos, float2 eyeRadius, in float4 inColor, out float4 outColor) {
+    outColor = inColor;
 
-    RenderSingleEye(uv, facePos + float2(-0.2, +0.1), eyeRadius, color, alpha);
-    RenderSingleEye(uv, facePos + float2(+0.2, +0.1), eyeRadius, color, alpha);
-    RenderMouth(uv, facePos + float2(0, -0.1), color, alpha);
-    
-    // color = float3(1,0,0);
-    // alpha = 1;
+    RenderSingleEye(uv, facePos + float2(-0.2, +0.2), eyeRadius, outColor);
+    RenderSingleEye(uv, facePos + float2(+0.2, +0.2), eyeRadius, outColor);
+    RenderMouth(uv, facePos + float2(0, 0.05), outColor);
 }
 
 #endif
