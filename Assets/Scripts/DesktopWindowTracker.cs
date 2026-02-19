@@ -12,6 +12,8 @@ Tracks all other visible windows in the OS, such that
 our desktop creatures can be aware of them, and play
 with them.
 
+- Windows Security window, when minimized, still blocks clicks
+
 Todo: could lower the update rate, or do it only based on windows events?
 */
 

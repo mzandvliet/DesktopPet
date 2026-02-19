@@ -15,7 +15,10 @@ It can move itself up and down in Z-order to move in front of other windows or b
 
 Todo:
 
+- Rita's mysterious app quitting bug
 - multi-monitor screen positioning and sizing (choose monitor, take that resolution and position)
+- error handling around windows functions like explorer.exe process restarting
+
 - respond to desktop resolution change
 - tray icon / menu
 - suspend rendering/logic when user enters another full-screen app
@@ -90,6 +93,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
         if (_instance != null)
         {
             Debug.LogError("Multiple SelectiveClickThrough instances detected!");
+            Destroy(this);
             return;
         }
         _instance = this;
@@ -104,6 +108,8 @@ public class DesktopHook : ImmediateModeShapeDrawer
 
         Application.targetFrameRate = FramerateActive;
         Application.runInBackground = true;
+
+        System.AppDomain.CurrentDomain.UnhandledException += HandleUnhandledException;
 
         /*
         Get handle to our application window
@@ -151,6 +157,24 @@ public class DesktopHook : ImmediateModeShapeDrawer
         {
             _iconMonitor.Dispose();
         }
+
+        OnShutdown("OnDestroy");
+    }
+
+    private void OnApplicationQuit()
+    {
+        OnShutdown("OnApplicationQuit");
+    }
+
+    private void OnShutdown(string source)
+    {
+        var timeAlive = TimeSpan.FromSeconds(Time.realtimeSinceStartupAsDouble);
+        Debug.Log($"Bye bye! Exit reason: {source}, total play time: {timeAlive}");
+    }
+
+    private void HandleUnhandledException(object sender, UnhandledExceptionEventArgs e)
+    {
+        System.IO.File.WriteAllText("crash.txt", $"Unhandled: {e.ExceptionObject}");
     }
 
     private void Update()
@@ -176,6 +200,11 @@ public class DesktopHook : ImmediateModeShapeDrawer
         // {
         //     SetWindowTransparent(true);
         // }
+
+        if (Time.frameCount % (Application.targetFrameRate * 60) == 0)
+        {
+            Heartbeat();
+        }
 
         if (Time.frameCount % 60 == 0) {
             _iconMonitor.Update();
@@ -275,7 +304,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
             {
                 if (!Application.isEditor)
                 {
-                    Debug.Log("Bye bye!");
+                    Debug.Log("User quit application!");
                     Application.Quit();
                 }
                 _escapeTimer = 0;
@@ -301,6 +330,11 @@ public class DesktopHook : ImmediateModeShapeDrawer
         {
             _debugToggleTimer = 0;
         }
+    }
+
+    private void Heartbeat()
+    {
+        Debug.Log($"[{DateTime.Now}] Still alive. Memory: {GC.GetTotalMemory(false) / 1024 / 1024}MB");
     }
 
     private void UpdatePerformanceSettings()

@@ -8,7 +8,21 @@ using System.Runtime.InteropServices;
 
 /*
 Todo:
-get rect and title for each icon
+
+- Make this robust against Explore.exe crashes and reboots
+    - Add defense checks everywhere
+
+on forcing explorer.exe to restart:
+
+- This script: Failed to allocate remote buffer on repeat
+- DesktopWindowTracker: Failed to allocate remote memory
+
+The app disappears from view, but is still running, filling the log
+
+---
+
+- make screen / dpi scaling robust across systems (Win10 is different, for example?)
+- get rect and title for each icon
 */
 
 public struct IconData
@@ -47,6 +61,8 @@ public class DesktopIconMonitor : IDisposable
     public DesktopIconMonitor()
     {
         _icons = new List<Point>();
+        _localPointBuffer = new byte[Marshal.SizeOf(typeof(Point))];
+        _localHitBuffer = new byte[Marshal.SizeOf<LVHITTESTINFO>()];
     }
 
     ~DesktopIconMonitor()
@@ -56,8 +72,7 @@ public class DesktopIconMonitor : IDisposable
 
     public bool Initialize()
     {
-        _localPointBuffer = new byte[Marshal.SizeOf(typeof(Point))];
-        _localHitBuffer = new byte[Marshal.SizeOf<LVHITTESTINFO>()];
+        Dispose();
 
         _listViewHwnd = GetDesktopListView();
 
@@ -95,25 +110,48 @@ public class DesktopIconMonitor : IDisposable
 
     public void Dispose()
     {
-        if (_remotePointBuffer != IntPtr.Zero)
+        try
         {
-            WinApi.VirtualFreeEx(_explorerProcess, _remotePointBuffer, 0, MEM_RELEASE);
-            _remotePointBuffer = IntPtr.Zero;
+            if (_remotePointBuffer != IntPtr.Zero)
+            {
+                WinApi.VirtualFreeEx(_explorerProcess, _remotePointBuffer, 0, MEM_RELEASE);
+                _remotePointBuffer = IntPtr.Zero;
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.Log($"DesktopIconMonitor: cleanup exception caught: {e.Message}");
         }
 
-        if (_remoteHitBuffer != IntPtr.Zero)
+        try
         {
-            WinApi.VirtualFreeEx(_explorerProcess, _remoteHitBuffer, 0, MEM_RELEASE);
-            _remoteHitBuffer = IntPtr.Zero;
-            Debug.Log("Remote buffer freed");
+            if (_remoteHitBuffer != IntPtr.Zero)
+            {
+                WinApi.VirtualFreeEx(_explorerProcess, _remoteHitBuffer, 0, MEM_RELEASE);
+                _remoteHitBuffer = IntPtr.Zero;
+                Debug.Log("Remote buffer freed");
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.Log($"DesktopIconMonitor: cleanup exception caught: {e.Message}");
         }
 
-        if (_explorerProcess != IntPtr.Zero)
+        try
         {
-            WinApi.CloseHandle(_explorerProcess);
-            _explorerProcess = IntPtr.Zero;
-            Debug.Log("Explorer process handle closed");
+            if (_explorerProcess != IntPtr.Zero)
+            {
+                WinApi.CloseHandle(_explorerProcess);
+                _explorerProcess = IntPtr.Zero;
+                Debug.Log("Explorer process handle closed");
+            }
         }
+        catch(Exception e)
+        {
+            Debug.Log($"DesktopIconMonitor: cleanup exception caught: {e.Message}");
+        }
+
+        Debug.Log("DesktopIconMonitor: everything cleaned up");
     }
 
     public void Update() {
@@ -179,7 +217,18 @@ public class DesktopIconMonitor : IDisposable
 
                 // Read back the result
                 uint bytesRead;
-                WinApi.ReadProcessMemory(_explorerProcess, _remotePointBuffer, _localPointBuffer, (uint)_localPointBuffer.Length, out bytesRead);
+                if (!WinApi.ReadProcessMemory(_explorerProcess, _remotePointBuffer, _localPointBuffer, (uint)_localPointBuffer.Length, out bytesRead))
+                {
+                    int error = Marshal.GetLastWin32Error();
+                    Debug.LogWarning($"ReadProcessMemory failed: {error}");
+
+                    if (error == 5) // ACCESS_DENIED
+                    {
+                        // Explorer restarted or process died - reinitialize
+                        Initialize();
+                    }
+                    return false; // Don't crash, just fail gracefully
+                }
 
                 // Convert to Point
                 GCHandle handle = GCHandle.Alloc(_localPointBuffer, GCHandleType.Pinned);
@@ -244,7 +293,15 @@ public class DesktopIconMonitor : IDisposable
         if (!WinApi.WriteProcessMemory(_explorerProcess, _remoteHitBuffer, _localHitBuffer, (uint)_localHitBuffer.Length, out bytesWritten))
         {
             Debug.LogWarning("Failed to write hit test data");
-            return -1;
+            int error = Marshal.GetLastWin32Error();
+            Debug.LogWarning($"WriteProcessMemory failed: {error}");
+
+            if (error == 5) // ACCESS_DENIED
+            {
+                // Explorer restarted or process died - reinitialize
+                Initialize();
+            }
+            return -1;// Don't crash, just fail gracefully
         }
 
         // Perform hit test
@@ -255,7 +312,15 @@ public class DesktopIconMonitor : IDisposable
         if (!WinApi.ReadProcessMemory(_explorerProcess, _remoteHitBuffer, _localHitBuffer, (uint)_localHitBuffer.Length, out bytesRead))
         {
             Debug.LogWarning("Failed to read hit test result");
-            return -1;
+            int error = Marshal.GetLastWin32Error();
+            Debug.LogWarning($"WriteProcessMemory failed: {error}");
+
+            if (error == 5) // ACCESS_DENIED
+            {
+                // Explorer restarted or process died - reinitialize
+                Initialize();
+            }
+            return -1;// Don't crash, just fail gracefully
         }
 
         // Unmarshal result
