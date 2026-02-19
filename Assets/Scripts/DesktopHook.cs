@@ -9,8 +9,10 @@ using System.Collections.Generic;
 
 /*
 
-The app runs as a full-screen window with full transparency.
-It can move itself up and down in Z-order to move in front of other windows or behind them.
+The app runs as a full-screen window. Opaque.
+
+In another mode, it runs with with full transparency, and it can move
+itself up and down in Z-order to move in front of other windows or behind them.
 
 
 Todo:
@@ -28,8 +30,8 @@ Issues:
 Window hopping behavior doesn't work well with OperaGX/Firefox browser window, or for some explorer windows
 but they do show up in the visible window list
 
-ScreenToGif window is seen as a mouse target
-ignore it in DesktopWindowTracker
+Some specific hidden windows are still erroneously used to mask desktop click,
+ignore them in DesktopWindowTracker
 
 */
 

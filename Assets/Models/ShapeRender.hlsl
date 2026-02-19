@@ -54,7 +54,14 @@ void RenderHighlight(float2 uv, float2 pos, float radius, inout float4 color) {
 
 
 void RenderSingleEye(float2 uv, float2 eyePos, float eyeRadius, inout float4 color) {
-    eyeRadius *= (1.0 + sin(_Time[3] * 11.37) * 0.02);
+    eyeRadius *= (1.0 + sin(_Time[3] * 11.37) * 0.025);
+
+    float blinkPhase = _Time[1] % 3.0;
+    const float twopi = 6.283185;
+    const float blinkDur = 0.2;
+    float blinkLerp = saturate(blinkPhase / blinkDur);
+    eyeRadius *= 0.1 + 0.9 * cos(blinkLerp * twopi);
+
     float eyeDist = CircleSDF(uv, eyePos, eyeRadius);
     float eyeAlpha = SDFtoAlpha(eyeDist, 0.0025);
     float4 eyeColor = float4(float3(0,0,0), eyeAlpha);
@@ -76,7 +83,8 @@ void RenderMouth(float2 uv, float2 mouthPos, inout float4 color) {
     */
 
     uv -= mouthPos;
-    uv *= float2(8 + 2 * sin(_Time[3] * 1.37), 16 + 4 * sin(_Time[3] * 1.735));
+    float talkSpeed = 2;
+    uv *= float2(8 + 2 * sin(_Time[3] * 1.37 * talkSpeed), 16 + 4 * sin(_Time[3] * 1.735 * talkSpeed));
 
     float mouthDist = sdRoundedBox(uv, mouthPos, float4(0.2, 0.4, 0.2, 0.4));
     float mouthAlpha = SDFtoAlpha(mouthDist, 0.0025 * 8);
