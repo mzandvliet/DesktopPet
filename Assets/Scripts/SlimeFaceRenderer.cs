@@ -31,13 +31,7 @@ public class SlimeFaceRenderer : ImmediateModeShapeDrawer
     private double _lastBlinkTime = -1;
     private float _blinkDuration = 3;
 
-    private PolygonPath _mouthPath;
-    private PolylinePath[] _eyePaths;
-
     private Rng _rng;
-
-    [SerializeField] private RenderTexture _faceTex;
-    [SerializeField] private Camera _faceCam;
 
     public Transform Transform
     {
@@ -51,65 +45,14 @@ public class SlimeFaceRenderer : ImmediateModeShapeDrawer
 
         _transform = gameObject.GetComponent<Transform>();
 
-        _mouthPath = new PolygonPath();
-        _eyePaths = new PolylinePath[2];
-        _eyePaths[0] = new PolylinePath();
-        _eyePaths[1] = new PolylinePath();
-
         _mouthShape = CharacterMouthShape.RoundOpen;
-
-        // _faceTex = new RenderTexture(1024, 1024, 32, RenderTextureFormat.ARGB32);
-        // _faceTex.Create();
-
-        // var faceCamObj = new GameObject("FaceCam");
-        // _faceCam = faceCamObj.AddComponent<Camera>();
-        // _faceCam.clearFlags = CameraClearFlags.SolidColor;
-        // _faceCam.backgroundColor = new Color(0,0,0,0);
-        // _faceCam.orthographic = true;
-        // _faceCam.orthographicSize = 1;
-        // _faceCam.targetTexture = _faceTex;
-        // _faceCam.gameObject.SetActive(false);
-        // faceCamObj.AddComponent<UniversalAdditionalCameraData>();
-
-        // _material.SetTexture("FaceTexture", _faceTex);
-
-        _faceCam.Render();
-    }
-
-    private void OnDestroy()
-    {
-        if (_faceTex.IsCreated())
-        {
-            Destroy(_faceTex);
-        }
     }
 
     private const float ZOffset = 0.01f;
 
     public override void DrawShapes(Camera cam)
     {
-        _faceCam.transform.position = new Vector3(0, -100, -1);
-
-        using (Draw.Command(cam, UnityEngine.Rendering.Universal.RenderPassEvent.AfterRenderingOpaques))
-        {
-            Draw.ThicknessSpace = ThicknessSpace.Meters;
-            Draw.RadiusSpace = ThicknessSpace.Meters;
-            Draw.Thickness = 0.02f;
-            Draw.BlendMode = ShapesBlendMode.Opaque;
-
-            Draw.Matrix = Matrix4x4.TRS(
-                new Vector3(0, -100, 0),
-                Quaternion.identity,
-                new Vector3(1,1,1)
-            );
-
-            Draw.Color = Color.black;
-            Draw.Cube(0.5f);
-
-            // DrawMouth(_body, _mouthShape, _mouthPath);
-            // DrawEyebrow(_body, _eyeLeft, _eyebrowShape, _eyePaths[0]);
-            // DrawEyebrow(_body, _eyeRight, _eyebrowShape, _eyePaths[1]);
-        }
+        
     }
 
     public const int CharacterMouthShapeMax = 4;

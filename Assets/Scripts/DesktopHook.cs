@@ -39,7 +39,6 @@ public class DesktopHook : ImmediateModeShapeDrawer
 {
     [SerializeField] private GameObject _foodPrefab;
     [SerializeField] private ParticleSystem _foodParticles;
-    [SerializeField] private Boids _boids;
 
     [SerializeField] private LayerMask _interactableLayers = -1;
     [SerializeField] private float _maxRaycastDistance = 100f;
@@ -134,8 +133,8 @@ public class DesktopHook : ImmediateModeShapeDrawer
             Debug.Log($"Succesfully got our window handle: {_hwnd}");
         }
 
-        // if (ConfigureTransparentFullscreenWindow())
-        if (MakeWindowOpaqueBehindIcons())
+        if (MakeWindowTransparentFullscreen())
+        // if (MakeWindowOpaqueBehindIcons())
         {
             Debug.Log("Succesfully hooked into desktop background!");
         }
@@ -148,9 +147,6 @@ public class DesktopHook : ImmediateModeShapeDrawer
         {
             Debug.Log("Error: Failed to initialize Desktop Icon Monitor...");
         }
-
-        // DesktopWindowTracker.GetDesktopIconPositions();
-        // _iconMonitor.Start();
     }
 
     private void OnDestroy()
@@ -195,13 +191,13 @@ public class DesktopHook : ImmediateModeShapeDrawer
         mouseIsOverWindowsUI |= _windowTracker.IsPointInTaskbar(mousePosWin.x, mousePosWin.y);
 
         // If this app is capable of being in front of other windows, manage focus
-        // if (ShouldCaptureInput(mousePosWin.x, mousePosWin.y))
-        // {
-        //     SetWindowTransparent(false);
-        // } else
-        // {
-        //     SetWindowTransparent(true);
-        // }
+        if (ShouldCaptureInput(mousePosWin.x, mousePosWin.y))
+        {
+            SetWindowTransparent(false);
+        } else
+        {
+            SetWindowTransparent(true);
+        }
 
         if (Time.frameCount % (Application.targetFrameRate * 60) == 0)
         {
@@ -254,10 +250,9 @@ public class DesktopHook : ImmediateModeShapeDrawer
             mousePosWorld = _camera.ScreenToWorldPoint(freeFloatingMouseScreenPoint);
         }
 
-        var mouseVelocityWorld = mousePosWorld - _lastMousePosWorld;
-        _lastMousePosWorld = mousePosWorld;
-
-        _boids.SetMouseData(mouseRay, mouseVelocityWorld);
+        // var mouseVelocityWorld = mousePosWorld - _lastMousePosWorld;
+        // _lastMousePosWorld = mousePosWorld;
+        // _boids.SetMouseData(mouseRay, mouseVelocityWorld);
 
         foreach (var character in _characters)
         {
@@ -268,9 +263,6 @@ public class DesktopHook : ImmediateModeShapeDrawer
         _foodParticles.transform.position = foodParticlePos;
         if (Time.timeAsDouble > _lastFoodSpawnTime + FoodSpawnDelay && !mouseIsOverWindowsUI)
         {
-            // if (_foodParticles.isStopped) {
-            //     _foodParticles.Play();
-            // }
             if (!_foodParticles.gameObject.activeSelf)
             {
                 _foodParticles.gameObject.SetActive(true);
@@ -278,10 +270,6 @@ public class DesktopHook : ImmediateModeShapeDrawer
         }
         else
         {
-            // if (_foodParticles.isPlaying)
-            // {
-            //     _foodParticles.Stop();
-            // }
             if (_foodParticles.gameObject.activeSelf)
             {
                 _foodParticles.gameObject.SetActive(false);
@@ -810,6 +798,12 @@ public class DesktopHook : ImmediateModeShapeDrawer
         return true;
     }
 
+    /*
+    Needs
+    - DX11
+    - DXGI swapchain for DX11 needs to be checked to old style
+    - URP renderer asset to output alpha target (check this in its postprocessing output, which requires specific backbuffer)
+    */
     private bool SetWindowTransparent(bool makeTransparent)
     {
         if (!IsWindowsDesktop())

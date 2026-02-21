@@ -195,64 +195,66 @@ public class DesktopIconMonitor : IDisposable
     {
         positions.Clear();
 
-        try
-        {
-            // Get icon count
-            int count = (int)WinApi.SendMessage(_listViewHwnd, WinApi.LVM_GETITEMCOUNT, IntPtr.Zero, IntPtr.Zero);
-
-            if (_remotePointBuffer == IntPtr.Zero)
-            {
-                Debug.LogError("DesktopWindowTracker: Failed to allocate remote memory");
-                return false;
-            }
-
-            // var text = new StringBuilder();
-            // text.AppendLine($"Desktop Icon Positions: {count}");
-
-            // Get each icon position
-            for (int i = 0; i < count; i++)
-            {
-                // Send message with remote buffer address
-                WinApi.SendMessage(_listViewHwnd, WinApi.LVM_GETITEMPOSITION, (IntPtr)i, _remotePointBuffer);
-
-                // Read back the result
-                uint bytesRead;
-                if (!WinApi.ReadProcessMemory(_explorerProcess, _remotePointBuffer, _localPointBuffer, (uint)_localPointBuffer.Length, out bytesRead))
-                {
-                    int error = Marshal.GetLastWin32Error();
-                    Debug.LogWarning($"ReadProcessMemory failed: {error}");
-
-                    if (error == 5) // ACCESS_DENIED
-                    {
-                        // Explorer restarted or process died - reinitialize
-                        Initialize();
-                    }
-                    return false; // Don't crash, just fail gracefully
-                }
-
-                // Convert to Point
-                GCHandle handle = GCHandle.Alloc(_localPointBuffer, GCHandleType.Pinned);
-                Point clientPos = (Point)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(Point));
-                handle.Free();
-
-                // text.AppendLine($"{i}: {pos}");
-
-                // To screen coordinates
-                Point screenPos = clientPos;
-                WinApi.ClientToScreen(_listViewHwnd, ref screenPos);
-
-                positions.Add(screenPos);
-            }
-
-            // Debug.Log(text.ToString());
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"Exception while trying to get desktop icons: {e.Message}");
-            return false;
-        }
-
         return true;
+
+        // try
+        // {
+        //     // Get icon count
+        //     int count = (int)WinApi.SendMessage(_listViewHwnd, WinApi.LVM_GETITEMCOUNT, IntPtr.Zero, IntPtr.Zero);
+
+        //     if (_remotePointBuffer == IntPtr.Zero)
+        //     {
+        //         Debug.LogError("DesktopWindowTracker: Failed to allocate remote memory");
+        //         return false;
+        //     }
+
+        //     // var text = new StringBuilder();
+        //     // text.AppendLine($"Desktop Icon Positions: {count}");
+
+        //     // Get each icon position
+        //     for (int i = 0; i < count; i++)
+        //     {
+        //         // Send message with remote buffer address
+        //         WinApi.SendMessage(_listViewHwnd, WinApi.LVM_GETITEMPOSITION, (IntPtr)i, _remotePointBuffer);
+
+        //         // Read back the result
+        //         uint bytesRead;
+        //         if (!WinApi.ReadProcessMemory(_explorerProcess, _remotePointBuffer, _localPointBuffer, (uint)_localPointBuffer.Length, out bytesRead))
+        //         {
+        //             int error = Marshal.GetLastWin32Error();
+        //             Debug.LogWarning($"ReadProcessMemory failed: {error}");
+
+        //             if (error == 5) // ACCESS_DENIED
+        //             {
+        //                 // Explorer restarted or process died - reinitialize
+        //                 Initialize();
+        //             }
+        //             return false; // Don't crash, just fail gracefully
+        //         }
+
+        //         // Convert to Point
+        //         GCHandle handle = GCHandle.Alloc(_localPointBuffer, GCHandleType.Pinned);
+        //         Point clientPos = (Point)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(Point));
+        //         handle.Free();
+
+        //         // text.AppendLine($"{i}: {pos}");
+
+        //         // To screen coordinates
+        //         Point screenPos = clientPos;
+        //         WinApi.ClientToScreen(_listViewHwnd, ref screenPos);
+
+        //         positions.Add(screenPos);
+        //     }
+
+        //     // Debug.Log(text.ToString());
+        // }
+        // catch (Exception e)
+        // {
+        //     Debug.LogError($"Exception while trying to get desktop icons: {e.Message}");
+        //     return false;
+        // }
+
+        // return true;
     }
 
     public int HitTest(int screenX, int screenY)
@@ -263,77 +265,79 @@ public class DesktopIconMonitor : IDisposable
             return -1;
         }
 
-        Point testPoint = new Point { x = screenX, y = screenY };
-        WinApi.ScreenToClient(_listViewHwnd, ref testPoint);
+        return -1;
 
-        // Prepare hit test structure
-        LVHITTESTINFO hitTest = new LVHITTESTINFO
-        {
-            pt = testPoint,
-            flags = 0,
-            iItem = -1,
-            iSubItem = 0,
-            iGroup = 0
-        };
+        // Point testPoint = new Point { x = screenX, y = screenY };
+        // WinApi.ScreenToClient(_listViewHwnd, ref testPoint);
 
-        // Marshal to bytes
-        IntPtr ptr = Marshal.AllocHGlobal(_localHitBuffer.Length);
-        try
-        {
-            Marshal.StructureToPtr(hitTest, ptr, false);
-            Marshal.Copy(ptr, _localHitBuffer, 0, _localHitBuffer.Length);
-        }
-        finally
-        {
-            Marshal.FreeHGlobal(ptr);
-        }
+        // // Prepare hit test structure
+        // LVHITTESTINFO hitTest = new LVHITTESTINFO
+        // {
+        //     pt = testPoint,
+        //     flags = 0,
+        //     iItem = -1,
+        //     iSubItem = 0,
+        //     iGroup = 0
+        // };
 
-        // Write to remote process
-        uint bytesWritten;
-        if (!WinApi.WriteProcessMemory(_explorerProcess, _remoteHitBuffer, _localHitBuffer, (uint)_localHitBuffer.Length, out bytesWritten))
-        {
-            Debug.LogWarning("Failed to write hit test data");
-            int error = Marshal.GetLastWin32Error();
-            Debug.LogWarning($"WriteProcessMemory failed: {error}");
+        // // Marshal to bytes
+        // IntPtr ptr = Marshal.AllocHGlobal(_localHitBuffer.Length);
+        // try
+        // {
+        //     Marshal.StructureToPtr(hitTest, ptr, false);
+        //     Marshal.Copy(ptr, _localHitBuffer, 0, _localHitBuffer.Length);
+        // }
+        // finally
+        // {
+        //     Marshal.FreeHGlobal(ptr);
+        // }
 
-            if (error == 5) // ACCESS_DENIED
-            {
-                // Explorer restarted or process died - reinitialize
-                Initialize();
-            }
-            return -1;// Don't crash, just fail gracefully
-        }
+        // // Write to remote process
+        // uint bytesWritten;
+        // if (!WinApi.WriteProcessMemory(_explorerProcess, _remoteHitBuffer, _localHitBuffer, (uint)_localHitBuffer.Length, out bytesWritten))
+        // {
+        //     Debug.LogWarning("Failed to write hit test data");
+        //     int error = Marshal.GetLastWin32Error();
+        //     Debug.LogWarning($"WriteProcessMemory failed: {error}");
 
-        // Perform hit test
-        WinApi.SendMessage(_listViewHwnd, LVM_HITTEST, IntPtr.Zero, _remoteHitBuffer); // perf: 1ms? wow
+        //     if (error == 5) // ACCESS_DENIED
+        //     {
+        //         // Explorer restarted or process died - reinitialize
+        //         Initialize();
+        //     }
+        //     return -1;// Don't crash, just fail gracefully
+        // }
 
-        // Read result
-        uint bytesRead;
-        if (!WinApi.ReadProcessMemory(_explorerProcess, _remoteHitBuffer, _localHitBuffer, (uint)_localHitBuffer.Length, out bytesRead))
-        {
-            Debug.LogWarning("Failed to read hit test result");
-            int error = Marshal.GetLastWin32Error();
-            Debug.LogWarning($"WriteProcessMemory failed: {error}");
+        // // Perform hit test
+        // WinApi.SendMessage(_listViewHwnd, LVM_HITTEST, IntPtr.Zero, _remoteHitBuffer); // perf: 1ms? wow
 
-            if (error == 5) // ACCESS_DENIED
-            {
-                // Explorer restarted or process died - reinitialize
-                Initialize();
-            }
-            return -1;// Don't crash, just fail gracefully
-        }
+        // // Read result
+        // uint bytesRead;
+        // if (!WinApi.ReadProcessMemory(_explorerProcess, _remoteHitBuffer, _localHitBuffer, (uint)_localHitBuffer.Length, out bytesRead))
+        // {
+        //     Debug.LogWarning("Failed to read hit test result");
+        //     int error = Marshal.GetLastWin32Error();
+        //     Debug.LogWarning($"WriteProcessMemory failed: {error}");
 
-        // Unmarshal result
-        IntPtr resultPtr = Marshal.AllocHGlobal(_localHitBuffer.Length);
-        try
-        {
-            Marshal.Copy(_localHitBuffer, 0, resultPtr, _localHitBuffer.Length);
-            LVHITTESTINFO result = Marshal.PtrToStructure<LVHITTESTINFO>(resultPtr);
-            return result.iItem;
-        }
-        finally
-        {
-            Marshal.FreeHGlobal(resultPtr);
-        }
+        //     if (error == 5) // ACCESS_DENIED
+        //     {
+        //         // Explorer restarted or process died - reinitialize
+        //         Initialize();
+        //     }
+        //     return -1;// Don't crash, just fail gracefully
+        // }
+
+        // // Unmarshal result
+        // IntPtr resultPtr = Marshal.AllocHGlobal(_localHitBuffer.Length);
+        // try
+        // {
+        //     Marshal.Copy(_localHitBuffer, 0, resultPtr, _localHitBuffer.Length);
+        //     LVHITTESTINFO result = Marshal.PtrToStructure<LVHITTESTINFO>(resultPtr);
+        //     return result.iItem;
+        // }
+        // finally
+        // {
+        //     Marshal.FreeHGlobal(resultPtr);
+        // }
     }
 }
