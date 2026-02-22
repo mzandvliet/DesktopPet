@@ -7,6 +7,8 @@ using DrawBehindDesktopIcons;
 using Shapes;
 using System.Collections.Generic;
 using System.Collections;
+using System.Threading;
+using UnityEngine.Rendering;
 
 /*
 
@@ -76,8 +78,11 @@ public class DesktopHook : ImmediateModeShapeDrawer
     }
 
     private int2 _windowPixelSize;
-    private Vector2 _windowWorldPos;
-    
+    // private Vector2 _windowWorldPos;
+
+    int2 _pendingWindowPos;
+    bool _needsWindowMove;
+
     private static IntPtr _hwnd;
 
     // Cached state for window mouse-cursor focus check
@@ -116,6 +121,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
         _text = new StringBuilder(4096);
 
         Application.targetFrameRate = FramerateActive;
+        QualitySettings.vSyncCount = 1;
         Application.runInBackground = true;
 
         System.AppDomain.CurrentDomain.UnhandledException += HandleUnhandledException;
@@ -140,14 +146,21 @@ public class DesktopHook : ImmediateModeShapeDrawer
             Debug.Log($"Succesfully got our window handle: {_hwnd}");
         }
 
-        // Make a small, square transparent window that tracks the creature
+        /* 
+        Make a small, square transparent window that tracks the creature
+        Ensure camera ortho size in CM units matches exactly the
+        pixel size of the window.
+        */
         var mainDisplayInfo = Screen.mainWindowDisplayInfo;
         int orthoPixels = (int)(_camera.orthographicSize * 2f * PIXELS_PER_CM);
         _windowPixelSize = new int2(orthoPixels, orthoPixels);
-        int2 windowPos = new int2(mainDisplayInfo.width, mainDisplayInfo.height) / 2 - _windowPixelSize / 2;
-        _windowWorldPos = (float2)windowPos;
         Screen.SetResolution(_windowPixelSize.x, _windowPixelSize.y, FullScreenMode.Windowed);
 
+        /*
+        Let the screen resolution thing take effect on the window fully before
+        moving on to change the window properties, otherwise tranparency may
+        fail to take effect.
+        */
         yield return new WaitForSeconds(0.1f);
 
         if (MakeWindowTransparentLocal())
@@ -165,6 +178,16 @@ public class DesktopHook : ImmediateModeShapeDrawer
         {
             Debug.Log("Error: Failed to initialize Desktop Icon Monitor...");
         }
+    }
+
+    void OnEnable()
+    {
+        RenderPipelineManager.endContextRendering += OnEndFrameRendering;
+    }
+
+    void OnDisable()
+    {
+        RenderPipelineManager.endContextRendering -= OnEndFrameRendering;
     }
 
     private void OnDestroy()
@@ -200,26 +223,15 @@ public class DesktopHook : ImmediateModeShapeDrawer
         SystemInput.Process();
 
         /*
-        Need:
-        a mapping of desktop pixel space to unity world space
+        Animate the creature across the screen
         */
-        
-
-        var mousePosWin = SystemInput.GetCursorPosition();
-
-        // _creature.transform.position = ScreenToWorld(mousePosWin);
-
         _creature.position = 
             ScreenToWorld(new Vector3(Screen.currentResolution.width * 0.5f, Screen.currentResolution.height * 0.5f, 0)) +
-            new Vector3(math.sin(Time.time) * 15, math.cos(Time.time) * 15);
-
-        float trackDist = math.length(_creature.position.xy() - _camera.transform.position.xy());
-        if (trackDist > 5)
-        {
-            CameraWindowTrackPosition(_creature.transform.position);
-        }
+            new Vector3(math.sin(Time.time) * 10, math.cos(Time.time) * 10);
 
         /* See if mouse is over any desktop icons */
+
+        var mousePosWin = SystemInput.GetCursorPosition();
 
         int mouseIconIndex = _iconMonitor.HitTest((int)mousePosWin.x, mousePosWin.y);
         bool mouseIsOverWindowsUI = mouseIconIndex >= 0;
@@ -356,6 +368,71 @@ public class DesktopHook : ImmediateModeShapeDrawer
         {
             _debugToggleTimer = 0;
         }
+    }
+
+    private void LateUpdate()
+    {
+        /*
+        Issue:
+
+        Sometimes the off-by-one-frame stutter issue, where the
+        movement of the camera and the window go out of sync,
+        is still happening.
+
+        It could be a race between our framerate, and DWM compositing
+        update timing. This is not known to us.
+        */
+        
+        /*
+        This is to move the window *after* rendering the new frame for it has finished
+        Technically this means we're late, but we need to ensure we do this *after*
+        GPU.Present() has happened.
+        */
+        if (_needsWindowMove)
+        {
+            // Set window to match those pixel coordinates
+            var windowPosPixels = _pendingWindowPos - _windowPixelSize / 2;
+            WinApi.SetWindowPos(_hwnd, IntPtr.Zero, windowPosPixels.x, windowPosPixels.y, _windowPixelSize.x, _windowPixelSize.y,
+            WinApi.SWP_FRAMECHANGED | WinApi.SWP_SHOWWINDOW); // | WinApi.SWP_ASYNCWINDOWPOS
+            _needsWindowMove = false;
+        }
+
+        /*
+        If the tracked object has moved outside of window safety margins:
+        - calculate new position for the camera and window
+        - move the camera to new position and render
+        - (wait for render to finish)
+        - move window to new position to show the render on the correct place on the desktop
+        */
+        float trackDist = math.length(_creature.position.xy() - _camera.transform.position.xy());
+        if (trackDist > 4)
+        {
+            // Set camera to world pos matching those pixel coordinates
+
+            var trackPosition = _creature.GetComponentInChildren<Renderer>().bounds.center;
+            _pendingWindowPos = GetCameraWindowTrackPosPixels(trackPosition);
+            var windowWorldPos = (Vector2)ScreenToWorld(new Vector3(_pendingWindowPos.x, _pendingWindowPos.y));
+            _camera.transform.position = new Vector3(windowWorldPos.x, windowWorldPos.y, -100);
+            _needsWindowMove = true;
+        }
+    }
+
+    void OnEndFrameRendering(ScriptableRenderContext context, List<Camera> cameras)
+    {
+        /*
+        This happens too early.
+        GPU.Present hasn't happened yet.
+        And then there's the unknown DWM composite timing...
+        */
+
+        // if (_needsWindowMove)
+        // {
+        //     // Set window to match those pixel coordinates
+        //     var windowPosPixels = _pendingWindowPos - _windowPixelSize / 2;
+        //     WinApi.SetWindowPos(_hwnd, IntPtr.Zero, windowPosPixels.x, windowPosPixels.y, _windowPixelSize.x, _windowPixelSize.y,
+        //     WinApi.SWP_FRAMECHANGED | WinApi.SWP_SHOWWINDOW); // | WinApi.SWP_ASYNCWINDOWPOS
+        //     _needsWindowMove = false;
+        // }
     }
 
     private void Heartbeat()
@@ -753,7 +830,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
     const float CM_PER_INCH = 2.54f;
     const float PIXELS_PER_CM = DPI / CM_PER_INCH; // ≈ 37.8 DPCM
 
-    int GetTotalScreenHeight()
+    static int GetTotalScreenHeight()
     {
         // For single monitor:
         return Screen.currentResolution.height;
@@ -762,53 +839,42 @@ public class DesktopHook : ImmediateModeShapeDrawer
         // return monitors.Max(m => m.Bottom) - monitors.Min(m => m.Top);
     }
 
-    Vector3 WorldToScreen(Vector3 worldPos)
+    static Vector3 WorldToScreen(Vector3 worldPos)
     {
         float screenX = worldPos.x * PIXELS_PER_CM;
         float screenY = GetTotalScreenHeight() - worldPos.y * PIXELS_PER_CM;
         return new Vector3(screenX, screenY, worldPos.z);
     }
 
-    Vector3 ScreenToWorld(Vector3 screenPos)
+    static Vector3 ScreenToWorld(Vector3 screenPos)
     {
         float worldX = screenPos.x / PIXELS_PER_CM;
         float worldY = (GetTotalScreenHeight() - screenPos.y) / PIXELS_PER_CM;
         return new Vector3(worldX, worldY, screenPos.z);
     }
 
-    private void CameraWindowTrackPosition(Vector3 trackWorldPos)
+    private static int2 GetCameraWindowTrackPosPixels(Vector3 trackWorldPos)
     {
-        if (Application.isEditor)
-        {
-            return;
-        }
-
-        // // Transform from world to screen space
-        // var trackPosScreen = WorldToScreen(trackWorldPos);
-        // // Round to nearest pixel coordinates
-        // int2 trackPosPixels = new int2((int)trackPosScreen.x, (int)trackPosScreen.y);
-
-        // // Set camera to world pos matching those pixel coordinates
-        // _windowWorldPos = (Vector2)ScreenToWorld(new Vector3(trackPosPixels.x, trackPosPixels.y));
-        // _camera.transform.position = new Vector3(_windowWorldPos.x, _windowWorldPos.y, -100);
-
-        // // Set window to match those pixel coordinates
-        // var windowPosPixels = trackPosPixels - _windowPixelSize / 2;
-        // WinApi.SetWindowPos(_hwnd, IntPtr.Zero, windowPosPixels.x, windowPosPixels.y, _windowPixelSize.x, _windowPixelSize.y, WinApi.SWP_FRAMECHANGED | WinApi.SWP_SHOWWINDOW);
-
-        // Calculate window position in screen space
+        // Transform from world to screen space
         var trackPosScreen = WorldToScreen(trackWorldPos);
-        int2 windowCenterPixels = new int2((int)trackPosScreen.x, (int)trackPosScreen.y);
-        int2 windowTopLeftPixels = windowCenterPixels - _windowPixelSize / 2;
+        // Round to nearest pixel coordinates
+        int2 trackPosPixels = new int2((int)trackPosScreen.x, (int)trackPosScreen.y);
 
-        // Camera stays at smooth world position - DON'T round it
-        _camera.transform.position = new Vector3(trackWorldPos.x, trackWorldPos.y, -100);
+        return trackPosPixels;
+       
+        // Calculate window position in screen space
+        // var trackPosScreen = WorldToScreen(trackWorldPos);
+        // int2 windowCenterPixels = new int2((int)trackPosScreen.x, (int)trackPosScreen.y);
+        // int2 windowTopLeftPixels = windowCenterPixels - _windowPixelSize / 2;
 
-        // Window snaps to pixels
-        WinApi.SetWindowPos(_hwnd, IntPtr.Zero,
-            windowTopLeftPixels.x, windowTopLeftPixels.y,
-            _windowPixelSize.x, _windowPixelSize.y,
-            WinApi.SWP_FRAMECHANGED | WinApi.SWP_SHOWWINDOW);
+        // // Camera stays at smooth world position - DON'T round it
+        // _camera.transform.position = new Vector3(trackWorldPos.x, trackWorldPos.y, -100);
+
+        // // Window snaps to pixels
+        // WinApi.SetWindowPos(_hwnd, IntPtr.Zero,
+        //     windowTopLeftPixels.x, windowTopLeftPixels.y,
+        //     _windowPixelSize.x, _windowPixelSize.y,
+        //     WinApi.SWP_FRAMECHANGED | WinApi.SWP_SHOWWINDOW);
     }
 
     /* 
