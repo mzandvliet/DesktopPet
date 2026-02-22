@@ -6,6 +6,7 @@ using Frantic.Windows;
 using DrawBehindDesktopIcons;
 using Shapes;
 using System.Collections.Generic;
+using System.Collections;
 
 /*
 
@@ -126,18 +127,28 @@ public class DesktopHook : ImmediateModeShapeDrawer
         _hwnd = DesktopWindowTracker.GetUnityWindowHandle();
     }
 
-    private void Start()
+    private IEnumerator Start()
     {
         Screen.fullScreenMode = FullScreenMode.Windowed;
 
         if (_hwnd == IntPtr.Zero)
         {
             Debug.LogError("Couldn't retrieve app's window handle");
-            return;
+            yield break;
         } else
         {
             Debug.Log($"Succesfully got our window handle: {_hwnd}");
         }
+
+        // Make a small, square transparent window that tracks the creature
+        var mainDisplayInfo = Screen.mainWindowDisplayInfo;
+        int orthoPixels = (int)(_camera.orthographicSize * 2f * PIXELS_PER_CM);
+        _windowPixelSize = new int2(orthoPixels, orthoPixels);
+        int2 windowPos = new int2(mainDisplayInfo.width, mainDisplayInfo.height) / 2 - _windowPixelSize / 2;
+        _windowWorldPos = (float2)windowPos;
+        Screen.SetResolution(_windowPixelSize.x, _windowPixelSize.y, FullScreenMode.Windowed);
+
+        yield return new WaitForSeconds(0.1f);
 
         if (MakeWindowTransparentLocal())
         // if (MakeWindowTransparentFullscreen())
@@ -197,16 +208,15 @@ public class DesktopHook : ImmediateModeShapeDrawer
         var mousePosWin = SystemInput.GetCursorPosition();
 
         // _creature.transform.position = ScreenToWorld(mousePosWin);
+
         _creature.position = 
             ScreenToWorld(new Vector3(Screen.currentResolution.width * 0.5f, Screen.currentResolution.height * 0.5f, 0)) +
             new Vector3(math.sin(Time.time) * 15, math.cos(Time.time) * 15);
 
-        var creatureRenderer = _creature.GetComponentInChildren<Renderer>();
-
         float trackDist = math.length(_creature.position.xy() - _camera.transform.position.xy());
         if (trackDist > 5)
         {
-            CameraWindowTrackPosition(_creature.transform.position); // creatureRenderer.bounds.center
+            CameraWindowTrackPosition(_creature.transform.position);
         }
 
         /* See if mouse is over any desktop icons */
@@ -689,13 +699,6 @@ public class DesktopHook : ImmediateModeShapeDrawer
             return false;
         }
 
-        // Make a small, square transparent window that tracks the creature
-        var mainDisplayInfo = Screen.mainWindowDisplayInfo;
-        _windowPixelSize = new int2(mainDisplayInfo.width / 8, mainDisplayInfo.width / 8);
-        int2 windowPos = new int2(mainDisplayInfo.width, mainDisplayInfo.height) / 2 - _windowPixelSize / 2;
-        _windowWorldPos = (float2)windowPos;
-        Screen.SetResolution(_windowPixelSize.x, _windowPixelSize.y, FullScreenMode.Windowed);
-
         // Set Unity camera to transparent
         _camera.backgroundColor = new Color(0, 0, 0, 0);
         _camera.clearFlags = CameraClearFlags.SolidColor;
@@ -718,7 +721,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
             return false;
         }
 
-        WinApi.SetWindowPos(_hwnd, IntPtr.Zero, windowPos.x, windowPos.y, _windowPixelSize.x, _windowPixelSize.y, WinApi.SWP_FRAMECHANGED | WinApi.SWP_SHOWWINDOW);
+        WinApi.SetWindowPos(_hwnd, IntPtr.Zero, 32, 32, _windowPixelSize.x, _windowPixelSize.y, WinApi.SWP_FRAMECHANGED | WinApi.SWP_SHOWWINDOW);
 
         // Make it click-through, not take focus, hidden from taskbar and task switcher
         IntPtr exStyle = WinApi.GetWindowLongPtr(_hwnd, GWL_Flags.GWL_EXSTYLE);
@@ -780,18 +783,32 @@ public class DesktopHook : ImmediateModeShapeDrawer
             return;
         }
 
-        // Transform from world to screen space
+        // // Transform from world to screen space
+        // var trackPosScreen = WorldToScreen(trackWorldPos);
+        // // Round to nearest pixel coordinates
+        // int2 trackPosPixels = new int2((int)trackPosScreen.x, (int)trackPosScreen.y);
+
+        // // Set camera to world pos matching those pixel coordinates
+        // _windowWorldPos = (Vector2)ScreenToWorld(new Vector3(trackPosPixels.x, trackPosPixels.y));
+        // _camera.transform.position = new Vector3(_windowWorldPos.x, _windowWorldPos.y, -100);
+
+        // // Set window to match those pixel coordinates
+        // var windowPosPixels = trackPosPixels - _windowPixelSize / 2;
+        // WinApi.SetWindowPos(_hwnd, IntPtr.Zero, windowPosPixels.x, windowPosPixels.y, _windowPixelSize.x, _windowPixelSize.y, WinApi.SWP_FRAMECHANGED | WinApi.SWP_SHOWWINDOW);
+
+        // Calculate window position in screen space
         var trackPosScreen = WorldToScreen(trackWorldPos);
-        // Round to nearest pixel coordinates
-        int2 trackPosPixels = new int2((int)trackPosScreen.x, (int)trackPosScreen.y);
+        int2 windowCenterPixels = new int2((int)trackPosScreen.x, (int)trackPosScreen.y);
+        int2 windowTopLeftPixels = windowCenterPixels - _windowPixelSize / 2;
 
-        // Set camera to world pos matching those pixel coordinates
-        _windowWorldPos = (Vector2)ScreenToWorld(new Vector3(trackPosPixels.x, trackPosPixels.y));
-        _camera.transform.position = new Vector3(_windowWorldPos.x, _windowWorldPos.y, -100);
+        // Camera stays at smooth world position - DON'T round it
+        _camera.transform.position = new Vector3(trackWorldPos.x, trackWorldPos.y, -100);
 
-        // Set window to match those pixel coordinates
-        var windowPosPixels = trackPosPixels - _windowPixelSize / 2;
-        WinApi.SetWindowPos(_hwnd, IntPtr.Zero, windowPosPixels.x, windowPosPixels.y, _windowPixelSize.x, _windowPixelSize.y, WinApi.SWP_FRAMECHANGED | WinApi.SWP_SHOWWINDOW);
+        // Window snaps to pixels
+        WinApi.SetWindowPos(_hwnd, IntPtr.Zero,
+            windowTopLeftPixels.x, windowTopLeftPixels.y,
+            _windowPixelSize.x, _windowPixelSize.y,
+            WinApi.SWP_FRAMECHANGED | WinApi.SWP_SHOWWINDOW);
     }
 
     /* 
