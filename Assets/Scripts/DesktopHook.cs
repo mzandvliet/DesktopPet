@@ -17,8 +17,9 @@ itself up and down in Z-order to move in front of other windows or behind them.
 
 Todo:
 
-- Rita's mysterious app quitting bug
+- Rita's mysterious app quitting bug (test disabled Desktop Icon Monitor code)
 - multi-monitor screen positioning and sizing (choose monitor, take that resolution and position)
+- creature walking around screen autonomously, with small alpha window tracking it
 - error handling around windows functions like explorer.exe process restarting
 
 - respond to desktop resolution change
@@ -37,8 +38,12 @@ ignore them in DesktopWindowTracker
 
 public class DesktopHook : ImmediateModeShapeDrawer
 {
+    [SerializeField] private Camera _camera;
+
     [SerializeField] private GameObject _foodPrefab;
     [SerializeField] private ParticleSystem _foodParticles;
+
+    [SerializeField] private Transform _creature;
 
     [SerializeField] private LayerMask _interactableLayers = -1;
     [SerializeField] private float _maxRaycastDistance = 100f;
@@ -46,7 +51,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
     private const int FramerateActive = 30;
     private const int FramerateHidden = 10;
 
-    private Camera _camera;
+    
     private static StringBuilder _text;
     private Vector3 _lastMousePosWorld;
     private float _escapeTimer;
@@ -68,6 +73,9 @@ public class DesktopHook : ImmediateModeShapeDrawer
     {
         get => _windowMode;
     }
+
+    private int2 _windowPixelSize;
+    private Vector2 _windowWorldPos;
     
     private static IntPtr _hwnd;
 
@@ -101,7 +109,6 @@ public class DesktopHook : ImmediateModeShapeDrawer
         _windowTracker = gameObject.AddComponent<DesktopWindowTracker>();
         _iconMonitor = new DesktopIconMonitor();
 
-        _camera = gameObject.GetComponent<Camera>();
         _characters = new List<Character>();
         _characters.AddRange(GameObject.FindObjectsByType<Character>(FindObjectsSortMode.None));
 
@@ -122,7 +129,6 @@ public class DesktopHook : ImmediateModeShapeDrawer
     private void Start()
     {
         Screen.fullScreenMode = FullScreenMode.Windowed;
-        // Screen.SetResolution(3440, 1440, false);
 
         if (_hwnd == IntPtr.Zero)
         {
@@ -133,14 +139,15 @@ public class DesktopHook : ImmediateModeShapeDrawer
             Debug.Log($"Succesfully got our window handle: {_hwnd}");
         }
 
-        if (MakeWindowTransparentFullscreen())
+        if (MakeWindowTransparentLocal())
+        // if (MakeWindowTransparentFullscreen())
         // if (MakeWindowOpaqueBehindIcons())
         {
-            Debug.Log("Succesfully hooked into desktop background!");
+            Debug.Log($"Succesfully set window mode to: {_windowMode}");
         }
         else
         {
-            Debug.Log("Error: Failed to hook into desktop background...");
+            Debug.Log("Error: Failed to set window mode...");
         }
         
         if (!_iconMonitor.Initialize())
@@ -181,9 +188,28 @@ public class DesktopHook : ImmediateModeShapeDrawer
 
         SystemInput.Process();
 
-        /* See if mouse is over any desktop icons */
+        /*
+        Need:
+        a mapping of desktop pixel space to unity world space
+        */
+        
 
         var mousePosWin = SystemInput.GetCursorPosition();
+
+        // _creature.transform.position = ScreenToWorld(mousePosWin);
+        _creature.position = 
+            ScreenToWorld(new Vector3(Screen.currentResolution.width * 0.5f, Screen.currentResolution.height * 0.5f, 0)) +
+            new Vector3(math.sin(Time.time) * 15, math.cos(Time.time) * 15);
+
+        var creatureRenderer = _creature.GetComponentInChildren<Renderer>();
+
+        float trackDist = math.length(_creature.position.xy() - _camera.transform.position.xy());
+        if (trackDist > 5)
+        {
+            CameraWindowTrackPosition(_creature.transform.position); // creatureRenderer.bounds.center
+        }
+
+        /* See if mouse is over any desktop icons */
 
         int mouseIconIndex = _iconMonitor.HitTest((int)mousePosWin.x, mousePosWin.y);
         bool mouseIsOverWindowsUI = mouseIconIndex >= 0;
@@ -655,6 +681,124 @@ public class DesktopHook : ImmediateModeShapeDrawer
     URP renderer needs to be configured to render to a buffer with transparency information in there!
     and DXGI swapchain for DX11 needs to be unchecked to old style
     */
+    private bool MakeWindowTransparentLocal()
+    {
+        if (!IsWindowsDesktop())
+        {
+            Debug.LogError($"Platform not supported: {Application.platform}");
+            return false;
+        }
+
+        // Make a small, square transparent window that tracks the creature
+        var mainDisplayInfo = Screen.mainWindowDisplayInfo;
+        _windowPixelSize = new int2(mainDisplayInfo.width / 8, mainDisplayInfo.width / 8);
+        int2 windowPos = new int2(mainDisplayInfo.width, mainDisplayInfo.height) / 2 - _windowPixelSize / 2;
+        _windowWorldPos = (float2)windowPos;
+        Screen.SetResolution(_windowPixelSize.x, _windowPixelSize.y, FullScreenMode.Windowed);
+
+        // Set Unity camera to transparent
+        _camera.backgroundColor = new Color(0, 0, 0, 0);
+        _camera.clearFlags = CameraClearFlags.SolidColor;
+
+        try
+        {
+            const int PROCESS_PER_MONITOR_DPI_AWARE = 2;
+            WinApi.SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
+        }
+        catch
+        {
+            Debug.Log("Couldn't set DPI awarness, using fallback");
+            WinApi.SetProcessDPIAware(); // Fallback for older Windows
+        }
+
+        // Make it a popup window
+        if (WinApi.SetWindowLongPtr(_hwnd, GWL_Flags.GWL_STYLE, new IntPtr((uint)WindowStyles.WS_POPUP | (uint)WindowStyles.WS_VISIBLE)) == IntPtr.Zero)
+        {
+            Debug.LogError($"Failed to set popup window style");
+            return false;
+        }
+
+        WinApi.SetWindowPos(_hwnd, IntPtr.Zero, windowPos.x, windowPos.y, _windowPixelSize.x, _windowPixelSize.y, WinApi.SWP_FRAMECHANGED | WinApi.SWP_SHOWWINDOW);
+
+        // Make it click-through, not take focus, hidden from taskbar and task switcher
+        IntPtr exStyle = WinApi.GetWindowLongPtr(_hwnd, GWL_Flags.GWL_EXSTYLE);
+        long newExStyle = exStyle.ToInt64();
+        // newStyle |= (uint)WindowStylesEx.WS_EX_TOOLWINDOW; // prevent showing in task switcher and task bar (also puts app in separate windows Z-order list, not good)
+        newExStyle |= (uint)WindowStylesEx.WS_EX_NOACTIVATE; // prevent taking focus
+        newExStyle |= (uint)WindowStylesEx.WS_EX_LAYERED;
+        // newStyle |= (uint)WindowStylesEx.WS_EX_TRANSPARENT; // make everything clickthrough, always
+
+        if ((WinApi.SetWindowLongPtr(_hwnd, GWL_Flags.GWL_EXSTYLE, new IntPtr(newExStyle)) == IntPtr.Zero) && (exStyle != IntPtr.Zero))
+        {
+            Debug.LogError($"Failed to set window ex style");
+            return false;
+        }
+
+        // Enable DWM transparency (this is what gets the transparency/chromakey to work)
+        Margins margins = new Margins { cxLeftWidth = -1 };
+        int dwmResult = WinApi.DwmExtendFrameIntoClientArea(_hwnd, ref margins);
+        Debug.Log($"DWM result: 0x{dwmResult:X} (0 = S_OK)");
+
+        SetWindowZOrder(ZWindowOrder.Bottom);
+
+        _windowMode = AppWindowMode.TransparentZOrderedWindowed;
+
+        return true;
+    }
+
+    const float DPI = 96f;
+    const float CM_PER_INCH = 2.54f;
+    const float PIXELS_PER_CM = DPI / CM_PER_INCH; // ≈ 37.8 DPCM
+
+    int GetTotalScreenHeight()
+    {
+        // For single monitor:
+        return Screen.currentResolution.height;
+
+        // For multi-monitor, find max Y extent:
+        // return monitors.Max(m => m.Bottom) - monitors.Min(m => m.Top);
+    }
+
+    Vector3 WorldToScreen(Vector3 worldPos)
+    {
+        float screenX = worldPos.x * PIXELS_PER_CM;
+        float screenY = GetTotalScreenHeight() - worldPos.y * PIXELS_PER_CM;
+        return new Vector3(screenX, screenY, worldPos.z);
+    }
+
+    Vector3 ScreenToWorld(Vector3 screenPos)
+    {
+        float worldX = screenPos.x / PIXELS_PER_CM;
+        float worldY = (GetTotalScreenHeight() - screenPos.y) / PIXELS_PER_CM;
+        return new Vector3(worldX, worldY, screenPos.z);
+    }
+
+    private void CameraWindowTrackPosition(Vector3 trackWorldPos)
+    {
+        if (Application.isEditor)
+        {
+            return;
+        }
+
+        // Transform from world to screen space
+        var trackPosScreen = WorldToScreen(trackWorldPos);
+        // Round to nearest pixel coordinates
+        int2 trackPosPixels = new int2((int)trackPosScreen.x, (int)trackPosScreen.y);
+
+        // Set camera to world pos matching those pixel coordinates
+        _windowWorldPos = (Vector2)ScreenToWorld(new Vector3(trackPosPixels.x, trackPosPixels.y));
+        _camera.transform.position = new Vector3(_windowWorldPos.x, _windowWorldPos.y, -100);
+
+        // Set window to match those pixel coordinates
+        var windowPosPixels = trackPosPixels - _windowPixelSize / 2;
+        WinApi.SetWindowPos(_hwnd, IntPtr.Zero, windowPosPixels.x, windowPosPixels.y, _windowPixelSize.x, _windowPixelSize.y, WinApi.SWP_FRAMECHANGED | WinApi.SWP_SHOWWINDOW);
+    }
+
+    /* 
+    Important:
+    URP renderer needs to be configured to render to a buffer with transparency information in there!
+    and DXGI swapchain for DX11 needs to be unchecked to old style
+    */
     private bool MakeWindowTransparentFullscreen()
     {
         if (!IsWindowsDesktop())
@@ -711,7 +855,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
   
         SetWindowZOrder(ZWindowOrder.Bottom);
 
-        _windowMode = AppWindowMode.TransparentZOrdered;
+        _windowMode = AppWindowMode.TransparentZOrderedFullScreen;
 
         return true;
     }
@@ -793,7 +937,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
 
         Win32.SetParent(_hwnd, workerW);
 
-        _windowMode = AppWindowMode.BehindDesktopIcons;
+        _windowMode = AppWindowMode.BehindDesktopIconsFullscreen;
 
         return true;
     }
@@ -811,7 +955,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
             return true;
         }
 
-        if (_windowMode != AppWindowMode.TransparentZOrdered)
+        if (_windowMode != AppWindowMode.TransparentZOrderedFullScreen && _windowMode != AppWindowMode.TransparentZOrderedWindowed)
         {
             return false;
         }
@@ -977,8 +1121,9 @@ public class DesktopHook : ImmediateModeShapeDrawer
     public enum AppWindowMode
     {
         None,
-        TransparentZOrdered,
-        BehindDesktopIcons
+        TransparentZOrderedFullScreen,
+        TransparentZOrderedWindowed,
+        BehindDesktopIconsFullscreen
     }
 
     private enum DesktopIconSize
