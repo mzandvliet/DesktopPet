@@ -24,12 +24,6 @@ public class SlimeFaceRenderer : ImmediateModeShapeDrawer
 
     private Transform _transform;
 
-    private CharacterMouthShape _mouthShape;
-    private CharacterEyebrowShape _eyebrowShape;
-
-
-    private double _lastBlinkTime = -1;
-    private float _blinkDuration = 3;
 
     private Rng _rng;
 
@@ -42,10 +36,8 @@ public class SlimeFaceRenderer : ImmediateModeShapeDrawer
     private void Awake()
     {
         _rng = new Rng(1234);
-
         _transform = gameObject.GetComponent<Transform>();
 
-        _mouthShape = CharacterMouthShape.RoundOpen;
     }
 
     private const float ZOffset = 0.01f;
@@ -56,7 +48,7 @@ public class SlimeFaceRenderer : ImmediateModeShapeDrawer
     }
 
     public const int CharacterMouthShapeMax = 4;
-    public enum CharacterMouthShape
+    public enum MouthShape
     {
         None,
         RoundOpen,
@@ -66,7 +58,7 @@ public class SlimeFaceRenderer : ImmediateModeShapeDrawer
     }
 
     public const int CharacterEyebrowShapeMax = 5;
-    public enum CharacterEyebrowShape
+    public enum EyebrowShape
     {
         None,
         Neutral,

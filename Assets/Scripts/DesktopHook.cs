@@ -80,7 +80,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
 
     private double _lastFoodSpawnTime;
 
-    private List<Character> _characters;
+    private List<Slime> _characters;
 
     public static IntPtr HWnd
     {
@@ -102,8 +102,8 @@ public class DesktopHook : ImmediateModeShapeDrawer
         _iconMonitor = new DesktopIconMonitor();
 
         _camera = gameObject.GetComponent<Camera>();
-        _characters = new List<Character>();
-        _characters.AddRange(GameObject.FindObjectsByType<Character>(FindObjectsSortMode.None));
+        _characters = new List<Slime>();
+        _characters.AddRange(GameObject.FindObjectsByType<Slime>(FindObjectsSortMode.None));
 
         _text = new StringBuilder(4096);
 
@@ -256,6 +256,9 @@ public class DesktopHook : ImmediateModeShapeDrawer
 
         foreach (var character in _characters)
         {
+            var freeFloatingMouseScreenPoint = new Vector3(mousePosUnity.x, mousePosUnity.y, -_camera.transform.position.z * 0.5f);
+            mousePosWorld = _camera.ScreenToWorldPoint(freeFloatingMouseScreenPoint);
+
             character.SetMouseCursorWorld(mousePosWorld);
         }
 
@@ -467,8 +470,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
             {
                 var character = _characters[c];
                 GUILayout.Label($"Character {c}:");
-                GUILayout.Label($"\tState: {character.State}");
-                GUILayout.Label($"\tIdle State: {character.IdleState}");
+                GUILayout.Label($"\tState: {"None"}");
             }
             GUILayout.Space(8f);
 
