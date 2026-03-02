@@ -53,13 +53,13 @@ void RenderHighlight(float2 uv, float2 pos, float radius, inout float4 color) {
 }
 
 
-void RenderSingleEye(float2 uv, float2 eyePos, float eyeRadius, inout float4 color) {
+void RenderSingleEye(float2 uv, float2 eyePos, float eyeRadius, float blinkLerp, inout float4 color) {
     eyeRadius *= (1.0 + sin(_Time[3] * 11.37) * 0.025);
 
-    float blinkPhase = _Time[1] % 3.0;
     const float twopi = 6.283185;
-    const float blinkDur = 0.2;
-    float blinkLerp = saturate(blinkPhase / blinkDur);
+    // float blinkPhase = _Time[1] % 3.0;
+    // const float blinkDur = 0.2;
+    // float blinkLerp = saturate(blinkPhase / blinkDur);
     eyeRadius *= 0.1 + 0.9 * cos(blinkLerp * twopi);
 
     float eyeDist = CircleSDF(uv, eyePos, eyeRadius);
@@ -73,6 +73,13 @@ void RenderSingleEye(float2 uv, float2 eyePos, float eyeRadius, inout float4 col
     highlightPos = eyePos + float2(-1,-1) * (eyeRadius * 0.5);
     highlightRadius *= 0.5;
     RenderHighlight(uv, highlightPos, highlightRadius, color);
+}
+
+void RenderCircle(float2 uv, float2 pos, float radius, float3 color, inout float4 renderColor) {
+    float dist = CircleSDF(uv, pos, radius);
+    float alpha = SDFtoAlpha(dist, 0.0025);
+    float4 col = float4(color, alpha);
+    renderColor = BlendOver(renderColor, col);
 }
 
 void RenderMouth(float2 uv, float2 mouthPos, inout float4 color) {
@@ -93,12 +100,16 @@ void RenderMouth(float2 uv, float2 mouthPos, inout float4 color) {
     color = BlendOver(color, mouthColor);
 }
 
-void RenderFace_float(float2 uv, float2 facePos, float2 eyeRadius, in float4 inColor, out float4 outColor) {
+void RenderFace_float(float2 uv, float2 facePos, float2 eyeRadius, float blink, in float4 inColor, out float4 outColor) {
     outColor = inColor;
 
-    RenderSingleEye(uv, facePos + float2(-0.2, +0.2), eyeRadius, outColor);
-    RenderSingleEye(uv, facePos + float2(+0.2, +0.2), eyeRadius, outColor);
+    RenderSingleEye(uv, facePos + float2(-0.2, +0.2), eyeRadius, blink, outColor);
+    RenderSingleEye(uv, facePos + float2(+0.2, +0.2), eyeRadius, blink, outColor);
     RenderMouth(uv, facePos + float2(0, 0.05), outColor);
+
+    const float3 blushColor = float3(0.9, 0.42, 0.65);
+    RenderCircle(uv, facePos + float2(-0.3, +0.05), eyeRadius * 0.5, blushColor, outColor);
+    RenderCircle(uv, facePos + float2(+0.3, +0.05), eyeRadius * 0.5, blushColor, outColor);
 }
 
 #endif

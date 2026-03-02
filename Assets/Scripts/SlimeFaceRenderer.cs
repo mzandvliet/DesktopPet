@@ -20,9 +20,17 @@ Wants, Needs & Desires
 
 public class SlimeFaceRenderer : ImmediateModeShapeDrawer
 {
-    [SerializeField] private Material _material;
+    [SerializeField] private SkinnedMeshRenderer _faceRenderer;
+    [SerializeField] private Color _baseColor = Color.ghostWhite;
+    [SerializeField] private Color _innerColor = Color.aquamarine;
 
+    private Material _material;
     private Transform _transform;
+    
+    public float Blink
+    {
+        get; set;
+    }
 
 
     private Rng _rng;
@@ -37,10 +45,16 @@ public class SlimeFaceRenderer : ImmediateModeShapeDrawer
     {
         _rng = new Rng(1234);
         _transform = gameObject.GetComponent<Transform>();
-
+        _material = _faceRenderer.sharedMaterial;
+        _material.SetColor("_BaseColor", _baseColor);
+        _material.SetColor("_InnerColor", _innerColor);
     }
 
-    private const float ZOffset = 0.01f;
+
+    private void LateUpdate()
+    {
+        _material.SetFloat("_Blink", Blink);
+    }
 
     public override void DrawShapes(Camera cam)
     {

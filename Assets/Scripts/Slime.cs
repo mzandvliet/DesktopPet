@@ -6,7 +6,6 @@ using Rng = Unity.Mathematics.Random;
 
 /*
 Todo:
-- bring in the updated HTN library so we can flex complex states
 - establish direct relation between world Z and desktop Z depth
 - use a camera further away with narrow fov to get less perspective distortion at screen edges
 
@@ -27,13 +26,14 @@ public class Slime : ImmediateModeShapeDrawer
     [SerializeField] private Transform _body;
     [SerializeField] private Transform _head;
     [SerializeField] private Animator _animator;
+    [SerializeField] private SlimeFaceRenderer _face;
 
     private Transform _transform;
 
     private SlimeFaceRenderer.MouthShape _mouthShape;
     private SlimeFaceRenderer.MouthShape _eyebrowShape;
 
-    private Vector3 _bodyBasePos;
+    private Quaternion _baseHeadRotation;
     private Vector3 _mouseCursorWorld = new Vector3(0, 0, -1);
 
     private double _lastBlinkTime = -1;
@@ -51,8 +51,12 @@ public class Slime : ImmediateModeShapeDrawer
     {
         _rng = new Rng(1234);
         _transform = gameObject.GetComponent<Transform>();
+
+        _baseHeadRotation = Quaternion.Inverse(_transform.rotation) * _head.rotation;
        
         _mouthShape = SlimeFaceRenderer.MouthShape.RoundOpen;
+
+        _face.Blink = 1;
     }
 
     void Update()
@@ -69,7 +73,7 @@ public class Slime : ImmediateModeShapeDrawer
 
     private void LateUpdate()
     {
-        _head.LookAt(_mouseCursorWorld);
+        _head.rotation = Quaternion.LookRotation(_mouseCursorWorld) * _baseHeadRotation;
     }
 
     public void SetMouseCursorWorld(Vector3 cursorWorld)
@@ -85,22 +89,21 @@ public class Slime : ImmediateModeShapeDrawer
 
     private IEnumerator BlinkAsync()
     {
-        float eyeOpenScale = 0.45f;
+        float eyeOpenScale = 1f;
 
         float time = 0;
-        float blinkDur = _rng.NextFloat(0.15f, 0.3f);
-        Vector3 eyeScale;
+        float blinkDur = _rng.NextFloat(0.2f, 0.3f);
         while (time < blinkDur)
         {
             float blinkLerp = math.saturate(time / blinkDur);
-            float scale = eyeOpenScale * math.cos(blinkLerp * math.PI2);
-            eyeScale = Vector3.one * scale;
+            float scale = eyeOpenScale * (0.5f + 0.5f * math.cos(blinkLerp * math.PI2));
+            _face.Blink = scale;
 
             time += Time.deltaTime;
             yield return new WaitForEndOfFrame();
         }
 
-        eyeScale = Vector3.one * eyeOpenScale;
+        _face.Blink = eyeOpenScale;
     }
 
 
@@ -117,4 +120,20 @@ public class Slime : ImmediateModeShapeDrawer
         LookAtCursor,
         LookAtPlayer
     }
+}
+
+public abstract class Need
+{
+    public float value; // 0-1
+    public float urgency => CalculateUrgency();
+    
+    public abstract Action[] GetSatisfyingActions();
+    protected abstract float CalculateUrgency();
+}
+
+public abstract class Action
+{
+    public abstract bool CanExecute();
+    public abstract IEnumerator Execute();
+    public abstract float GetUtility(Need need);
 }

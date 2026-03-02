@@ -475,6 +475,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8161209209581393088, guid: 5b682710b3bb14443a98cd34a016e9ed, type: 3}
   m_PrefabInstance: {fileID: 936233526}
   m_PrefabAsset: {fileID: 0}
+--- !u!137 &703553591 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 2788943867344286557, guid: 5b682710b3bb14443a98cd34a016e9ed, type: 3}
+  m_PrefabInstance: {fileID: 936233526}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0
@@ -634,7 +639,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: DesktopPet::SlimeFaceRenderer
   useCullingMasks: 0
-  _material: {fileID: 2100000, guid: 4c4e290db6bc2494eabe9847eaeb06eb, type: 2}
+  _faceRenderer: {fileID: 703553591}
 --- !u!114 &936233531
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -652,6 +657,7 @@ MonoBehaviour:
   _body: {fileID: 451011809}
   _head: {fileID: 1138758784}
   _animator: {fileID: 936233528}
+  _face: {fileID: 936233530}
 --- !u!4 &1138758784 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -729478799901806501, guid: 5b682710b3bb14443a98cd34a016e9ed, type: 3}

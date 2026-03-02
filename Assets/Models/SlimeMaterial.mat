@@ -108,6 +108,7 @@ Material:
     - _AlphaToMask: 0
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
+    - _Blink: 0
     - _BodySmoothness: 0.52
     - _BumpScale: 1
     - _ClearCoatMask: 0
