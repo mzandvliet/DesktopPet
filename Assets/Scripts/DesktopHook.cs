@@ -89,6 +89,11 @@ public class DesktopHook : ImmediateModeShapeDrawer
 
     private bool _showDebug = false;
 
+    public bool ShowDebug
+    {
+        get => _showDebug;
+    }
+
     public void Awake()
     {
         if (_instance != null)

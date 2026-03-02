@@ -6,6 +6,7 @@ using Rng = Unity.Mathematics.Random;
 
 /*
 Todo:
+- go isometric camera?
 - establish direct relation between world Z and desktop Z depth
 - use a camera further away with narrow fov to get less perspective distortion at screen edges
 
@@ -273,6 +274,11 @@ public class Slime : ImmediateModeShapeDrawer
 
     public override void DrawShapes(Camera cam)
     {
+        if (!DesktopHook.Instance.ShowDebug)
+        {
+            return;
+        }
+        
         // Todo: draw emote decorations around the character
         using (Draw.Command(cam)) // UnityEngine.Rendering.Universal.RenderPassEvent
         {
