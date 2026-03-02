@@ -23,6 +23,9 @@ public class Slime : ImmediateModeShapeDrawer
 {
     [SerializeField] private Camera _camera; // needs this to know where is valid to move
 
+    [SerializeField] private LayerMask _characterMask;
+    [SerializeField] private LayerMask _foodMask;
+
     [SerializeField] private Transform _body;
     [SerializeField] private Transform _head;
     [SerializeField] private Animator _animator;
@@ -30,14 +33,26 @@ public class Slime : ImmediateModeShapeDrawer
 
     private Transform _transform;
 
+    private CharacterState _state;
+    private CharacterIdleState _idleState;
+    private Vector3 _moveTargetLocation;
+    private Collider[] _collidersNearby;
+
+    private float _idleDurationTime;
+    private float _idleTimer;
+
+    private double _lastBlinkTime = -1;
+    private float _blinkDuration = 3;
+
     private SlimeFaceRenderer.MouthShape _mouthShape;
     private SlimeFaceRenderer.MouthShape _eyebrowShape;
 
     private Quaternion _baseHeadRotation;
     private Vector3 _mouseCursorWorld = new Vector3(0, 0, -1);
 
-    private double _lastBlinkTime = -1;
-    private float _blinkDuration = 3;
+    private Vector3? _targetDirection;
+    private Vector3 _lookDirection;
+    
 
     private Rng _rng;
 
@@ -46,17 +61,30 @@ public class Slime : ImmediateModeShapeDrawer
         get => _transform;
     }
 
-  
+    public CharacterState State
+    {
+        get => _state;
+    }
+
+    public CharacterIdleState IdleState
+    {
+        get => _idleState;
+    }
+
+
     private void Awake()
     {
         _rng = new Rng(1234);
         _transform = gameObject.GetComponent<Transform>();
-
         _baseHeadRotation = Quaternion.Inverse(_transform.rotation) * _head.rotation;
        
         _mouthShape = SlimeFaceRenderer.MouthShape.RoundOpen;
 
         _face.Blink = 1;
+
+        _collidersNearby = new Collider[64];
+
+        ChangeState(CharacterState.Idle);
     }
 
     void Update()
@@ -68,12 +96,174 @@ public class Slime : ImmediateModeShapeDrawer
             _lastBlinkTime = Time.timeAsDouble;
         }
 
+        switch (_state)
+        {
+            case CharacterState.Idle:
+                UpdateIdleState();
+                break;
+            case CharacterState.Walking:
+                UpdateWalkingState();
+                break;
+            default:
+                Debug.LogError($"Unkonwn character state: {_state}");
+                break;
+        }
+    }
+
+    private void ChangeState(CharacterState state)
+    {
+        ChangeState(state, null);
+    }
+
+    private void ChangeState(CharacterState state, CharacterIdleState? idleState)
+    {
+        Debug.Log($"Change state: {_state} -> {state}");
+        _state = state;
+        switch (state)
+        {
+            case CharacterState.Idle:
+                if (idleState.HasValue)
+                {
+                    _idleState = idleState.Value;
+                }
+                else
+                {
+                    _idleState = (CharacterIdleState)_rng.NextInt(0, CharacterIdleStateMax);
+                }
+                EnterIdleState();
+                break;
+            case CharacterState.Walking:
+                EnterWalkingState();
+                break;
+            default:
+                Debug.LogError($"Unknown character state: {state}");
+                break;
+        }
+    }
+
+    void EnterIdleState()
+    {
+        // Eat if we're within range of food
+        int numColliders = Physics.OverlapSphereNonAlloc(_transform.position, 1, _collidersNearby, _foodMask.value);
+        for (int c = 0; c < numColliders; c++)
+        {
+            var food = _collidersNearby[c].gameObject.GetComponent<Food>();
+            if (food != null)
+            {
+                GameObject.Destroy(food.gameObject);
+            }
+        }
+
+        _idleDurationTime = _rng.NextFloat(2f, 4f);
+        _idleTimer = 0f;
+    }
+
+    void UpdateIdleState()
+    {
+        var lookTarget = _idleState == CharacterIdleState.LookAtCursor ? _mouseCursorWorld : _camera.transform.position;
+
+        _lookDirection = math.normalize(lookTarget - _head.position);
+        
+        var bodyDirection = _lookDirection;
+        bodyDirection.y *= 0.1f;
+        var bodyRotation = Quaternion.LookRotation(bodyDirection);
+        _transform.rotation = Quaternion.Slerp(_transform.rotation, bodyRotation, 2f * Time.deltaTime);
+
         _animator.SetFloat("WalkSpeed", 0f);
+
+        _idleTimer += Time.deltaTime;
+        if (_idleTimer > _idleDurationTime)
+        {
+            ChangeState(CharacterState.Walking);
+        }
+    }
+
+    void EnterWalkingState()
+    {
+        /*
+        Todo:
+        - decide on Z depth target
+        - use a pathfinding technique to walk between open windows
+        */
+
+        int numColliders = Physics.OverlapSphereNonAlloc(_transform.position, 100, _collidersNearby, _foodMask.value);
+        float closestFoodDist = float.PositiveInfinity;
+        Food closestFood = null;
+        for (int c = 0; c < numColliders; c++)
+        {
+            var food = _collidersNearby[c].gameObject.GetComponent<Food>();
+            if (food == null)
+            {
+                continue;
+            }
+
+            var foodDist = math.lengthsq(_transform.position - food.transform.position);
+            if (foodDist < closestFoodDist)
+            {
+                closestFood = food;
+                closestFoodDist = foodDist;
+            }
+        }
+
+        if (closestFood != null)
+        {
+            _moveTargetLocation = closestFood.transform.position;
+        }
+        else
+        {
+            var bounds = _camera.ScreenToWorldPoint(new Vector3(0, 0, -_camera.transform.position.z));
+            bounds = math.abs(bounds);
+
+            _moveTargetLocation = new Vector3(
+                _rng.NextFloat(-0.5f * bounds.x, 0.5f * bounds.x),
+                _rng.NextFloat(-0.5f * bounds.y, 0.5f * bounds.y),
+                _rng.NextFloat(-4f, 4f));
+        }
+
+        var targetDir = _moveTargetLocation - _transform.position;
+        if (math.length(targetDir) > 1f)
+        {
+            _targetDirection = math.normalize(targetDir);
+        }
+    }
+
+    void UpdateWalkingState()
+    {
+        var targetDelta = _moveTargetLocation - _transform.position;
+        var targetDist = math.length(targetDelta);
+
+        if (targetDist < 0.05f)
+        {
+            ChangeState(CharacterState.Idle);
+            return;
+        }
+
+        const float charMoveSpeed = 4f;
+
+        var bodyDirection = _targetDirection.Value;
+        bodyDirection.y *= 0.1f;
+        var bodyRotation = Quaternion.LookRotation(bodyDirection);
+        _transform.rotation = Quaternion.Slerp(_transform.rotation, bodyRotation, 6f * Time.deltaTime);
+
+        // if (math.dot(_transform.forward, _targetDirection.Value) < 0.5f)
+        // {
+        //     // Wait until we're looking roughly in the target direction before actually walking there
+        //     return;
+        // }
+
+        // move
+        _transform.position += (Vector3)math.normalize(targetDelta) * (charMoveSpeed * Time.deltaTime);
+
+        // Todo: derive a useful notion of world-space units to pixel units to determine useful speeds? Perspective muddles this though...
+
+        _animator.SetFloat("WalkSpeed", 1f);
     }
 
     private void LateUpdate()
     {
-        _head.rotation = Quaternion.LookRotation(_mouseCursorWorld) * _baseHeadRotation;
+        var lookDir = _lookDirection;
+        var lookRot = Quaternion.LookRotation(lookDir);
+        _head.rotation = Quaternion.Slerp(_head.rotation, lookRot * _baseHeadRotation, 4f * Time.deltaTime);
     }
 
     public void SetMouseCursorWorld(Vector3 cursorWorld)
@@ -83,7 +273,20 @@ public class Slime : ImmediateModeShapeDrawer
 
     public override void DrawShapes(Camera cam)
     {
-    
+        // Todo: draw emote decorations around the character
+        using (Draw.Command(cam)) // UnityEngine.Rendering.Universal.RenderPassEvent
+        {
+            Draw.ThicknessSpace = ThicknessSpace.Pixels;
+            Draw.RadiusSpace = ThicknessSpace.Meters;
+            Draw.Thickness = 1f;
+            Draw.BlendMode = ShapesBlendMode.Opaque;
+
+            Draw.Line(_transform.position, _moveTargetLocation, Color.black);
+            Draw.Sphere(_moveTargetLocation, 0.2f, Color.black);
+
+            Draw.Line(_head.position, _mouseCursorWorld, Color.greenYellow);
+            Draw.Sphere(_mouseCursorWorld, 0.2f, Color.greenYellow);
+        }
     }
 
 

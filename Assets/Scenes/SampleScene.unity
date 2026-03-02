@@ -249,7 +249,7 @@ Camera:
   far clip plane: 200
   field of view: 51.7
   orthographic: 0
-  orthographic size: 5
+  orthographic size: 12
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -640,6 +640,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: DesktopPet::SlimeFaceRenderer
   useCullingMasks: 0
   _faceRenderer: {fileID: 703553591}
+  _baseColor: {r: 0.9725491, g: 0.9725491, b: 1, a: 1}
+  _innerColor: {r: 0.4980392, g: 1, b: 0.8313726, a: 1}
 --- !u!114 &936233531
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -654,6 +656,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: DesktopPet::Slime
   useCullingMasks: 0
   _camera: {fileID: 330585545}
+  _characterMask:
+    serializedVersion: 2
+    m_Bits: 128
+  _foodMask:
+    serializedVersion: 2
+    m_Bits: 256
   _body: {fileID: 451011809}
   _head: {fileID: 1138758784}
   _animator: {fileID: 936233528}

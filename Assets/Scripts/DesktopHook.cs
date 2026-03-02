@@ -256,9 +256,11 @@ public class DesktopHook : ImmediateModeShapeDrawer
 
         foreach (var character in _characters)
         {
-            var freeFloatingMouseScreenPoint = new Vector3(mousePosUnity.x, mousePosUnity.y, -_camera.transform.position.z * 0.5f);
+            // Creature always perceives mouse N meters in front of them locally;
+            const float metersInFront = 3f;
+            var z = character.transform.position.z - _camera.transform.position.z - metersInFront;
+            var freeFloatingMouseScreenPoint = new Vector3(mousePosUnity.x, mousePosUnity.y, z);
             mousePosWorld = _camera.ScreenToWorldPoint(freeFloatingMouseScreenPoint);
-
             character.SetMouseCursorWorld(mousePosWorld);
         }
 
@@ -370,7 +372,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
 
     private void HandleClick(Vector2Int mousePosWin, Vector2Int mousePosUnity)
     {
-        Debug.Log("Handle click");
+        // Debug.Log("Handle click");
 
         // click should not be blocked by any window closer in Z-order
         var ourWindowInfo = _windowTracker.GetWindowInfo(_hwnd);
@@ -386,7 +388,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
             return;
         }
 
-        Debug.Log("Will raycast");
+        // Debug.Log("Will raycast");
 
         bool clickedSolidGeometry = false;
 
@@ -395,7 +397,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
         {
             // We clicked into our world
 
-            Debug.Log("Hit world");
+            // Debug.Log("Hit world");
 
             // Did we click a character?
             var parent = hitInfo.collider.transform.parent;
@@ -470,7 +472,8 @@ public class DesktopHook : ImmediateModeShapeDrawer
             {
                 var character = _characters[c];
                 GUILayout.Label($"Character {c}:");
-                GUILayout.Label($"\tState: {"None"}");
+                GUILayout.Label($"\tState: {character.State}");
+                GUILayout.Label($"\tIdle State: {character.IdleState}");
             }
             GUILayout.Space(8f);
 
