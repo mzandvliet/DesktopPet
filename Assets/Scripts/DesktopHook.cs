@@ -43,7 +43,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
     [SerializeField] private LayerMask _interactableLayers = -1;
     [SerializeField] private float _maxRaycastDistance = 100f;
 
-    private const int FramerateActive = 30;
+    private const int FramerateActive = 60;
     private const int FramerateHidden = 10;
 
     private Camera _camera;

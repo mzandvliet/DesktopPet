@@ -32,6 +32,9 @@ public class Slime : ImmediateModeShapeDrawer
     [SerializeField] private Animator _animator;
     [SerializeField] private SlimeFaceRenderer _face;
 
+    [SerializeField] private float _charMoveSpeed = 14f;
+    [SerializeField] private AnimationCurve _hopSpeedCurve;
+
     private Transform _transform;
 
     private CharacterState _state;
@@ -225,6 +228,8 @@ public class Slime : ImmediateModeShapeDrawer
 
         var targetDir = _moveTargetLocation - _transform.position;
         _moveTargetDirection = math.normalize(targetDir);
+
+        _lookDirection = _moveTargetDirection;
     }
 
     void UpdateWalkingState()
@@ -244,7 +249,8 @@ public class Slime : ImmediateModeShapeDrawer
             return;
         }
 
-        const float charMoveSpeed = 4f;
+        
+        
 
         var bodyDirection = _moveTargetDirection;
         bodyDirection.y *= 0.1f;
@@ -252,18 +258,20 @@ public class Slime : ImmediateModeShapeDrawer
         var bodyRotation = Quaternion.LookRotation(bodyDirection);
         _transform.rotation = Quaternion.Slerp(_transform.rotation, bodyRotation, 6f * Time.deltaTime);
 
-        // if (math.dot(_transform.forward, _targetDirection.Value) < 0.5f)
-        // {
-        //     // Wait until we're looking roughly in the target direction before actually walking there
-        //     return;
-        // }
-
         // move
-        _transform.position += (Vector3)math.normalize(targetDelta) * (charMoveSpeed * Time.deltaTime);
+
+        var clipInfo = _animator.GetCurrentAnimatorClipInfo(0);
+        var stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
+        var currentSpeed = _charMoveSpeed * _hopSpeedCurve.Evaluate(math.fmod(stateInfo.normalizedTime, 1f));
+        // Debug.Log($"{stateInfo.}{stateInfo.normalizedTime}");
+
+        _transform.position += (Vector3)math.normalize(targetDelta) * (currentSpeed * Time.deltaTime);
 
         // Todo: derive a useful notion of world-space units to pixel units to determine useful speeds? Perspective muddles this though...
 
         _animator.SetFloat("WalkSpeed", 1f);
+
+        
     }
 
     private Quaternion _headRotationWorld = Quaternion.identity;
