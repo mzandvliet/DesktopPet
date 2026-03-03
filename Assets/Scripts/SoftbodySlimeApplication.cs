@@ -13,8 +13,8 @@ public class SoftbodySlimeApplication : ImmediateModeShapeDrawer
     int queryIndex;
     
     Ray _ray;
-    QueryResult _rayResult;
-    QueryResult _dragResult;
+    QueryResult _rayResult = new QueryResult { distanceAlongRay = float.MaxValue, simplexIndex = -1, queryIndex = -1 };
+    QueryResult _dragResult = new QueryResult { distanceAlongRay = float.MaxValue, simplexIndex = -1, queryIndex = -1 };
 
     private void Start()
     {
@@ -40,10 +40,8 @@ public class SoftbodySlimeApplication : ImmediateModeShapeDrawer
         if (_dragResult.simplexIndex >= 0 && solver.simplices.count > 0) {
             int particleIndex = solver.simplices[_dragResult.simplexIndex]; // index of the particle in the actor
 
-            Debug.Log("dragging slime");
-
             var dragPos = _camera.ScreenToWorldPoint(new Vector3(Mouse.current.position.value.x, Mouse.current.position.value.y, -_camera.transform.position.z));
-            solver.positions[particleIndex] = math.lerp(solver.positions[particleIndex], new float4(dragPos, 0), 16f * Time.fixedDeltaTime);
+            solver.positions[particleIndex] = math.lerp(solver.positions[particleIndex], new float4(dragPos, 0), 32f * Time.fixedDeltaTime);
         }
     }
 
@@ -63,7 +61,7 @@ public class SoftbodySlimeApplication : ImmediateModeShapeDrawer
 
     private void Update()
     {
-        if (Mouse.current.leftButton.isPressed)
+        if (Mouse.current.leftButton.wasPressedThisFrame)
         {
             if (_rayResult.simplexIndex >= 0)
             {
@@ -89,7 +87,7 @@ public class SoftbodySlimeApplication : ImmediateModeShapeDrawer
             bool rayHitSomething = _rayResult.simplexIndex >= 0;
             bool draggingSomething = _dragResult.simplexIndex >= 0;
 
-            Draw.Color = draggingSomething ? Color.greenYellow : (rayHitSomething ? Color.orange : Color.grey);
+            Draw.Color = draggingSomething ? Color.orange : (rayHitSomething ? Color.greenYellow : Color.grey);
             Draw.Line(_ray.origin, _ray.origin + _ray.direction * 100f);
 
             if (rayHitSomething)
@@ -105,6 +103,7 @@ public class SoftbodySlimeApplication : ImmediateModeShapeDrawer
                 var particlePos = solver.positions[particleIndex];
 
                 Draw.Line(dragPos, particlePos);
+                Draw.Sphere(particlePos, 0.2f);
             }
         }
     }
