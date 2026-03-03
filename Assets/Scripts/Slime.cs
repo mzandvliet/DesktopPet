@@ -36,7 +36,6 @@ public class Slime : ImmediateModeShapeDrawer
 
     private CharacterState _state;
     private CharacterIdleState _idleState;
-    private Vector3 _moveTargetLocation;
     private Collider[] _collidersNearby;
 
     private float _idleDurationTime;
@@ -48,12 +47,13 @@ public class Slime : ImmediateModeShapeDrawer
     private SlimeFaceRenderer.MouthShape _mouthShape;
     private SlimeFaceRenderer.MouthShape _eyebrowShape;
 
-    private Quaternion _baseHeadRotation;
     private Vector3 _mouseCursorWorld = new Vector3(0, 0, -1);
 
-    private Vector3? _targetDirection;
-    private Vector3 _lookDirection;
-    
+    private Transform _target;
+    private Vector3 _moveTargetLocation = new Vector3(0,0,0);
+    private Vector3 _moveTargetDirection = new Vector3(0, 0, 1);
+    private Vector3 _lookDirection = new Vector3(0, 0, -1);
+
 
     private Rng _rng;
 
@@ -77,7 +77,6 @@ public class Slime : ImmediateModeShapeDrawer
     {
         _rng = new Rng(1234);
         _transform = gameObject.GetComponent<Transform>();
-        _baseHeadRotation = Quaternion.Inverse(_transform.rotation) * _head.rotation;
        
         _mouthShape = SlimeFaceRenderer.MouthShape.RoundOpen;
 
@@ -155,20 +154,20 @@ public class Slime : ImmediateModeShapeDrawer
             }
         }
 
-        _idleDurationTime = _rng.NextFloat(2f, 4f);
+        _idleDurationTime = _rng.NextFloat(3f, 8f);
         _idleTimer = 0f;
     }
 
     void UpdateIdleState()
     {
         var lookTarget = _idleState == CharacterIdleState.LookAtCursor ? _mouseCursorWorld : _camera.transform.position;
-
         _lookDirection = math.normalize(lookTarget - _head.position);
         
         var bodyDirection = _lookDirection;
         bodyDirection.y *= 0.1f;
+        bodyDirection = math.normalize(bodyDirection);
         var bodyRotation = Quaternion.LookRotation(bodyDirection);
-        _transform.rotation = Quaternion.Slerp(_transform.rotation, bodyRotation, 2f * Time.deltaTime);
+        _transform.rotation = Quaternion.Slerp(_transform.rotation, bodyRotation, 1f * Time.deltaTime);
 
         _animator.SetFloat("WalkSpeed", 0f);
 
@@ -208,10 +207,13 @@ public class Slime : ImmediateModeShapeDrawer
 
         if (closestFood != null)
         {
+            _target = closestFood.transform;
             _moveTargetLocation = closestFood.transform.position;
         }
         else
         {
+            _target = null;
+
             var bounds = _camera.ScreenToWorldPoint(new Vector3(0, 0, -_camera.transform.position.z));
             bounds = math.abs(bounds);
 
@@ -222,18 +224,21 @@ public class Slime : ImmediateModeShapeDrawer
         }
 
         var targetDir = _moveTargetLocation - _transform.position;
-        if (math.length(targetDir) > 1f)
-        {
-            _targetDirection = math.normalize(targetDir);
-        }
+        _moveTargetDirection = math.normalize(targetDir);
     }
 
     void UpdateWalkingState()
     {
+        if (_target != null)
+        {
+            // update target information if we have a target reference
+            _moveTargetLocation = _target.position;
+            _moveTargetDirection = math.normalize(_target.position - _transform.position);
+        }
         var targetDelta = _moveTargetLocation - _transform.position;
         var targetDist = math.length(targetDelta);
 
-        if (targetDist < 0.05f)
+        if (targetDist < 0.1f)
         {
             ChangeState(CharacterState.Idle);
             return;
@@ -241,8 +246,9 @@ public class Slime : ImmediateModeShapeDrawer
 
         const float charMoveSpeed = 4f;
 
-        var bodyDirection = _targetDirection.Value;
+        var bodyDirection = _moveTargetDirection;
         bodyDirection.y *= 0.1f;
+        bodyDirection = math.normalize(bodyDirection);
         var bodyRotation = Quaternion.LookRotation(bodyDirection);
         _transform.rotation = Quaternion.Slerp(_transform.rotation, bodyRotation, 6f * Time.deltaTime);
 
@@ -260,11 +266,41 @@ public class Slime : ImmediateModeShapeDrawer
         _animator.SetFloat("WalkSpeed", 1f);
     }
 
+    private Quaternion _headRotationWorld = Quaternion.identity;
+
     private void LateUpdate()
     {
-        var lookDir = _lookDirection;
-        var lookRot = Quaternion.LookRotation(lookDir);
-        _head.rotation = Quaternion.Slerp(_head.rotation, lookRot * _baseHeadRotation, 4f * Time.deltaTime);
+        /*
+        Head look behavior
+
+        - Applied in LateUpdate to override Animator results
+        - head rotation calculated in separate state, in world space, to avoid hierarchical transform issues
+        - head rotation limited to 45 degree offset from its body
+        */
+
+        const float maxHeadAngle = 45f;
+
+        const float noiseSpeed = 0.5f;
+        var focusWobble = new Vector3(
+            -1f + 2f * Mathf.PerlinNoise1D(math.fmod(Time.time * noiseSpeed + 0.571f, 1f)),
+            -1f + 2f * Mathf.PerlinNoise1D(math.fmod(Time.time * noiseSpeed + 5.113f, 1f)),
+            -1f + 2f * Mathf.PerlinNoise1D(math.fmod(Time.time * noiseSpeed + 6.733f, 1f))
+        ) * 0.25f;
+
+        var lookDir = math.normalize(_lookDirection + focusWobble);
+
+        var targetWorldLookRotation = Quaternion.LookRotation(lookDir);
+        var newHeadWorldRotation = Quaternion.RotateTowards(_transform.rotation, targetWorldLookRotation, maxHeadAngle);
+
+        // var horizontalTilt = Vector3.SignedAngle(_transform.forward, newHeadWorldRotation * Vector3.forward, _transform.up);
+        // horizontalTilt = math.clamp(horizontalTilt, -maxHeadAngle, maxHeadAngle) / maxHeadAngle;
+        // var headLocalTilt = Quaternion.AngleAxis(horizontalTilt * 30f, Vector3.forward);
+        // Debug.Log(horizontalTilt * 30f);
+
+        _headRotationWorld = Quaternion.Slerp(_headRotationWorld, newHeadWorldRotation, 6f * Time.deltaTime);
+
+        // Apply only when requested?
+        _head.rotation = _headRotationWorld;
     }
 
     public void SetMouseCursorWorld(Vector3 cursorWorld)
@@ -278,7 +314,7 @@ public class Slime : ImmediateModeShapeDrawer
         {
             return;
         }
-        
+
         // Todo: draw emote decorations around the character
         using (Draw.Command(cam)) // UnityEngine.Rendering.Universal.RenderPassEvent
         {

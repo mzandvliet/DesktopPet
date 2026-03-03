@@ -248,7 +248,7 @@ Camera:
   near clip plane: 0.1
   far clip plane: 200
   field of view: 51.7
-  orthographic: 0
+  orthographic: 1
   orthographic size: 12
   m_Depth: -1
   m_CullingMask:
@@ -626,6 +626,11 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!4 &936233529 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -2741094815460873068, guid: 5b682710b3bb14443a98cd34a016e9ed, type: 3}
+  m_PrefabInstance: {fileID: 936233526}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &936233530
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -663,14 +668,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   _body: {fileID: 451011809}
-  _head: {fileID: 1138758784}
+  _head: {fileID: 936233529}
   _animator: {fileID: 936233528}
   _face: {fileID: 936233530}
---- !u!4 &1138758784 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: -729478799901806501, guid: 5b682710b3bb14443a98cd34a016e9ed, type: 3}
-  m_PrefabInstance: {fileID: 936233526}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1894763658
 PrefabInstance:
   m_ObjectHideFlags: 0
