@@ -7,6 +7,7 @@ using Unity.Mathematics;
 public class SoftbodySlimeApplication : ImmediateModeShapeDrawer
 {
     [SerializeField] private Camera _camera;
+    [SerializeField] private ObiSoftbody _slimeBody;
 
     public ObiSolver solver;
     int filter;
@@ -19,16 +20,21 @@ public class SoftbodySlimeApplication : ImmediateModeShapeDrawer
     private void Start()
     {
         filter = ObiUtils.MakeFilter(ObiUtils.CollideWithEverything, 0);
-        solver.OnSpatialQueryResults += Solver_OnSpatialQueryResults;
-        solver.OnSimulationStart += Solver_OnSimulate;
-
-       
+        
     }
 
-    private void OnDestroy()
+    public override void OnEnable()
+    {
+        solver.OnSpatialQueryResults += Solver_OnSpatialQueryResults;
+        solver.OnSimulationStart += Solver_OnSimulate;
+        solver.OnCollision += Solver_OnCollision;
+    }
+
+    public override void OnDisable()
     {
         solver.OnSpatialQueryResults -= Solver_OnSpatialQueryResults;
         solver.OnSimulationStart -= Solver_OnSimulate;
+        solver.OnCollision -= Solver_OnCollision;
     }
 
     private void Solver_OnSimulate(ObiSolver s, float simulatedTime, float substepTime)
@@ -43,6 +49,18 @@ public class SoftbodySlimeApplication : ImmediateModeShapeDrawer
             var dragPos = _camera.ScreenToWorldPoint(new Vector3(Mouse.current.position.value.x, Mouse.current.position.value.y, -_camera.transform.position.z));
             solver.positions[particleIndex] = math.lerp(solver.positions[particleIndex], new float4(dragPos, 0), 32f * Time.fixedDeltaTime);
         }
+
+        // for (int i = 0; i < _slimeBody.solverIndices.count; ++i)
+        // {
+
+        //     int solverIndex = _slimeBody.solverIndices[i];
+
+        //     // if the particle is visually close enough to the anchor, fix it.
+        //     // _slimeBody.GetParticlePosition(solverIndex)
+        //     // _slimeBody.solver.velocities[solverIndex] = Vector3.zero;
+        //     // _slimeBody.solver.invMasses[solverIndex] = 0;
+        //     // _slimeBody.solver.resi = Vector3.zero;
+        // }
     }
 
     private void Solver_OnSpatialQueryResults(ObiSolver s, ObiNativeQueryResultList queryResults)
@@ -55,6 +73,25 @@ public class SoftbodySlimeApplication : ImmediateModeShapeDrawer
                 queryResults[i].distanceAlongRay < _rayResult.distanceAlongRay)
             {
                 _rayResult = queryResults[i];
+            }
+        }
+    }
+
+    void Solver_OnCollision(object sender, ObiNativeContactList e)
+    {
+        var world = ObiColliderWorld.GetInstance();
+
+        // just iterate over all contacts in the current frame:
+        foreach (Oni.Contact contact in e)
+        {
+            // if this one is an actual collision:
+            if (contact.distance < 0.01)
+            {
+                ObiColliderBase col = world.colliderHandles[contact.bodyB].owner;
+                if (col != null)
+                {
+                    // do something with the collider.
+                }
             }
         }
     }
@@ -72,6 +109,11 @@ public class SoftbodySlimeApplication : ImmediateModeShapeDrawer
         {
             _dragResult = new QueryResult { distanceAlongRay = float.MaxValue, simplexIndex = -1, queryIndex = -1 };
         }
+
+        var _pad = Gamepad.current;
+        _slimeBody.deformationResistance = math.lerp(0.5f, 0.05f, _pad.rightTrigger.value);
+        _slimeBody.collisionMaterial.stickiness = math.lerp(0.05f, 0.5f, _pad.leftTrigger.value);
+        _slimeBody.AddTorque(new Vector3(0,0, _pad.leftStick.value.x * -0.1f), ForceMode.VelocityChange);
     }
 
     public override void DrawShapes(Camera cam)
