@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using System.Collections.Generic;
 using System.IO;
 using Rng = Unity.Mathematics.Random;
+using System.Collections;
 
 public class SoftbodySlimeApplication : ImmediateModeShapeDrawer
 {
@@ -43,6 +44,9 @@ public class SoftbodySlimeApplication : ImmediateModeShapeDrawer
     private List<ContactPatch> _patches = new List<ContactPatch>();
 
     private Texture2D _vertexRestPositions;
+
+    private double _lastBlinkTime = -1;
+    private float _blinkDuration = 3;
 
     private void Start()
     {
@@ -294,21 +298,33 @@ public class SoftbodySlimeApplication : ImmediateModeShapeDrawer
             but that's great, because anticipation can visibly build as the slime
             *prepares* to jump.
             */
-            // _slimeBody.AddForce(jumpDirection * 9.81f * 400f, ForceMode.Impulse);
-            AddForce(_slimeBody, jumpDirection * 9.81f * 100f, ForceMode.Impulse);
+            _slimeBody.AddForce(jumpDirection * 9.81f * 300f, ForceMode.Impulse);
+            AddForce(_slimeBody, jumpDirection * 9.81f * 10f, ForceMode.Impulse);
         }
     }
 
+    private Quaternion _faceAnchorRotation = Quaternion.identity;
     private void LateUpdate()
     {
         for (int b = 0; b < _slimeBubbles.Count; b++)
         {
             _slimeBubbles[b].Item1.position = _slimeBody.solver.positions[_slimeBody.solverIndices[_slimeBubbles[b].Item2]];
         }
-        
+
+        var _pad = Gamepad.current;
+
         var com = CalculateCenterOfMass(_slimeBody);
-        _faceAnchor = Matrix4x4.TRS(com, _camera.transform.rotation, Vector3.one);
+        var faceAnchorRotation = Quaternion.Euler(_pad.leftStick.value.y * 33f, _pad.leftStick.value.x * -45f, 0f); // _camera.transform.rotation
+        _faceAnchorRotation = Quaternion.Slerp(_faceAnchorRotation, faceAnchorRotation, Time.time * 3f);
+        _faceAnchor = Matrix4x4.TRS(com, _faceAnchorRotation, Vector3.one);
         _slimeMaterial.SetMatrix("_FaceAnchor", _faceAnchor.inverse);
+
+        if (Time.timeAsDouble >= _lastBlinkTime + _blinkDuration)
+        {
+            _blinkDuration = _rng.NextFloat(1f, 4);
+            StartCoroutine(BlinkAsync());
+            _lastBlinkTime = Time.timeAsDouble;
+        }
     }
 
     private static void AddForce(ObiSoftbody body, Vector3 force, ForceMode mode)
@@ -374,7 +390,7 @@ public class SoftbodySlimeApplication : ImmediateModeShapeDrawer
         {
             Draw.Color = Color.blanchedAlmond;
 
-            Draw.Sphere(_centerOfMass, 0.3f);
+            // Draw.Sphere(_centerOfMass, 0.3f);
 
             /*
             Draw contacts
@@ -409,5 +425,24 @@ public class SoftbodySlimeApplication : ImmediateModeShapeDrawer
             Draw.Color = Color.blue;
             Draw.Line(_faceAnchor * Vector3.zero, _faceAnchor * Vector3.forward);
         }
+    }
+
+    private IEnumerator BlinkAsync()
+    {
+        float eyeOpenScale = 1f;
+
+        float time = 0;
+        float blinkDur = _rng.NextFloat(0.2f, 0.3f);
+        while (time < blinkDur)
+        {
+            float blinkLerp = math.saturate(time / blinkDur);
+            float scale = eyeOpenScale * (0.5f + 0.5f * math.cos(blinkLerp * math.PI2));
+            _slimeMaterial.SetFloat("_Blink", scale);
+
+            time += Time.deltaTime;
+            yield return new WaitForEndOfFrame();
+        }
+
+        _slimeMaterial.SetFloat("_Blink", eyeOpenScale);
     }
 }
