@@ -308,7 +308,11 @@ public class SoftbodySlimeApplication : ImmediateModeShapeDrawer
     {
         for (int b = 0; b < _slimeBubbles.Count; b++)
         {
-            _slimeBubbles[b].Item1.position = _slimeBody.solver.positions[_slimeBody.solverIndices[_slimeBubbles[b].Item2]];
+            var oldPos = _slimeBubbles[b].Item1.position - _centerOfMass;
+            var pos = (Vector3)_slimeBody.solver.positions[_slimeBody.solverIndices[_slimeBubbles[b].Item2]] - _centerOfMass;
+            pos *= 0.9f;
+            // pos = math.lerp(oldPos, pos, 12f * Time.deltaTime);
+            _slimeBubbles[b].Item1.position = _centerOfMass + pos;
         }
 
         var _pad = Gamepad.current;

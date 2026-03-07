@@ -250,7 +250,7 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1534035}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &55546533
+--- !u!1 &122838018
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -258,8 +258,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 55546535}
-  - component: {fileID: 55546534}
+  - component: {fileID: 122838020}
+  - component: {fileID: 122838019}
   m_Layer: 0
   m_Name: BurstCollisionWorld
   m_TagString: Untagged
@@ -267,13 +267,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &55546534
+--- !u!114 &122838019
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 55546533}
+  m_GameObject: {fileID: 122838018}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f1a161c4294214a4fbcb7e9e94800494, type: 3}
@@ -281,13 +281,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Obi::Obi.BurstColliderWorld
   cellSpans:
     m_AlignBytes: 16
---- !u!4 &55546535
+--- !u!4 &122838020
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 55546533}
+  m_GameObject: {fileID: 122838018}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -588,7 +588,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.09013611, g: 0.020914912, b: 0.09433961, a: 0}
+  m_BackGroundColor: {r: 0.27059832, g: 0.16905482, b: 0.2735849, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1188,8 +1188,8 @@ MonoBehaviour:
   useCullingMasks: 1
   _camera: {fileID: 330585545}
   _slimeBody: {fileID: 556703303}
-  _slimeBubblePrefab: {fileID: 4036349849146621207}
-  _numBubbles: 7
+  _slimeBubblePrefab: {fileID: 4520658967367547333, guid: 13dcf0c5bf7b57e48aeff3cf1063d805, type: 3}
+  _numBubbles: 17
   _slimeMaterial: {fileID: 2100000, guid: 4c4e290db6bc2494eabe9847eaeb06eb, type: 2}
   _minStickiness: 0.1
   _maxStickiness: 8
@@ -1634,16 +1634,15 @@ PrefabInstance:
       propertyPath: m_Name
       value: SlimeBubble
       objectReference: {fileID: 0}
+    - target: {fileID: 4520658967367547333, guid: 13dcf0c5bf7b57e48aeff3cf1063d805, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 13dcf0c5bf7b57e48aeff3cf1063d805, type: 3}
---- !u!1 &4036349849146621207 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4520658967367547333, guid: 13dcf0c5bf7b57e48aeff3cf1063d805, type: 3}
-  m_PrefabInstance: {fileID: 4036349849146621206}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -1654,4 +1653,4 @@ SceneRoots:
   - {fileID: 1211035616}
   - {fileID: 180007290}
   - {fileID: 4036349849146621206}
-  - {fileID: 55546535}
+  - {fileID: 122838020}

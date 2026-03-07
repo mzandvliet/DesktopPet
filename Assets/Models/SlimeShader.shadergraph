@@ -4155,7 +4155,7 @@
     "m_ObjectId": "4aad17b7f1344dbc917519c24d4770e1",
     "m_WorkflowMode": 1,
     "m_NormalDropOffSpace": 0,
-    "m_ClearCoat": false,
+    "m_ClearCoat": true,
     "m_BlendModePreserveSpecular": true
 }
 
@@ -4391,7 +4391,7 @@
     "m_ObjectId": "5527c744828f4af097c600b7b7cbbf01",
     "m_Title": "Body Color",
     "m_Position": {
-        "x": -1994.0,
+        "x": -1993.9998779296875,
         "y": 1147.0
     }
 }
@@ -5059,8 +5059,8 @@
     "m_ObjectId": "6b85b7c0bc574992a9714c27420dcb2e",
     "m_Title": "Composite using Premultipled Alpha and Over",
     "m_Position": {
-        "x": -755.0,
-        "y": -1103.0
+        "x": -754.9999389648438,
+        "y": -1102.9998779296875
     }
 }
 
@@ -6087,8 +6087,8 @@
     "m_ObjectId": "868a9e12b61d46c1994a0139f4a69dea",
     "m_Title": "Sample SDF Face",
     "m_Position": {
-        "x": -1903.0,
-        "y": -1174.0
+        "x": -1902.9996337890625,
+        "y": -1173.9998779296875
     }
 }
 
@@ -8115,7 +8115,7 @@
     "m_Hidden": false,
     "m_ShaderOutputName": "CoatMask",
     "m_StageCapability": 2,
-    "m_Value": 0.7599999904632568,
+    "m_Value": 1.0,
     "m_DefaultValue": 0.0,
     "m_Labels": [],
     "m_LiteralMode": false
