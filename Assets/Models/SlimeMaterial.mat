@@ -113,7 +113,7 @@ Material:
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _Blink: 1
-    - _BodySmoothness: 0.81
+    - _BodySmoothness: 0.39
     - _BumpScale: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
@@ -148,8 +148,12 @@ Material:
     - _XRMotionVectorsPass: 1
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0.5755544, g: 1, b: 0.36470592, a: 0.7372549}
+    - _BaseColor: {r: 0.64739203, g: 1, b: 0.36470592, a: 1}
+    - _CenterOfMass: {r: 3.5413709, g: -6.7334237, b: -0.79021716, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color0: {r: 0.21176472, g: 0.18823531, b: 0.18823531, a: 1}
+    - _Color1: {r: 0.74509805, g: 0.7843138, b: 0.7254902, a: 1}
+    - _Color2: {r: 0.40000004, g: 0.49411768, b: 0.22352943, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _InnerColor: {r: 0.9056891, g: 1, b: 0.8632076, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}

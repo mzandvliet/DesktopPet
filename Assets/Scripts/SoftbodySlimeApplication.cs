@@ -322,6 +322,7 @@ public class SoftbodySlimeApplication : ImmediateModeShapeDrawer
         _faceAnchorRotation = Quaternion.Slerp(_faceAnchorRotation, faceAnchorRotation, Time.time * 3f);
         _faceAnchor = Matrix4x4.TRS(com, _faceAnchorRotation, Vector3.one);
         _slimeMaterial.SetMatrix("_FaceAnchor", _faceAnchor.inverse);
+        _slimeMaterial.SetVector("_CenterOfMass", (Vector4)com);
 
         if (Time.timeAsDouble >= _lastBlinkTime + _blinkDuration)
         {
