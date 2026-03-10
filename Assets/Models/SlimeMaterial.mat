@@ -61,6 +61,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _FaceAtlas:
+        m_Texture: {fileID: 2800000, guid: a854c31e8239ee2469113dd437ef1ee4, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _FaceTexture:
         m_Texture: {fileID: 2800000, guid: 7ccdca0dd5614ab4594ef14882d36824, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -126,7 +130,9 @@ Material:
     - _DstBlendAlpha: 0
     - _Emission: 0.05
     - _EnvironmentReflections: 1
+    - _EyeId: 0
     - _EyeRadius: 0.07
+    - _EyeScale: 0.25
     - _FaceScale: 0.34
     - _FadePow: 9.2
     - _GlossMapScale: 0
@@ -148,13 +154,14 @@ Material:
     - _XRMotionVectorsPass: 1
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 0.64739203, g: 1, b: 0.36470592, a: 1}
-    - _CenterOfMass: {r: 3.5413709, g: -6.7334237, b: -0.79021716, a: 0}
+    - _BaseColor: {r: 0.647392, g: 1, b: 0.3647058, a: 0.5803922}
+    - _CenterOfMass: {r: 3.5001245, g: -6.918154, b: -1.3223171, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Color0: {r: 0.21176472, g: 0.18823531, b: 0.18823531, a: 1}
     - _Color1: {r: 0.74509805, g: 0.7843138, b: 0.7254902, a: 1}
     - _Color2: {r: 0.40000004, g: 0.49411768, b: 0.22352943, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _EyePos: {r: 0.04, g: 0, b: 0, a: 0}
     - _InnerColor: {r: 0.9056891, g: 1, b: 0.8632076, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []

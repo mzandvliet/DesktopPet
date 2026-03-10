@@ -318,9 +318,14 @@ public class SoftbodySlimeApplication : ImmediateModeShapeDrawer
         }
 
         var _pad = Gamepad.current;
+        float2 moveInput = new float2();
+        if (_pad != null)
+        {
+            moveInput = _pad.leftStick.value;
+        }
 
         var com = CalculateCenterOfMass(_slimeBody);
-        var faceAnchorRotation = Quaternion.Euler(_pad.leftStick.value.y * 33f, _pad.leftStick.value.x * -45f, 0f); // _camera.transform.rotation
+        var faceAnchorRotation = Quaternion.Euler(moveInput.y * 33f, moveInput.x * -45f, 0f); // _camera.transform.rotation
         _faceAnchorRotation = Quaternion.Slerp(_faceAnchorRotation, faceAnchorRotation, Time.time * 3f);
         _faceAnchor = Matrix4x4.TRS(com, _faceAnchorRotation, Vector3.one);
         _slimeMaterial.SetMatrix("_FaceAnchor", _faceAnchor.inverse);
