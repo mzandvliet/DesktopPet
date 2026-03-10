@@ -3130,7 +3130,7 @@
     "m_ObjectId": "28bbb16110f64e799854f7d8f893e072",
     "m_Title": "Face UV Map Calculation",
     "m_Position": {
-        "x": -109.0,
+        "x": -108.99999237060547,
         "y": -1962.0
     }
 }
@@ -5672,7 +5672,7 @@
     "m_ObjectId": "6b85b7c0bc574992a9714c27420dcb2e",
     "m_Title": "Composite using Premultipled Alpha and Over",
     "m_Position": {
-        "x": -755.0,
+        "x": -755.0000610351563,
         "y": -1103.0
     }
 }
@@ -8038,7 +8038,7 @@
     "m_ObjectId": "aaf290c485614637a232a6a50b28c7c4",
     "m_Title": "Base Color",
     "m_Position": {
-        "x": -5323.0,
+        "x": -5322.99951171875,
         "y": 687.0
     }
 }
@@ -9096,7 +9096,7 @@
     "m_RefNameGeneratedByDisplayName": "VertexRestPositions",
     "m_DefaultReferenceName": "_VertexRestPositions",
     "m_OverrideReferenceName": "",
-    "m_GeneratePropertyBlock": false,
+    "m_GeneratePropertyBlock": true,
     "m_UseCustomSlotLabel": false,
     "m_CustomSlotLabel": "",
     "m_DismissedVersion": 0,

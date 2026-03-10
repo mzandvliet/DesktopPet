@@ -87,7 +87,7 @@ void RenderMouth(float2 uv, float2 mouthPos, inout float4 color) {
     Transform uv into mouth-coordinate space
     */
 
-    float2 mouthScale = float2(0.1, 0.1);
+    float2 mouthScale = float2(0.2, 0.2);
     uv -= mouthPos;
     uv /= mouthScale;
     
@@ -115,8 +115,8 @@ void RenderFace_float(float2 uv, float2 facePos, float2 eyeRadius, float blink, 
     RenderMouth(uv, facePos + float2(0, -0.025), outColor);
 
     const float3 blushColor = float3(0.9, 0.42, 0.65);
-    RenderCircle(uv, facePos + float2(-0.3, +0.05), eyeRadius * 0.5, blushColor, outColor);
-    RenderCircle(uv, facePos + float2(+0.3, +0.05), eyeRadius * 0.5, blushColor, outColor);
+    RenderCircle(uv, facePos + float2(-0.3, +0.05), eyeRadius * 0.75, blushColor, outColor);
+    RenderCircle(uv, facePos + float2(+0.3, +0.05), eyeRadius * 0.75, blushColor, outColor);
 }
 
 #endif
