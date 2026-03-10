@@ -84,16 +84,23 @@ void RenderCircle(float2 uv, float2 pos, float radius, float3 color, inout float
 
 void RenderMouth(float2 uv, float2 mouthPos, inout float4 color) {
     /*
-    Todo: transform uv and/or mouthPos into coords relative to the function
-
-    Like, do it properly, understand the space, don't just guess
+    Transform uv into mouth-coordinate space
     */
 
+    float2 mouthScale = float2(0.1, 0.1);
     uv -= mouthPos;
+    uv /= mouthScale;
+    
+    /*
+    Add some animation to local width and height
+    */
     float talkSpeed = 2;
-    uv *= float2(8 + 2 * sin(_Time[3] * 1.37 * talkSpeed), 16 + 4 * sin(_Time[3] * 1.735 * talkSpeed));
+    float2 halfSize = float2(
+        0.5 + 0.1 * sin(_Time[3] * 1.37 * talkSpeed),
+        0.25 + 0.1 * sin(_Time[3] * 1.735 * talkSpeed)
+    );
 
-    float mouthDist = sdRoundedBox(uv, mouthPos, float4(0.2, 0.4, 0.2, 0.4));
+    float mouthDist = sdRoundedBox(uv, halfSize, float4(0.2, 0.4, 0.2, 0.4));
     float mouthAlpha = SDFtoAlpha(mouthDist, 0.0025 * 8);
 
     float4 mouthColor = float4(float3(0,0,0) * mouthAlpha, mouthAlpha);
@@ -105,7 +112,7 @@ void RenderFace_float(float2 uv, float2 facePos, float2 eyeRadius, float blink, 
 
     RenderSingleEye(uv, facePos + float2(-0.2, +0.2), eyeRadius, blink, outColor);
     RenderSingleEye(uv, facePos + float2(+0.2, +0.2), eyeRadius, blink, outColor);
-    RenderMouth(uv, facePos + float2(0, 0.05), outColor);
+    RenderMouth(uv, facePos + float2(0, -0.025), outColor);
 
     const float3 blushColor = float3(0.9, 0.42, 0.65);
     RenderCircle(uv, facePos + float2(-0.3, +0.05), eyeRadius * 0.5, blushColor, outColor);
