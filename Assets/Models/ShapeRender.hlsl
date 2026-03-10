@@ -4,12 +4,12 @@
 
 void ToEyeUV_float(float2 faceUv, float2 eyeId, float2 eyePos, float eyeScale, out float2 atlasUv) {
     float id = floor(eyeId);
-    float atlasX = fmod(id, 8.0);
-    float atlasY = id / 8.0;
+    float atlasX = fmod(id, 8.0) / 8.0;
+    float atlasY = id / 8.0 / 8.0;
     float2 atlasUvBase = float2(atlasX, atlasY);
 
     float2 eyeUv = (faceUv - eyePos) / eyeScale;
-    eyeUv = saturate(eyeUv + float2(0.5, 0.5));
+    eyeUv = clamp(eyeUv + float2(0.5, 0.5), float2(0,0), float2(1,1));
     eyeUv /= 8.0;
 
     atlasUv = atlasUvBase + eyeUv;
