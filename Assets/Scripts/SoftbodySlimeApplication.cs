@@ -16,6 +16,7 @@ public class SoftbodySlimeApplication : ImmediateModeShapeDrawer
     [SerializeField] private int _numBubbles = 7;
 
     [SerializeField] private Material _slimeMaterial;
+    [SerializeField] private int _maxEyeId = 5;
 
     [SerializeField] private float _minStickiness = 0.1f;
     [SerializeField] private float _maxStickiness = 8f;
@@ -306,6 +307,7 @@ public class SoftbodySlimeApplication : ImmediateModeShapeDrawer
     }
 
     private Quaternion _faceAnchorRotation = Quaternion.identity;
+    private int _eyeId = 0;
     private void LateUpdate()
     {
         for (int b = 0; b < _slimeBubbles.Count; b++)
@@ -322,6 +324,12 @@ public class SoftbodySlimeApplication : ImmediateModeShapeDrawer
         if (_pad != null)
         {
             moveInput = _pad.leftStick.value;
+
+            if (_pad.buttonEast.wasPressedThisFrame)
+            {
+                _eyeId = (_eyeId + 1) % _maxEyeId;
+                _slimeMaterial.SetFloat("_EyeId", _eyeId);
+            }
         }
 
         var com = CalculateCenterOfMass(_slimeBody);

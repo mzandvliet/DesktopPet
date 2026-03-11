@@ -3,14 +3,40 @@
 #define SHAPE_RENDER_INCLUDED
 
 void ToEyeUV_float(float2 faceUv, float2 eyeId, float2 eyePos, float eyeScale, out float2 atlasUv) {
-    float id = floor(eyeId);
-    float atlasX = fmod(id, 8.0) / 8.0;
-    float atlasY = id / 8.0 / 8.0;
-    float2 atlasUvBase = float2(atlasX, atlasY);
+    /*
+    Todo:
+    - Figure out more effective UV clamping in atlas space
 
+    right now the atlas texture graphics need a wide safety margin otherwise content
+    bleeds out of their cells
+    */
+
+    const int atlasCount = 8; // how many cells in the atlas, in x and y
+
+    eyeScale *= (1.0 + sin(_Time[3] * 11.37) * 0.025); // little bit of eye jitter
+
+    /*
+    Map eye ID to atlas cell coordinate
+    */
+    int id = floor(eyeId);
+    int atlasX = id % atlasCount;
+    int atlasY = id / atlasCount;
+    // float atlasX = 4 ; // works
+    // float atlasY = 0 ; // works
+    float2 atlasUvBase = float2(atlasX, atlasY) / (float)atlasCount;
+
+    /*
+    Map the given faceUV (in [-1, +1] format)
+    */
     float2 eyeUv = (faceUv - eyePos) / eyeScale;
-    eyeUv = clamp(eyeUv + float2(0.5, 0.5), float2(0,0), float2(1,1));
-    eyeUv /= 8.0;
+    eyeUv.x *= sign(eyePos.x); // mirror uv horizontally
+
+    /*
+    Map to eyeUV and eyeAtlasUV
+    */
+    const float margin = float2(0.01, 0.01);
+    eyeUv = clamp(eyeUv + float2(0.5, 0.5), margin, float2(1,1) - margin);
+    eyeUv /= atlasCount;
 
     atlasUv = atlasUvBase + eyeUv;
 }
