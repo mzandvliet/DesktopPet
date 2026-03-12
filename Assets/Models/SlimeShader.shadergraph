@@ -2899,8 +2899,8 @@
     "m_ObjectId": "28bbb16110f64e799854f7d8f893e072",
     "m_Title": "Face UV Map Calculation",
     "m_Position": {
-        "x": -108.99995422363281,
-        "y": -1962.0001220703125
+        "x": -109.0,
+        "y": -1962.0
     }
 }
 
@@ -8760,7 +8760,7 @@
     "m_RefNameGeneratedByDisplayName": "EyeId",
     "m_DefaultReferenceName": "_EyeId",
     "m_OverrideReferenceName": "",
-    "m_GeneratePropertyBlock": false,
+    "m_GeneratePropertyBlock": true,
     "m_UseCustomSlotLabel": false,
     "m_CustomSlotLabel": "",
     "m_DismissedVersion": 0,
@@ -9047,7 +9047,7 @@
     "m_ObjectId": "da28fc017fed48d1abd2f84d57145029",
     "m_Title": "Render face from texture atlas",
     "m_Position": {
-        "x": -3659.999755859375,
+        "x": -3660.0,
         "y": -2741.0
     }
 }

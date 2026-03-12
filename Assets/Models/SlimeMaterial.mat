@@ -130,10 +130,10 @@ Material:
     - _DstBlendAlpha: 0
     - _Emission: 0.05
     - _EnvironmentReflections: 1
-    - _EyeId: 3
+    - _EyeId: 1
     - _EyeRadius: 0.07
     - _EyeScale: 0.36
-    - _FaceScale: 0.34
+    - _FaceScale: 0.66
     - _FadePow: 9.2
     - _GlossMapScale: 0
     - _Glossiness: 0

@@ -188,5 +188,7 @@ MonoBehaviour:
   _slimeBubblePrefab: {fileID: 4520658967367547333, guid: 13dcf0c5bf7b57e48aeff3cf1063d805, type: 3}
   _numBubbles: 7
   _maxEyeId: 5
+  _minDeformationResistance: 0.4
+  _maxDeformationResistance: 0.6
   _minStickiness: 0.1
-  _maxStickiness: 8
+  _maxStickiness: 1

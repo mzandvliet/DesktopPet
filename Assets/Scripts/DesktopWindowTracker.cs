@@ -69,7 +69,7 @@ public class DesktopWindowTracker : MonoBehaviour
 
     private ObiCollider MakeCollider(RECT screenRect)
     {
-        var taskbarRectWorld = DesktopHook.ScreenToWorld(screenRect);
+        var taskbarRectWorld = Desktop.ScreenToWorld(screenRect);
         var obj = new GameObject("TaskbarCollider");
         var boxCol = obj.AddComponent<BoxCollider>();
         var obiCol = obj.AddComponent<ObiCollider>();

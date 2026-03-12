@@ -123,12 +123,12 @@ public class DesktopHook : ImmediateModeShapeDrawer
         Application.targetFrameRate = FramerateActive;
         Application.runInBackground = true;
 
-        var middleScreenPos = ScreenToWorld(new Vector3(Screen.currentResolution.width / 2f, Screen.currentResolution.height / 2f, 0f));
+        var middleScreenPos = Desktop.ScreenToWorld(new Vector3(Screen.currentResolution.width / 2f, Screen.currentResolution.height / 2f, 0f));
 
         _camera = gameObject.GetComponent<Camera>();
         _camera.transform.position = middleScreenPos;
         _camera.transform.position += new Vector3(0,0, -25);
-        _camera.orthographicSize = Screen.currentResolution.height / 2f / PIXELS_PER_UNIT;
+        _camera.orthographicSize = Screen.currentResolution.height / 2f / Desktop.PIXELS_PER_UNIT;
 
         _characters = new List<Slime>();
 
@@ -177,6 +177,22 @@ public class DesktopHook : ImmediateModeShapeDrawer
         {
             Debug.Log("Error: Failed to initialize Desktop Icon Monitor...");
         }
+    }
+
+    public override void OnEnable()
+    {
+        base.OnEnable();
+
+        _solver.OnSpatialQueryResults += Solver_OnSpatialQueryResults;
+        _solver.OnSimulationStart += Solver_OnSimulate;
+    }
+
+    public override void OnDisable()
+    {
+        base.OnDisable();
+
+        _solver.OnSpatialQueryResults -= Solver_OnSpatialQueryResults;
+        _solver.OnSimulationStart -= Solver_OnSimulate;
     }
 
     private void OnDestroy()
@@ -261,8 +277,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
         or on any other part of the Windows Desktop that we should know about */
 
         // mouse, screen to unity coordinates
-        var mousePosUnity = mousePosWin;
-        mousePosUnity.y = Screen.height - mousePosUnity.y;
+        var mousePosUnity = Desktop.ScreenToWorld(mousePosWin);
 
         var mouseScreenPoint = new Vector3(mousePosUnity.x, mousePosUnity.y, 0.01f);
         var mouseRay = _camera.ScreenPointToRay(mouseScreenPoint);
@@ -279,6 +294,8 @@ public class DesktopHook : ImmediateModeShapeDrawer
             var freeFloatingMouseScreenPoint = new Vector3(mousePosUnity.x, mousePosUnity.y, -_camera.transform.position.z);
             mousePosWorld = _camera.ScreenToWorldPoint(freeFloatingMouseScreenPoint);
         }
+
+        UpdatePhysicsInteraction();
 
         // var mouseVelocityWorld = mousePosWorld - _lastMousePosWorld;
         // _lastMousePosWorld = mousePosWorld;
@@ -400,7 +417,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
         }
     }
 
-    private void HandleClick(Vector2Int mousePosWin, Vector2Int mousePosUnity)
+    private void HandleClick(Vector2Int mousePosWin, Vector3 mousePosUnity)
     {
         // Debug.Log("Handle click");
 
@@ -426,27 +443,16 @@ public class DesktopHook : ImmediateModeShapeDrawer
         if (Physics.Raycast(ray, out RaycastHit hitInfo, _maxRaycastDistance, _interactableLayers))
         {
             // We clicked into our world
+            Debug.Log("Hit other geometry");
+            clickedSolidGeometry = true;
+    }
 
-            // Debug.Log("Hit world");
-
-            // Did we click a character?
-            var parent = hitInfo.collider.transform.parent;
-            var character = parent != null ? parent.GetComponent<Character>() : null;
-            bool clickedCharacter = character != null;
-
-            if (clickedCharacter)
-            {
-                // SetWindowZOrder(ZWindowOrder.Front);
-                Debug.Log("Hit character");
-                character.OnClicked();
-                return;
-            }
-            
-            else
-            {
-                Debug.Log("Hit other geometry");
-                clickedSolidGeometry = true;
-            }
+        bool obiRayHitSomething = _obiRayResult.simplexIndex >= 0;
+        if (obiRayHitSomething)
+        {
+            Debug.Log("Hit character?");
+            // character.OnClicked();
+            return;
         }
 
         if (clickedSolidGeometry)
@@ -470,6 +476,79 @@ public class DesktopHook : ImmediateModeShapeDrawer
     }
 
     private const float FoodSpawnDelay = 0.5f;
+
+    #region Physics Interaction
+
+    // Todo: put in separate class
+
+    int _filter;
+    int queryIndex;
+
+    Ray _ray;
+    QueryResult _obiRayResult = new QueryResult { distanceAlongRay = float.MaxValue, simplexIndex = -1, queryIndex = -1 };
+    QueryResult _obiDragResult = new QueryResult { distanceAlongRay = float.MaxValue, simplexIndex = -1, queryIndex = -1 };
+
+    private void UpdatePhysicsInteraction()
+    {
+        /*
+        Drag softbodies by mouse cursor
+        */
+
+        if (SystemInput.GetMouseButtonDown(0))
+        {
+            if (_obiRayResult.simplexIndex >= 0)
+            {
+                _obiDragResult = _obiRayResult;
+            }
+        }
+        if (SystemInput.GetMouseButtonUp(0))
+        {
+            _obiDragResult = new QueryResult { distanceAlongRay = float.MaxValue, simplexIndex = -1, queryIndex = -1 };
+        }
+    }
+
+    private void Solver_OnSimulate(ObiSolver s, float simulatedTime, float substepTime)
+    {
+        _filter = ObiUtils.MakeFilter(ObiUtils.CollideWithEverything, 0); // Todo: on startup
+
+        var mousePosWin = SystemInput.GetCursorPosition();
+        var mousePosUnity = mousePosWin;
+        mousePosUnity.y = Screen.height - mousePosUnity.y;
+
+        // perform a raycast, check if it hit anything:
+        _ray = _camera.ScreenPointToRay(new Vector3(mousePosUnity.x, mousePosUnity.y, 0.01f));
+        queryIndex = _solver.EnqueueRaycast(_ray, _filter, 100);
+
+        if (_obiDragResult.simplexIndex >= 0 && _solver.simplices.count > 0)
+        {
+            int particleIndex = _solver.simplices[_obiDragResult.simplexIndex]; // index of the particle in the actor
+
+            // var particleActor = _solver.particleToActor[particleIndex];
+            // if (particleActor == null || particleActor.actor != _characters[0]) // Todo: support multiple slimes
+            // {
+            //     return;
+            // }
+
+            var dragPos = _camera.ScreenToWorldPoint(new Vector3(mousePosUnity.x, mousePosUnity.y, -_camera.transform.position.z));
+            _solver.positions[particleIndex] = math.lerp(_solver.positions[particleIndex], new float4(dragPos, 0), 32f * Time.fixedDeltaTime);
+        }
+    }
+
+    private void Solver_OnSpatialQueryResults(ObiSolver s, ObiNativeQueryResultList queryResults)
+    {
+        _obiRayResult = new QueryResult { distanceAlongRay = float.MaxValue, simplexIndex = -1, queryIndex = -1 };
+        for (int i = 0; i < queryResults.count; ++i)
+        {
+            // get the first result along the ray. That is, the one with the smallest distanceAlongRay:
+            if (queryResults[i].queryIndex == queryIndex &&
+                queryResults[i].distanceAlongRay < _obiRayResult.distanceAlongRay)
+            {
+                _obiRayResult = queryResults[i];
+            }
+        }
+    }
+
+    #endregion
 
     private void OnGUI()
     {
@@ -670,6 +749,12 @@ public class DesktopHook : ImmediateModeShapeDrawer
         Vector2 unityScreenPos = new Vector2(screenX, Screen.height - screenY);
 
         // Todo: UI Hittesting
+
+        bool obiRayHitSomething = _obiRayResult.simplexIndex >= 0;
+        if (obiRayHitSomething)
+        {
+            return true;
+        }
 
         Ray ray = _camera.ScreenPointToRay(unityScreenPos);
         if (Physics.Raycast(ray, out RaycastHit hit, _maxRaycastDistance, _interactableLayers))
@@ -916,8 +1001,12 @@ public class DesktopHook : ImmediateModeShapeDrawer
         }
     }
 
+    #region Debug Drawing
+
     public override void DrawShapes(Camera cam)
     {
+        DrawPhysics(cam);
+
         if (!_showDebug)
         {
             return;
@@ -928,16 +1017,55 @@ public class DesktopHook : ImmediateModeShapeDrawer
             /*
             Draw visible windows
             */
-            Draw.Color = Color.mediumOrchid;
+            Color c = Color.mediumOrchid;
+            c.a = 0.1f;
+            Draw.Color = c;
             for (int w = 0; w < _windowTracker.VisibleWindows.Count; w++)
             {
                 var window = _windowTracker.VisibleWindows[w];
-                var rect = ScreenToWorld(window.Rect);
+                var rect = Desktop.ScreenToWorld(window.Rect);
                 Draw.Rectangle(rect);
             }
         }
 
         // DrawDesktopIcons(cam);
+    }
+
+    private void DrawPhysics(Camera cam)
+    {
+        var mousePosWin = SystemInput.GetCursorPosition();
+        var mousePosUnity = mousePosWin;
+        mousePosUnity.y = Screen.height - mousePosUnity.y;
+
+        using (Draw.Command(cam)) // UnityEngine.Rendering.Universal.RenderPassEvent
+        {
+            Draw.ThicknessSpace = ThicknessSpace.Pixels;
+            Draw.RadiusSpace = ThicknessSpace.Pixels;
+            Draw.Thickness = 1f;
+            Draw.BlendMode = ShapesBlendMode.Opaque;
+
+            bool rayHitSomething = _obiRayResult.simplexIndex >= 0;
+            bool draggingSomething = _obiDragResult.simplexIndex >= 0;
+
+            Draw.Color = draggingSomething ? Color.orange : (rayHitSomething ? Color.greenYellow : Color.grey);
+            Draw.Line(_ray.origin, _ray.origin + _ray.direction * 100f);
+
+            if (rayHitSomething)
+            {
+                Draw.Sphere(_obiRayResult.queryPoint, 6f);
+            }
+
+            if (draggingSomething && _solver.simplices.count > 0)
+            {
+                int particleIndex = _solver.simplices[_obiDragResult.simplexIndex]; // index of the particle in the actor
+
+                var dragPos = _camera.ScreenToWorldPoint(new Vector3(mousePosUnity.x, mousePosUnity.y, -_camera.transform.position.z));
+                var particlePos = _solver.prevPositions[particleIndex];
+
+                Draw.Line(dragPos, particlePos);
+                Draw.Sphere(particlePos, 6f);
+            }
+        }
     }
 
     private void DrawDesktopIcons(Camera cam)
@@ -1028,6 +1156,8 @@ public class DesktopHook : ImmediateModeShapeDrawer
         }
     }
 
+    #endregion
+
     public enum AppWindowMode
     {
         None,
@@ -1063,56 +1193,5 @@ public class DesktopHook : ImmediateModeShapeDrawer
             }
         }
         return (DesktopIconSize)closestIdx;
-    }
-
-    public const float DPI = 96f;
-    public const float CM_PER_INCH = 2.54f;
-    public const float PIXELS_PER_CM = DPI / CM_PER_INCH; // ≈ 37.8 DPCM
-    public const float PIXELS_PER_UNIT = (PIXELS_PER_CM * 100) / 16;
-
-    static int GetTotalScreenHeight()
-    {
-        // For single monitor:
-        return Screen.currentResolution.height;
-
-        // Todo: For multiple monitors
-        // return monitors.Max(m => m.Bottom) - monitors.Min(m => m.Top);
-    }
-
-    public static Vector3 WorldToScreen(Vector3 worldPos)
-    {
-        float screenX = worldPos.x * PIXELS_PER_UNIT;
-        float screenY = GetTotalScreenHeight() - (worldPos.y * PIXELS_PER_UNIT);
-        return new Vector3(screenX, screenY, worldPos.z);
-    }
-
-    public static Vector3 ScreenToWorld(Vector3 screenPos)
-    {
-        float worldX = screenPos.x / PIXELS_PER_UNIT;
-        float worldY = (GetTotalScreenHeight() - screenPos.y) / PIXELS_PER_UNIT;
-        return new Vector3(worldX, worldY, screenPos.z);
-    }
-
-    public static Rect ScreenToWorld(RECT screenRect)
-    {
-        /*
-        Notes:
-
-        Window RECT is specified with:
-        y=0 is top
-        x,y is top-left corner
-
-        Unity Rect is specified with
-        y=0 is bottom
-        x,y is bottom-left corner
-        */
-        var rect = new Rect(
-            screenRect.X / PIXELS_PER_UNIT,
-            (GetTotalScreenHeight() - screenRect.Y - screenRect.Height) / PIXELS_PER_UNIT,
-            screenRect.Width / PIXELS_PER_UNIT,
-            screenRect.Height / PIXELS_PER_UNIT
-        );
-
-        return rect;
     }
 }
