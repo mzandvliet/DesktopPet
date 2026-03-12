@@ -27,13 +27,8 @@ public class Slime : ImmediateModeShapeDrawer
     [SerializeField] private LayerMask _characterMask;
     [SerializeField] private LayerMask _foodMask;
 
-    [SerializeField] private Transform _body;
-    [SerializeField] private Transform _head;
-    [SerializeField] private Animator _animator;
-    [SerializeField] private SlimeFaceRenderer _face;
 
     [SerializeField] private float _charMoveSpeed = 14f;
-    [SerializeField] private AnimationCurve _hopSpeedCurve;
 
     private Transform _transform;
 
@@ -46,9 +41,6 @@ public class Slime : ImmediateModeShapeDrawer
 
     private double _lastBlinkTime = -1;
     private float _blinkDuration = 3;
-
-    private SlimeFaceRenderer.MouthShape _mouthShape;
-    private SlimeFaceRenderer.MouthShape _eyebrowShape;
 
     private Vector3 _mouseCursorWorld = new Vector3(0, 0, -1);
 
@@ -81,9 +73,7 @@ public class Slime : ImmediateModeShapeDrawer
         _rng = new Rng(1234);
         _transform = gameObject.GetComponent<Transform>();
        
-        _mouthShape = SlimeFaceRenderer.MouthShape.RoundOpen;
-
-        _face.Blink = 1;
+        // _face.Blink = 1;
 
         _collidersNearby = new Collider[64];
 
@@ -164,15 +154,7 @@ public class Slime : ImmediateModeShapeDrawer
     void UpdateIdleState()
     {
         var lookTarget = _idleState == CharacterIdleState.LookAtCursor ? _mouseCursorWorld : _camera.transform.position;
-        _lookDirection = math.normalize(lookTarget - _head.position);
-        
-        var bodyDirection = _lookDirection;
-        bodyDirection.y *= 0.1f;
-        bodyDirection = math.normalize(bodyDirection);
-        var bodyRotation = Quaternion.LookRotation(bodyDirection);
-        _transform.rotation = Quaternion.Slerp(_transform.rotation, bodyRotation, 1f * Time.deltaTime);
-
-        _animator.SetFloat("WalkSpeed", 0f);
+        // _lookDirection = math.normalize(lookTarget - _head.position);
 
         _idleTimer += Time.deltaTime;
         if (_idleTimer > _idleDurationTime)
@@ -216,14 +198,6 @@ public class Slime : ImmediateModeShapeDrawer
         else
         {
             _target = null;
-
-            var bounds = _camera.ScreenToWorldPoint(new Vector3(0, 0, -_camera.transform.position.z));
-            bounds = math.abs(bounds);
-
-            _moveTargetLocation = new Vector3(
-                _rng.NextFloat(-0.5f * bounds.x, 0.5f * bounds.x),
-                _rng.NextFloat(-0.5f * bounds.y, 0.5f * bounds.y),
-                _rng.NextFloat(-4f, 4f));
         }
 
         var targetDir = _moveTargetLocation - _transform.position;
@@ -249,29 +223,9 @@ public class Slime : ImmediateModeShapeDrawer
             return;
         }
 
-        
-        
-
-        var bodyDirection = _moveTargetDirection;
-        bodyDirection.y *= 0.1f;
-        bodyDirection = math.normalize(bodyDirection);
-        var bodyRotation = Quaternion.LookRotation(bodyDirection);
-        _transform.rotation = Quaternion.Slerp(_transform.rotation, bodyRotation, 6f * Time.deltaTime);
 
         // move
 
-        var clipInfo = _animator.GetCurrentAnimatorClipInfo(0);
-        var stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
-        var currentSpeed = _charMoveSpeed * _hopSpeedCurve.Evaluate(math.fmod(stateInfo.normalizedTime, 1f));
-        // Debug.Log($"{stateInfo.}{stateInfo.normalizedTime}");
-
-        _transform.position += (Vector3)math.normalize(targetDelta) * (currentSpeed * Time.deltaTime);
-
-        // Todo: derive a useful notion of world-space units to pixel units to determine useful speeds? Perspective muddles this though...
-
-        _animator.SetFloat("WalkSpeed", 1f);
-
-        
     }
 
     private Quaternion _headRotationWorld = Quaternion.identity;
@@ -308,7 +262,7 @@ public class Slime : ImmediateModeShapeDrawer
         _headRotationWorld = Quaternion.Slerp(_headRotationWorld, newHeadWorldRotation, 6f * Time.deltaTime);
 
         // Apply only when requested?
-        _head.rotation = _headRotationWorld;
+        // _head.rotation = _headRotationWorld;
     }
 
     public void SetMouseCursorWorld(Vector3 cursorWorld)
@@ -334,7 +288,7 @@ public class Slime : ImmediateModeShapeDrawer
             Draw.Line(_transform.position, _moveTargetLocation, Color.black);
             Draw.Sphere(_moveTargetLocation, 0.2f, Color.black);
 
-            Draw.Line(_head.position, _mouseCursorWorld, Color.greenYellow);
+            // Draw.Line(_head.position, _mouseCursorWorld, Color.greenYellow);
             Draw.Sphere(_mouseCursorWorld, 0.2f, Color.greenYellow);
         }
     }
@@ -350,13 +304,13 @@ public class Slime : ImmediateModeShapeDrawer
         {
             float blinkLerp = math.saturate(time / blinkDur);
             float scale = eyeOpenScale * (0.5f + 0.5f * math.cos(blinkLerp * math.PI2));
-            _face.Blink = scale;
+            // _face.Blink = scale;
 
             time += Time.deltaTime;
             yield return new WaitForEndOfFrame();
         }
 
-        _face.Blink = eyeOpenScale;
+        // _face.Blink = eyeOpenScale;
     }
 
 

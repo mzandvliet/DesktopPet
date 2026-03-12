@@ -4,25 +4,22 @@ using UnityEngine.InputSystem;
 using Shapes;
 using Unity.Mathematics;
 using System.Collections.Generic;
-using System.IO;
 using Rng = Unity.Mathematics.Random;
 using System.Collections;
 
-public class SoftbodySlimeApplication : ImmediateModeShapeDrawer
+public class SoftbodySlime : ImmediateModeShapeDrawer
 {
     [SerializeField] private Camera _camera;
     [SerializeField] private ObiSoftbody _slimeBody;
     [SerializeField] private GameObject _slimeBubblePrefab;
     [SerializeField] private int _numBubbles = 7;
 
-    [SerializeField] private Material _slimeMaterial;
     [SerializeField] private int _maxEyeId = 5;
 
     [SerializeField] private float _minStickiness = 0.1f;
     [SerializeField] private float _maxStickiness = 8f;
 
-    public ObiSolver solver;
-    int filter;
+    int _filter;
     int queryIndex;
     
     Ray _ray;
@@ -31,10 +28,15 @@ public class SoftbodySlimeApplication : ImmediateModeShapeDrawer
 
     private Vector3 _centerOfMass;
     private Matrix4x4 _faceAnchor;
+    private Material _slimeMaterial;
 
     private Rng _rng;
 
     private List<(Transform, int)> _slimeBubbles;
+    public ObiSolver Solver
+    {
+        get; set;
+    }
 
     private struct ContactPatch
     {
@@ -49,31 +51,50 @@ public class SoftbodySlimeApplication : ImmediateModeShapeDrawer
     private double _lastBlinkTime = -1;
     private float _blinkDuration = 3;
 
-    private void Start()
+    public Camera Camera
+    {
+        get => _camera;
+        set => _camera = value;
+    }
+
+    private void Awake()
     {
         _rng = new Rng(12345);
 
-        filter = ObiUtils.MakeFilter(ObiUtils.CollideWithEverything, 0);
+        _filter = ObiUtils.MakeFilter(ObiUtils.CollideWithEverything, 0);
+    }
 
+    public void OnSpawn()
+    {
+        /*
+        Spawn bubble meshes
+        */
         _slimeBubbles = new List<(Transform, int)>(); // Todo: render these bubbles without using game objects
         for (int b = 0; b < _numBubbles; b++)
         {
-            var solverIdx = _rng.NextInt(0, _slimeBody.solverIndices.count);
+            
+            var solverIdx = _rng.NextInt(0, _slimeBody.blueprint.particleCount); // _slimeBody.solverIndices.count
             var meshObj = GameObject.Instantiate(_slimeBubblePrefab);
-            meshObj.transform.localScale = Vector3.one * _rng.NextFloat(0.1f, 0.4f);
+            meshObj.transform.localScale = Vector3.one * _rng.NextFloat(0.02f, 0.1f);
             _slimeBubbles.Add((meshObj.transform, solverIdx));
         }
 
-        var mesh = _slimeBody.GetComponentInChildren<SkinnedMeshRenderer>()?.sharedMesh;
+        /*
+        Create data texture storing all vertex rest positions
+        */
+        var meshRenderer = _slimeBody.GetComponentInChildren<SkinnedMeshRenderer>();
+        var mesh = meshRenderer?.sharedMesh;
         if (mesh != null)
         {
+            _slimeMaterial = meshRenderer.material;
+
             var vertexPositions = new float4[mesh.vertexCount];
             for (int v = 0; v < mesh.vertexCount; v++)
             {
                 vertexPositions[v] = new float4((float3)mesh.vertices[v], 1);
             }
 
-            _vertexRestPositions = new Texture2D(_slimeBody.solverIndices.count, 1, TextureFormat.RGBAFloat, false)
+            _vertexRestPositions = new Texture2D(mesh.vertexCount, 1, TextureFormat.RGBAFloat, false)
             {
                 filterMode = FilterMode.Point
             };
@@ -81,37 +102,31 @@ public class SoftbodySlimeApplication : ImmediateModeShapeDrawer
             _vertexRestPositions.Apply();
             _slimeMaterial.SetTexture("_VertexRestPositions", _vertexRestPositions);
         }
+
+        Solver.OnSpatialQueryResults += Solver_OnSpatialQueryResults;
+        Solver.OnSimulationStart += Solver_OnSimulate;
+        Solver.OnCollision += Solver_OnCollision;
     }
 
-    public override void OnEnable()
+
+    public void OnDespawn()
     {
-        base.OnEnable();
-
-        solver.OnSpatialQueryResults += Solver_OnSpatialQueryResults;
-        solver.OnSimulationStart += Solver_OnSimulate;
-        solver.OnCollision += Solver_OnCollision;
-    }
-
-    public override void OnDisable()
-    {
-        base.OnDisable();
-
-        solver.OnSpatialQueryResults -= Solver_OnSpatialQueryResults;
-        solver.OnSimulationStart -= Solver_OnSimulate;
-        solver.OnCollision -= Solver_OnCollision;
+        Solver.OnSpatialQueryResults -= Solver_OnSpatialQueryResults;
+        Solver.OnSimulationStart -= Solver_OnSimulate;
+        Solver.OnCollision -= Solver_OnCollision;
     }
 
     private void Solver_OnSimulate(ObiSolver s, float simulatedTime, float substepTime)
     {
         // perform a raycast, check if it hit anything:
         _ray = _camera.ScreenPointToRay(new Vector3(Mouse.current.position.value.x, Mouse.current.position.value.y, 0.01f));
-        queryIndex = solver.EnqueueRaycast(_ray, filter, 100);
+        queryIndex = Solver.EnqueueRaycast(_ray, _filter, 100);
 
-        if (_dragResult.simplexIndex >= 0 && solver.simplices.count > 0) {
-            int particleIndex = solver.simplices[_dragResult.simplexIndex]; // index of the particle in the actor
+        if (_dragResult.simplexIndex >= 0 && Solver.simplices.count > 0) {
+            int particleIndex = Solver.simplices[_dragResult.simplexIndex]; // index of the particle in the actor
 
             var dragPos = _camera.ScreenToWorldPoint(new Vector3(Mouse.current.position.value.x, Mouse.current.position.value.y, -_camera.transform.position.z));
-            solver.positions[particleIndex] = math.lerp(solver.positions[particleIndex], new float4(dragPos, 0), 32f * Time.fixedDeltaTime);
+            Solver.positions[particleIndex] = math.lerp(Solver.positions[particleIndex], new float4(dragPos, 0), 32f * Time.fixedDeltaTime);
         }
 
         /*
@@ -179,9 +194,9 @@ public class SoftbodySlimeApplication : ImmediateModeShapeDrawer
                 todo:
                 - can we simplify/optimize this rejection test by caching some indices?
                 */
-                int simplexStart = solver.simplexCounts.GetSimplexStartAndSize(contact.bodyA, out _);
-                int simplexParticle = solver.simplices[simplexStart];
-                var particleActor = solver.particleToActor[simplexParticle];
+                int simplexStart = Solver.simplexCounts.GetSimplexStartAndSize(contact.bodyA, out _);
+                int simplexParticle = Solver.simplices[simplexStart];
+                var particleActor = Solver.particleToActor[simplexParticle];
                 if (particleActor == null || particleActor.actor != _slimeBody)
                 {
                     continue;
@@ -394,12 +409,12 @@ public class SoftbodySlimeApplication : ImmediateModeShapeDrawer
                 Draw.Sphere(_rayResult.queryPoint, 0.2f);
             }
 
-            if (draggingSomething && solver.simplices.count > 0)
+            if (draggingSomething && Solver.simplices.count > 0)
             {
-                int particleIndex = solver.simplices[_dragResult.simplexIndex]; // index of the particle in the actor
+                int particleIndex = Solver.simplices[_dragResult.simplexIndex]; // index of the particle in the actor
 
                 var dragPos = _camera.ScreenToWorldPoint(new Vector3(Mouse.current.position.value.x, Mouse.current.position.value.y, -_camera.transform.position.z));
-                var particlePos = solver.positions[particleIndex];
+                var particlePos = Solver.positions[particleIndex];
 
                 Draw.Line(dragPos, particlePos);
                 Draw.Sphere(particlePos, 0.2f);

@@ -6,6 +6,7 @@ using Frantic.Windows;
 using DrawBehindDesktopIcons;
 using Shapes;
 using System.Collections.Generic;
+using Obi;
 
 /*
 
@@ -37,9 +38,11 @@ ignore them in DesktopWindowTracker
 
 public class DesktopHook : ImmediateModeShapeDrawer
 {
+    [SerializeField] private GameObject _slimePrefab;
     [SerializeField] private GameObject _foodPrefab;
     [SerializeField] private ParticleSystem _foodParticles;
 
+    [SerializeField] private ObiSolver _solver;
     [SerializeField] private LayerMask _interactableLayers = -1;
     [SerializeField] private float _maxRaycastDistance = 100f;
 
@@ -103,29 +106,51 @@ public class DesktopHook : ImmediateModeShapeDrawer
             return;
         }
         _instance = this;
-        _windowTracker = gameObject.AddComponent<DesktopWindowTracker>();
-        _iconMonitor = new DesktopIconMonitor();
-
-        _camera = gameObject.GetComponent<Camera>();
-        _characters = new List<Slime>();
-        _characters.AddRange(GameObject.FindObjectsByType<Slime>(FindObjectsSortMode.None));
-
-        _text = new StringBuilder(4096);
-
-        Application.targetFrameRate = FramerateActive;
-        Application.runInBackground = true;
 
         System.AppDomain.CurrentDomain.UnhandledException += HandleUnhandledException;
+
+        _text = new StringBuilder(4096);
 
         /*
         Get handle to our application window
         IMPORTANT: only works *before* MakeWindowOpaqueBehindIcons
         */
         _hwnd = DesktopWindowTracker.GetUnityWindowHandle();
+
+        _windowTracker = gameObject.AddComponent<DesktopWindowTracker>();
+        _iconMonitor = new DesktopIconMonitor();
+
+        Application.targetFrameRate = FramerateActive;
+        Application.runInBackground = true;
+
+        var middleScreenPos = ScreenToWorld(new Vector3(Screen.currentResolution.width / 2f, Screen.currentResolution.height / 2f, 0f));
+
+        _camera = gameObject.GetComponent<Camera>();
+        _camera.transform.position = middleScreenPos;
+        _camera.transform.position += new Vector3(0,0, -25);
+        _camera.orthographicSize = Screen.currentResolution.height / 2f / PIXELS_PER_UNIT;
+
+        _characters = new List<Slime>();
+
+        var slimePosition = middleScreenPos;
+        var slimeScale = new Vector3(1, 1, 1);
+        var slimeObj = GameObject.Instantiate(_slimePrefab, slimePosition, Quaternion.Euler(0f, -180f, 0f));
+        slimeObj.transform.localScale = slimeScale;
+        slimeObj.transform.parent = _solver.transform;
+        var slime = slimeObj.GetComponent<Slime>();
+        var slimeSoftbody = slimeObj.GetComponent<SoftbodySlime>();
+        slimeSoftbody.Camera = _camera;
+        slimeSoftbody.Solver = _solver;
+        _characters.Add(slime);
     }
 
     private void Start()
     {
+        for (int c = 0; c < _characters.Count; c++)
+        {
+            _characters[c].GetComponent<SoftbodySlime>().OnSpawn();
+        }
+
         Screen.fullScreenMode = FullScreenMode.Windowed;
         // Screen.SetResolution(3440, 1440, false);
 
@@ -259,15 +284,15 @@ public class DesktopHook : ImmediateModeShapeDrawer
         // _lastMousePosWorld = mousePosWorld;
         // _boids.SetMouseData(mouseRay, mouseVelocityWorld);
 
-        foreach (var character in _characters)
-        {
-            // Creature always perceives mouse N meters in front of them locally;
-            const float metersInFront = 3f;
-            var z = character.transform.position.z - _camera.transform.position.z - metersInFront;
-            var freeFloatingMouseScreenPoint = new Vector3(mousePosUnity.x, mousePosUnity.y, z);
-            mousePosWorld = _camera.ScreenToWorldPoint(freeFloatingMouseScreenPoint);
-            character.SetMouseCursorWorld(mousePosWorld);
-        }
+        // foreach (var character in _characters)
+        // {
+        //     // Creature always perceives mouse N meters in front of them locally;
+        //     const float metersInFront = 3f;
+        //     var z = character.transform.position.z - _camera.transform.position.z - metersInFront;
+        //     var freeFloatingMouseScreenPoint = new Vector3(mousePosUnity.x, mousePosUnity.y, z);
+        //     mousePosWorld = _camera.ScreenToWorldPoint(freeFloatingMouseScreenPoint);
+        //     character.SetMouseCursorWorld(mousePosWorld);
+        // }
 
         Vector3 foodParticlePos = mousePosWorld + (mouseHit ? mouseHitInfo.normal * 0.5f : Vector3.zero);
         _foodParticles.transform.position = foodParticlePos;
@@ -898,6 +923,16 @@ public class DesktopHook : ImmediateModeShapeDrawer
             return;
         }
 
+        using (Draw.Command(cam, UnityEngine.Rendering.Universal.RenderPassEvent.AfterRenderingOpaques))
+        {
+            
+        }
+
+        // DrawDesktopIcons(cam);
+    }
+
+    private void DrawDesktopIcons(Camera cam)
+    {
         /*
         If behind desktop icons mode
         When rendering AfterOpaques, the rendering fails, only showing when overlaying something else that is opaque. Why?
@@ -953,7 +988,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
             float scale = desktopDpi / 96f;
 
             int screenHeight = Screen.currentResolution.height;
-            
+
             Draw.Color = Color.magenta;
             Draw.Sphere(cam.ScreenToWorldPoint(new Vector3(0f, 0f, -cam.transform.position.z)), 1f);
             Draw.Sphere(cam.ScreenToWorldPoint(new Vector3(0f, Screen.currentResolution.height, -cam.transform.position.z)), 1f);
@@ -971,7 +1006,7 @@ public class DesktopHook : ImmediateModeShapeDrawer
                     -cam.transform.position.z));
 
                 Draw.Color = Color.cyan;
-                Draw.RectangleBorder(pos, new Rect(0,0, iconWidth, iconHeight), 1);
+                Draw.RectangleBorder(pos, new Rect(0, 0, iconWidth, iconHeight), 1);
 
                 var centerPos = cam.ScreenToWorldPoint(new Vector3(
                     (iconPos.x + offsetX + centerOffset.x) * scale,
@@ -1019,5 +1054,46 @@ public class DesktopHook : ImmediateModeShapeDrawer
             }
         }
         return (DesktopIconSize)closestIdx;
+    }
+
+    public const float DPI = 96f;
+    public const float CM_PER_INCH = 2.54f;
+    public const float PIXELS_PER_CM = DPI / CM_PER_INCH; // ≈ 37.8 DPCM
+    public const float PIXELS_PER_UNIT = (PIXELS_PER_CM * 100) / 8;
+
+    static int GetTotalScreenHeight()
+    {
+        // For single monitor:
+        return Screen.currentResolution.height;
+
+        // For multiple monitors
+        // return monitors.Max(m => m.Bottom) - monitors.Min(m => m.Top);
+    }
+
+    public static Vector3 WorldToScreen(Vector3 worldPos)
+    {
+        float screenX = worldPos.x * PIXELS_PER_UNIT;
+        float screenY = GetTotalScreenHeight() - (worldPos.y * PIXELS_PER_UNIT);
+        return new Vector3(screenX, screenY, worldPos.z);
+    }
+
+    public static Vector3 ScreenToWorld(Vector3 screenPos)
+    {
+        float worldX = screenPos.x / PIXELS_PER_UNIT;
+        float worldY = (GetTotalScreenHeight() - screenPos.y) / PIXELS_PER_UNIT;
+        return new Vector3(worldX, worldY, screenPos.z);
+    }
+
+    public static Rect ScreenToWorld(RECT screenRect)
+    {
+        var rect = new Rect();
+        rect.position = new Vector2(
+            screenRect.X / PIXELS_PER_UNIT,
+            (GetTotalScreenHeight() - screenRect.Y) / PIXELS_PER_UNIT
+        );
+        rect.width = screenRect.Width / PIXELS_PER_UNIT;
+        rect.height = screenRect.Height / PIXELS_PER_UNIT;
+
+        return rect;
     }
 }

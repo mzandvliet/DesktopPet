@@ -559,6 +559,11 @@ namespace DrawBehindDesktopIcons
             set { X = value.X; Y = value.Y; }
         }
 
+        public System.Drawing.Point Center
+        {
+            get { return new System.Drawing.Point(Left + Width / 2, Top - Height / 2); }
+        }
+
         public System.Drawing.Size Size
         {
             get { return new System.Drawing.Size(Width, Height); }

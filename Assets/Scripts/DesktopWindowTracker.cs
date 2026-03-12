@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using DrawBehindDesktopIcons;
 using Frantic.Windows;
+using Obi;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -41,6 +42,8 @@ public class DesktopWindowTracker : MonoBehaviour
     [SerializeField] private float _updateInterval = 0.5f; // Update twice per second
     private float _lastUpdate;
 
+    private ObiCollider _taskbarCollider;
+
     public List<WindowInfo> VisibleWindows
     {
         get => _visibleWindows;
@@ -49,6 +52,29 @@ public class DesktopWindowTracker : MonoBehaviour
     private void Start()
     {
         RefreshWindowList();
+
+        /*
+        Todo:
+        - maintain an updated list of colliders for all relevant screen elements
+        adapting their position things move in the operating system
+        */
+
+        var taskbarRectScreen = GetTaskbarRect();
+        var taskbarRectWorld = DesktopHook.ScreenToWorld(taskbarRectScreen);
+        var obj = new GameObject("TaskbarCollider");
+        var boxCol = obj.AddComponent<BoxCollider>();
+        var obiCol = obj.AddComponent<ObiCollider>();
+        obiCol.sourceCollider = boxCol;
+
+        GameObject.CreatePrimitive(PrimitiveType.Cube).transform.SetParent(obj.transform);
+
+        var objTransform = obj.GetComponent<Transform>();
+        objTransform.position = taskbarRectWorld.center;
+        objTransform.localScale = new Vector3(
+            taskbarRectWorld.width,
+            taskbarRectWorld.height,
+            10
+        );
     }
 
     private void Update()

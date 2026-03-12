@@ -1,0 +1,192 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &8063835417793792941
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 1824b737cf894124289a12fdd8d84542, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1824b737cf894124289a12fdd8d84542, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1824b737cf894124289a12fdd8d84542, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1824b737cf894124289a12fdd8d84542, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1824b737cf894124289a12fdd8d84542, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1824b737cf894124289a12fdd8d84542, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1824b737cf894124289a12fdd8d84542, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1824b737cf894124289a12fdd8d84542, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1824b737cf894124289a12fdd8d84542, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1824b737cf894124289a12fdd8d84542, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1824b737cf894124289a12fdd8d84542, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1824b737cf894124289a12fdd8d84542, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 1824b737cf894124289a12fdd8d84542, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 1824b737cf894124289a12fdd8d84542, type: 3}
+      propertyPath: m_Name
+      value: SlimeSoftbodyPrefab
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 1824b737cf894124289a12fdd8d84542, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2788943867344286557, guid: 1824b737cf894124289a12fdd8d84542, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 4c4e290db6bc2494eabe9847eaeb06eb, type: 2}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1824b737cf894124289a12fdd8d84542, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7452994348788777267}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1824b737cf894124289a12fdd8d84542, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 9041297666444673492}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1824b737cf894124289a12fdd8d84542, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2370649508671768526}
+    - targetCorrespondingSourceObject: {fileID: 8052677790429725804, guid: 1824b737cf894124289a12fdd8d84542, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8436532450752042878}
+  m_SourcePrefab: {fileID: 100100000, guid: 1824b737cf894124289a12fdd8d84542, type: 3}
+--- !u!1 &11439729982427073 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8052677790429725804, guid: 1824b737cf894124289a12fdd8d84542, type: 3}
+  m_PrefabInstance: {fileID: 8063835417793792941}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8436532450752042878
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 11439729982427073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83bf94c6a4abf4495a5a12f7f2f234ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Obi::Obi.ObiSoftbodySkinner
+  softbody: {fileID: 7452994348788777267}
+  customSkinMap: {fileID: 0}
+  radius: 0.5
+  falloff: 1
+  maxInfluences: 4
+  softbodyInfluence: 1
+  m_softbodyInfluences: []
+  <sourceMesh>k__BackingField: {fileID: 7113620311128232067, guid: 1824b737cf894124289a12fdd8d84542, type: 3}
+--- !u!1 &7145266779086731004 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 1824b737cf894124289a12fdd8d84542, type: 3}
+  m_PrefabInstance: {fileID: 8063835417793792941}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7452994348788777267
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7145266779086731004}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f34e5650326d42f48ed54336d58073d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Obi::Obi.ObiSoftbody
+  solverIndices:
+    serializedContents: 
+    m_AlignBytes: 16
+  groupID: 1
+  m_CollisionMaterial: {fileID: 11400000, guid: 77ab84d5ccec5c74b88f26e9ffa11877, type: 2}
+  m_SurfaceCollisions: 0
+  m_MassScale: 10
+  m_SoftbodyBlueprint: {fileID: 11400000, guid: 6099f6a5fbb21f94da3e33d0a660b3c4, type: 2}
+  m_SelfCollisions: 0
+  m_DirectionalCollisions: 0
+  centerBatch: -1
+  centerShape: -1
+  _shapeMatchingConstraintsEnabled: 1
+  _deformationResistance: 0.365
+  _maxDeformation: 0
+  _plasticYield: 0
+  _plasticCreep: 0
+  _plasticRecovery: 0
+--- !u!114 &9041297666444673492
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7145266779086731004}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e101f8951a336f341bf899c4116ff0c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DesktopPet::Slime
+  useCullingMasks: 0
+  _camera: {fileID: 0}
+  _characterMask:
+    serializedVersion: 2
+    m_Bits: 128
+  _foodMask:
+    serializedVersion: 2
+    m_Bits: 256
+  _charMoveSpeed: 14
+--- !u!114 &2370649508671768526
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7145266779086731004}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb9e5de299b88204e99e27668d17b274, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DesktopPet::SoftbodySlime
+  useCullingMasks: 0
+  _camera: {fileID: 0}
+  _slimeBody: {fileID: 7452994348788777267}
+  _slimeBubblePrefab: {fileID: 4520658967367547333, guid: 13dcf0c5bf7b57e48aeff3cf1063d805, type: 3}
+  _numBubbles: 7
+  _maxEyeId: 5
+  _minStickiness: 0.1
+  _maxStickiness: 8
