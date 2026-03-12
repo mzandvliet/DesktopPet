@@ -561,7 +561,7 @@ namespace DrawBehindDesktopIcons
 
         public System.Drawing.Point Center
         {
-            get { return new System.Drawing.Point(Left + Width / 2, Top - Height / 2); }
+            get { return new System.Drawing.Point(Left + Width / 2, Top + Height / 2); }
         }
 
         public System.Drawing.Size Size

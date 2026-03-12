@@ -116,6 +116,11 @@ public class SoftbodySlime : ImmediateModeShapeDrawer
         Solver.OnCollision -= Solver_OnCollision;
     }
 
+    public void StartMouseGrab()
+    {
+        
+    }
+
     private void Solver_OnSimulate(ObiSolver s, float simulatedTime, float substepTime)
     {
         // perform a raycast, check if it hit anything:
@@ -303,7 +308,7 @@ public class SoftbodySlime : ImmediateModeShapeDrawer
 
         var _pad = Gamepad.current;
         if (_pad != null) {
-            _slimeBody.deformationResistance = math.lerp(0.1f, 0.3f, _pad.rightTrigger.value);
+            _slimeBody.deformationResistance = math.lerp(0.3f, 0.6f, _pad.rightTrigger.value);
             _slimeBody.collisionMaterial.stickiness = math.lerp(_minStickiness, _maxStickiness, _pad.leftTrigger.value);
             _slimeBody.AddTorque(new Vector3(0,0, _pad.leftStick.value.x * -0.2f), ForceMode.VelocityChange);
             _slimeBody.AddForce(new Vector3(_pad.leftStick.value.x, _pad.leftStick.value.y, 0) * 0.2f, ForceMode.VelocityChange);

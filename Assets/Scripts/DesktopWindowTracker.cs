@@ -60,13 +60,22 @@ public class DesktopWindowTracker : MonoBehaviour
         */
 
         var taskbarRectScreen = GetTaskbarRect();
-        var taskbarRectWorld = DesktopHook.ScreenToWorld(taskbarRectScreen);
+        MakeCollider(taskbarRectScreen);
+
+        var fullscreenRect = new RECT(0, 0, Screen.currentResolution.width, Screen.currentResolution.height);
+        var screenCollider = MakeCollider(fullscreenRect);
+        screenCollider.Inverted = true;
+    }
+
+    private ObiCollider MakeCollider(RECT screenRect)
+    {
+        var taskbarRectWorld = DesktopHook.ScreenToWorld(screenRect);
         var obj = new GameObject("TaskbarCollider");
         var boxCol = obj.AddComponent<BoxCollider>();
         var obiCol = obj.AddComponent<ObiCollider>();
         obiCol.sourceCollider = boxCol;
 
-        GameObject.CreatePrimitive(PrimitiveType.Cube).transform.SetParent(obj.transform);
+        // GameObject.CreatePrimitive(PrimitiveType.Cube).transform.SetParent(obj.transform);
 
         var objTransform = obj.GetComponent<Transform>();
         objTransform.position = taskbarRectWorld.center;
@@ -75,6 +84,8 @@ public class DesktopWindowTracker : MonoBehaviour
             taskbarRectWorld.height,
             10
         );
+
+        return obiCol;
     }
 
     private void Update()
