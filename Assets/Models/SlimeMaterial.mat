@@ -116,7 +116,7 @@ Material:
     - _AlphaToMask: 0
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
-    - _Blink: 0.6990373
+    - _Blink: 1
     - _BodySmoothness: 0.39
     - _BumpScale: 1
     - _ClearCoatMask: 0
@@ -132,7 +132,7 @@ Material:
     - _EnvironmentReflections: 1
     - _EyeId: 3
     - _EyeRadius: 0.07
-    - _EyeScale: 0.3
+    - _EyeScale: 0.36
     - _FaceScale: 0.34
     - _FadePow: 9.2
     - _GlossMapScale: 0
@@ -155,7 +155,7 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 0.647392, g: 1, b: 0.36470577, a: 0.7176471}
-    - _CenterOfMass: {r: 0.541733, g: -6.8792, b: -2.1538308, a: 0}
+    - _CenterOfMass: {r: -5.2609234, g: -6.969748, b: 0.6012913, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Color0: {r: 0.21176472, g: 0.18823531, b: 0.18823531, a: 1}
     - _Color1: {r: 0.74509805, g: 0.7843138, b: 0.7254902, a: 1}

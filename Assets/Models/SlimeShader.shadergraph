@@ -2920,8 +2920,8 @@
     "m_ObjectId": "28bbb16110f64e799854f7d8f893e072",
     "m_Title": "Face UV Map Calculation",
     "m_Position": {
-        "x": -108.99984741210938,
-        "y": -1962.0001220703125
+        "x": -109.0,
+        "y": -1962.000244140625
     }
 }
 
@@ -3519,13 +3519,13 @@
     "m_RefNameGeneratedByDisplayName": "CenterOfMass",
     "m_DefaultReferenceName": "_CenterOfMass",
     "m_OverrideReferenceName": "",
-    "m_GeneratePropertyBlock": true,
+    "m_GeneratePropertyBlock": false,
     "m_UseCustomSlotLabel": false,
     "m_CustomSlotLabel": "",
     "m_DismissedVersion": 0,
     "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "overrideHLSLDeclaration": true,
+    "hlslDeclarationOverride": 2,
     "m_Hidden": false,
     "m_PerRendererData": false,
     "m_customAttributes": [],
@@ -5202,8 +5202,8 @@
     "m_ObjectId": "6b85b7c0bc574992a9714c27420dcb2e",
     "m_Title": "Use face alpha to blend other effects",
     "m_Position": {
-        "x": -811.0001220703125,
-        "y": -935.0001220703125
+        "x": -811.0,
+        "y": -935.0
     }
 }
 
@@ -5556,13 +5556,13 @@
     "m_RefNameGeneratedByDisplayName": "Blink",
     "m_DefaultReferenceName": "_Blink",
     "m_OverrideReferenceName": "",
-    "m_GeneratePropertyBlock": true,
+    "m_GeneratePropertyBlock": false,
     "m_UseCustomSlotLabel": false,
     "m_CustomSlotLabel": "",
     "m_DismissedVersion": 0,
     "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "overrideHLSLDeclaration": true,
+    "hlslDeclarationOverride": 2,
     "m_Hidden": false,
     "m_PerRendererData": false,
     "m_customAttributes": [],
@@ -6305,8 +6305,8 @@
     "m_ObjectId": "868a9e12b61d46c1994a0139f4a69dea",
     "m_Title": "Sample SDF Face",
     "m_Position": {
-        "x": -2438.0,
-        "y": -1036.000244140625
+        "x": -2438.000244140625,
+        "y": -1036.0001220703125
     }
 }
 
@@ -8193,43 +8193,43 @@
             "m_Id": "de4485ed4ab44910935c6b72028ca061"
         },
         {
-            "m_Id": "8548cc168b554598b3427a1ea9fc561f"
-        },
-        {
             "m_Id": "5cb79672f3bc4ca78a09a0b48eb0ecc6"
-        },
-        {
-            "m_Id": "d327f9eb319448c380ba9292c0f8739e"
         },
         {
             "m_Id": "244196ff6a8c452bb10af7abf28ccba4"
         },
         {
-            "m_Id": "767da3b50ec44a09bff993634b2c7e26"
-        },
-        {
-            "m_Id": "c67ca5f9661d4df79b18247d4333a8c2"
-        },
-        {
-            "m_Id": "062c3e441f4541e39668f18fc4452144"
-        },
-        {
-            "m_Id": "f1c78506bb514df2b033299457634ec8"
-        },
-        {
-            "m_Id": "39606f1ba8e64e3c964e0520a8036536"
-        },
-        {
-            "m_Id": "0a59e61d19104414a5ed59ab12a22960"
-        },
-        {
-            "m_Id": "d11a70d9f5e7448484cab99f15f52921"
+            "m_Id": "d327f9eb319448c380ba9292c0f8739e"
         },
         {
             "m_Id": "71467210ca78452c9eaa2b4dfc04e3f6"
         },
         {
             "m_Id": "3e673682187e4fb385714143d38d946a"
+        },
+        {
+            "m_Id": "0a59e61d19104414a5ed59ab12a22960"
+        },
+        {
+            "m_Id": "f1c78506bb514df2b033299457634ec8"
+        },
+        {
+            "m_Id": "8548cc168b554598b3427a1ea9fc561f"
+        },
+        {
+            "m_Id": "c67ca5f9661d4df79b18247d4333a8c2"
+        },
+        {
+            "m_Id": "767da3b50ec44a09bff993634b2c7e26"
+        },
+        {
+            "m_Id": "062c3e441f4541e39668f18fc4452144"
+        },
+        {
+            "m_Id": "39606f1ba8e64e3c964e0520a8036536"
+        },
+        {
+            "m_Id": "d11a70d9f5e7448484cab99f15f52921"
         }
     ]
 }
@@ -8513,7 +8513,7 @@
     "m_RefNameGeneratedByDisplayName": "VertexRestPositions",
     "m_DefaultReferenceName": "_VertexRestPositions",
     "m_OverrideReferenceName": "",
-    "m_GeneratePropertyBlock": true,
+    "m_GeneratePropertyBlock": false,
     "m_UseCustomSlotLabel": false,
     "m_CustomSlotLabel": "",
     "m_DismissedVersion": 0,
@@ -8927,13 +8927,13 @@
     "m_RefNameGeneratedByDisplayName": "EyeId",
     "m_DefaultReferenceName": "_EyeId",
     "m_OverrideReferenceName": "",
-    "m_GeneratePropertyBlock": true,
+    "m_GeneratePropertyBlock": false,
     "m_UseCustomSlotLabel": false,
     "m_CustomSlotLabel": "",
     "m_DismissedVersion": 0,
     "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "overrideHLSLDeclaration": true,
+    "hlslDeclarationOverride": 2,
     "m_Hidden": false,
     "m_PerRendererData": false,
     "m_customAttributes": [],
@@ -9172,8 +9172,8 @@
     "m_ObjectId": "da28fc017fed48d1abd2f84d57145029",
     "m_Title": "Render face from texture atlas",
     "m_Position": {
-        "x": -3660.0,
-        "y": -2741.0
+        "x": -3660.000244140625,
+        "y": -2741.000244140625
     }
 }
 

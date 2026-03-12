@@ -438,12 +438,15 @@ public class SoftbodySlimeApplication : ImmediateModeShapeDrawer
             //     Draw.Line(_centerOfMass, _centerOfMass + direction);
             // }
 
-            Draw.Color = Color.red;
-            Draw.Line(_faceAnchor * Vector3.zero, _faceAnchor * Vector3.right);
-            Draw.Color = Color.green;
-            Draw.Line(_faceAnchor * Vector3.zero, _faceAnchor * Vector3.up);
-            Draw.Color = Color.blue;
-            Draw.Line(_faceAnchor * Vector3.zero, _faceAnchor * Vector3.forward);
+            /*
+            Draw face anchor
+            */
+            // Draw.Color = Color.red;
+            // Draw.Line(_faceAnchor * Vector3.zero, _faceAnchor * Vector3.right);
+            // Draw.Color = Color.green;
+            // Draw.Line(_faceAnchor * Vector3.zero, _faceAnchor * Vector3.up);
+            // Draw.Color = Color.blue;
+            // Draw.Line(_faceAnchor * Vector3.zero, _faceAnchor * Vector3.forward);
         }
     }
 
