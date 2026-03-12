@@ -280,7 +280,7 @@ public class SoftbodySlime : ImmediateModeShapeDrawer
                 but that's great, because anticipation can visibly build as the slime
                 *prepares* to jump.
                 */
-                _slimeBody.AddForce(jumpDirection * 9.81f * 300f, ForceMode.Impulse);
+                _slimeBody.AddForce(jumpDirection * 9.81f * 100f, ForceMode.Impulse);
                 AddForce(_slimeBody, jumpDirection * 9.81f * 10f, ForceMode.Impulse);
             }
         } else
