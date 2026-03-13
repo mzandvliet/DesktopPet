@@ -60,17 +60,23 @@ public class DesktopWindowTracker : MonoBehaviour
         */
 
         var taskbarRectScreen = GetTaskbarRect();
-        MakeCollider(taskbarRectScreen);
-
-        var fullscreenRect = new RECT(0, 0, Screen.currentResolution.width, Screen.currentResolution.height);
-        var screenCollider = MakeCollider(fullscreenRect);
-        screenCollider.Inverted = true;
+        MakeCollider(taskbarRectScreen).name += "_Taskbar";
+        
+        int screenColliderThickness = 256;
+        var screenRectLeft = new RECT(-screenColliderThickness, 0, 0, Screen.currentResolution.height);
+        MakeCollider(screenRectLeft).name += "_Left";
+        var screenRectRight = new RECT(Screen.currentResolution.width, 0, Screen.currentResolution.width + screenColliderThickness, Screen.currentResolution.height);
+        MakeCollider(screenRectRight).name += "_Right";
+        var screenRectTop = new RECT(0, -screenColliderThickness, Screen.currentResolution.width, 0);
+        MakeCollider(screenRectTop).name += "_Top";
     }
 
     private ObiCollider MakeCollider(RECT screenRect)
     {
         var taskbarRectWorld = Desktop.ScreenToWorld(screenRect);
-        var obj = new GameObject("TaskbarCollider");
+        var obj = new GameObject("WindowsCollider");
+        obj.layer = LayerMask.NameToLayer("Theater");
+
         var boxCol = obj.AddComponent<BoxCollider>();
         var obiCol = obj.AddComponent<ObiCollider>();
         obiCol.sourceCollider = boxCol;

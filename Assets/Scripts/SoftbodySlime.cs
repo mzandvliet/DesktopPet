@@ -22,6 +22,8 @@ public class SoftbodySlime : ImmediateModeShapeDrawer
     [SerializeField] private float _minStickiness = 0.1f;
     [SerializeField] private float _maxStickiness = 8f;
 
+    [SerializeField] private ParticleManager _particles;
+
     
 
     private Vector3 _centerOfMass;
@@ -181,6 +183,12 @@ public class SoftbodySlime : ImmediateModeShapeDrawer
                 if (particleActor == null || particleActor.actor != _slimeBody)
                 {
                     continue;
+                }
+
+                if (contact.normalImpulse > 1f && _rng.NextInt(16) == 0)
+                {
+                    var splashNormal = math.normalize((Vector3)contact.normal * contact.normalImpulse + (Vector3)contact.tangent * contact.tangentImpulse * _rng.NextFloat(0.5f, 1f));
+                    _particles.Splash(contact.pointB, splashNormal);
                 }
 
                 // ObiColliderBase colA = world.colliderHandles[contact.bodyA].owner; // doesn't work
